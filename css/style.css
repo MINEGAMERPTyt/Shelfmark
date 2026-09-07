@@ -1,0 +1,335 @@
+/* ========================================
+   SHELFMARK
+   Global styles
+======================================== */
+
+:root {
+  --background: #111111;
+  --surface: #181818;
+  --surface-light: #222222;
+
+  --text: #f1f0eb;
+  --text-muted: #999994;
+
+  --accent: #d6ff4b;
+  --accent-dark: #b8dc35;
+
+  --border: #2b2b2b;
+
+  --max-width: 1200px;
+
+  --font-main: Arial, Helvetica, sans-serif;
+}
+
+/* ---------- Reset ---------- */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--font-main);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---------- Typography ---------- */
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.05;
+}
+
+.eyebrow {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ---------- Buttons ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 48px;
+  padding: 0 22px;
+
+  border: 1px solid var(--border);
+
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button-primary {
+  background: var(--accent);
+  color: #111111;
+  border-color: var(--accent);
+}
+
+.button-primary:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.button-secondary {
+  background: transparent;
+  color: var(--text);
+}
+
+.button-secondary:hover {
+  background: var(--surface);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  width: min(var(--max-width), calc(100% - 48px));
+  min-height: 680px;
+
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+
+  gap: 80px;
+}
+
+.hero-content {
+  max-width: 650px;
+}
+
+.hero h1 {
+  margin-top: 18px;
+
+  font-size: clamp(4rem, 8vw, 7.5rem);
+  letter-spacing: -0.07em;
+}
+
+.hero h1 span {
+  color: var(--accent);
+}
+
+.hero-description {
+  max-width: 520px;
+
+  margin-top: 32px;
+
+  color: var(--text-muted);
+
+  font-size: 1.05rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+
+  margin-top: 36px;
+}
+
+/* ---------- Hero visual ---------- */
+
+.hero-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.archive-card {
+  width: min(100%, 360px);
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  padding: 18px;
+
+  transform: rotate(3deg);
+
+  box-shadow: 25px 25px 0 #0a0a0a;
+}
+
+.archive-card-label {
+  display: flex;
+  justify-content: space-between;
+
+  color: var(--text-muted);
+
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.archive-card-placeholder {
+  aspect-ratio: 1 / 1.25;
+
+  margin-top: 18px;
+
+  background: var(--surface-light);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.archive-card-placeholder span {
+  color: var(--accent);
+
+  font-size: 8rem;
+  font-weight: 900;
+
+  letter-spacing: -0.1em;
+}
+
+.archive-card-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding-top: 18px;
+
+  font-size: 0.8rem;
+}
+
+.archive-card-info span {
+  color: var(--text-muted);
+}
+
+/* ---------- Intro ---------- */
+
+.intro-section {
+  width: min(var(--max-width), calc(100% - 48px));
+
+  margin: 100px auto 0;
+
+  padding: 100px 0;
+
+  border-top: 1px solid var(--border);
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+}
+
+.section-heading h2 {
+  max-width: 500px;
+
+  margin-top: 14px;
+
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  letter-spacing: -0.05em;
+}
+
+.intro-text {
+  max-width: 500px;
+
+  color: var(--text-muted);
+
+  font-size: 1rem;
+}
+
+.intro-text p + p {
+  margin-top: 20px;
+}
+
+/* ---------- Features ---------- */
+
+.feature-section {
+  width: min(var(--max-width), calc(100% - 48px));
+
+  margin: 0 auto;
+
+  padding-bottom: 120px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  border-bottom: 1px solid var(--border);
+}
+
+.feature {
+  padding: 30px;
+
+  border-left: 1px solid var(--border);
+}
+
+.feature:last-child {
+  border-right: 1px solid var(--border);
+}
+
+.feature-number {
+  color: var(--accent);
+
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.feature h3 {
+  margin-top: 55px;
+
+  font-size: 1.5rem;
+}
+
+.feature p {
+  margin-top: 14px;
+
+  color: var(--text-muted);
+
+  font-size: 0.9rem;
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  width: min(var(--max-width), calc(100% - 48px));
+
+  margin: 0 auto;
+
+  padding: 30px 0;
+
+  display: flex;
+  justify-content: space-between;
+
+  color: var(--text-muted);
+
+  font-size: 0.7rem;
+}

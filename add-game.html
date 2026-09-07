@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Add Game — Shelfmark</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/forms.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+
+  <body>
+    <!-- ================================
+         Navigation
+    ================================= -->
+
+    <header class="site-header">
+      <div class="navbar">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">S</span>
+          <span class="brand-name">Shelfmark</span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="collection.html">Collection</a>
+          <a href="add-game.html">Add Game</a>
+        </nav>
+
+        <div class="nav-account">
+          <a href="login.html" class="login-link">Log in</a>
+
+          <a href="register.html" class="register-button"> Create account </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="form-page">
+      <!-- ================================
+           Header
+      ================================= -->
+
+      <header class="form-header">
+        <div>
+          <p class="form-eyebrow">Collection</p>
+
+          <h1>Add game</h1>
+
+          <p class="form-intro">
+            Record a physical game and preserve the details of your copy.
+          </p>
+        </div>
+      </header>
+
+      <!-- ================================
+           Game Information
+      ================================= -->
+
+      <section class="form-section">
+        <div class="form-section-heading">
+          <div>
+            <h2>Game information</h2>
+
+            <p>Basic information about the release.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field form-field-wide">
+            <label for="game-title">Title</label>
+
+            <input
+              type="text"
+              id="game-title"
+              name="title"
+              placeholder="Resident Evil 4"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="platform">Platform</label>
+
+            <select id="platform" name="platform">
+              <option value="">Select platform</option>
+
+              <option>PlayStation</option>
+              <option>PlayStation 2</option>
+              <option>PlayStation 3</option>
+              <option>PlayStation 4</option>
+              <option>PlayStation 5</option>
+
+              <option>Xbox</option>
+              <option>Xbox 360</option>
+              <option>Xbox One</option>
+              <option>Xbox Series X/S</option>
+
+              <option>Nintendo Entertainment System</option>
+              <option>Super Nintendo</option>
+              <option>Nintendo 64</option>
+              <option>GameCube</option>
+              <option>Wii</option>
+              <option>Wii U</option>
+              <option>Switch</option>
+
+              <option>Game Boy</option>
+              <option>Game Boy Color</option>
+              <option>Game Boy Advance</option>
+              <option>Nintendo DS</option>
+              <option>Nintendo 3DS</option>
+
+              <option>PSP</option>
+              <option>PS Vita</option>
+
+              <option>PC</option>
+
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="release-year">Release year</label>
+
+            <input
+              type="number"
+              id="release-year"
+              name="releaseYear"
+              min="1970"
+              max="2100"
+              placeholder="2005"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="genre">Genre</label>
+
+            <select id="genre" name="genre">
+              <option value="">Select genre</option>
+
+              <option>Action</option>
+              <option>Adventure</option>
+              <option>Fighting</option>
+              <option>Horror</option>
+              <option>Platformer</option>
+              <option>Racing</option>
+              <option>RPG</option>
+              <option>Shooter</option>
+              <option>Simulation</option>
+              <option>Sports</option>
+              <option>Strategy</option>
+
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="region">Region</label>
+
+            <select id="region" name="region">
+              <option value="">Select region</option>
+
+              <option>Europe</option>
+              <option>North America</option>
+              <option>Japan</option>
+              <option>Asia</option>
+              <option>Australia</option>
+
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="country">Country</label>
+
+            <select id="country" name="country">
+              <option value="">Select country</option>
+
+              <option>Portugal</option>
+              <option>Spain</option>
+              <option>France</option>
+              <option>Germany</option>
+              <option>Italy</option>
+              <option>United Kingdom</option>
+              <option>Netherlands</option>
+              <option>Belgium</option>
+              <option>United States</option>
+              <option>Canada</option>
+              <option>Japan</option>
+
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="game-type">Type</label>
+
+            <select id="game-type" name="type">
+              <option value="">Select type</option>
+
+              <option>Full Game</option>
+              <option>Demo</option>
+              <option>Expansion</option>
+              <option>DLC</option>
+              <option>Compilation</option>
+
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="edition">Edition</label>
+
+            <select id="edition" name="edition">
+              <option value="">Select edition</option>
+
+              <option>Standard Edition</option>
+              <option>Collector's Edition</option>
+              <option>Limited Edition</option>
+              <option>Special Edition</option>
+              <option>Platinum</option>
+              <option>Essentials</option>
+              <option>Greatest Hits</option>
+              <option>Player's Choice</option>
+
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="developer">Developer</label>
+
+            <input
+              type="text"
+              id="developer"
+              name="developer"
+              placeholder="Capcom"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="publisher">Publisher</label>
+
+            <input
+              type="text"
+              id="publisher"
+              name="publisher"
+              placeholder="Capcom"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           Physical Format
+      ================================= -->
+
+      <section class="form-section">
+        <div class="form-section-heading">
+          <div>
+            <h2>Physical format</h2>
+
+            <p>Choose the media type and case format of this copy.</p>
+          </div>
+        </div>
+
+        <!-- Media -->
+
+        <div class="format-subsection">
+          <div class="format-subsection-heading">
+            <h3>Media</h3>
+
+            <p>Choose the physical format included with this copy.</p>
+          </div>
+
+          <div class="format-selector">
+            <label class="format-option">
+              <input type="radio" name="mediaType" value="disc" checked />
+
+              <span class="format-option-box">
+                <span class="format-option-title"> Disc </span>
+
+                <span class="format-option-description">
+                  CD, DVD, Blu-ray or similar
+                </span>
+              </span>
+            </label>
+
+            <label class="format-option">
+              <input type="radio" name="mediaType" value="cartridge" />
+
+              <span class="format-option-box">
+                <span class="format-option-title"> Cartridge </span>
+
+                <span class="format-option-description">
+                  Cartridge-based physical release
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Case -->
+
+        <div class="format-subsection">
+          <div class="format-subsection-heading">
+            <h3>Case format</h3>
+
+            <p>
+              This controls the crop geometry for front, back, side and manual
+              images.
+            </p>
+          </div>
+
+          <div class="case-format-selector">
+            <!-- DVD-style -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="dvd" checked />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> DVD-style game case </span>
+
+                <span class="case-format-description">
+                  PS2, original Xbox, Xbox 360, Wii, Wii U and similar
+                </span>
+              </span>
+            </label>
+
+            <!-- Blu-ray -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="blu-ray" />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> Blu-ray game case </span>
+
+                <span class="case-format-description">
+                  PS3, PS4, PS5, Xbox One, Xbox Series X/S and similar
+                </span>
+              </span>
+            </label>
+
+            <!-- PS1 / CD -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="ps1" />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> PS1 / CD jewel case </span>
+
+                <span class="case-format-description">
+                  PlayStation 1 and standard CD jewel cases
+                </span>
+              </span>
+            </label>
+
+            <!-- GameCube -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="gamecube" />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> Nintendo GameCube </span>
+
+                <span class="case-format-description">
+                  Standard GameCube game cases
+                </span>
+              </span>
+            </label>
+
+            <!-- PSP -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="psp" />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> PSP </span>
+
+                <span class="case-format-description">
+                  PlayStation Portable game cases
+                </span>
+              </span>
+            </label>
+
+            <!-- Vita -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="vita" />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> PS Vita </span>
+
+                <span class="case-format-description">
+                  PlayStation Vita game cases
+                </span>
+              </span>
+            </label>
+
+            <!-- DS / 3DS -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="ds" />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> Nintendo DS / 3DS </span>
+
+                <span class="case-format-description">
+                  Nintendo DS, DSi and 3DS cases
+                </span>
+              </span>
+            </label>
+
+            <!-- Switch -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="switch" />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> Nintendo Switch </span>
+
+                <span class="case-format-description">
+                  Standard Nintendo Switch game cases
+                </span>
+              </span>
+            </label>
+
+            <!-- Custom -->
+
+            <label class="case-format-option">
+              <input type="radio" name="caseFormat" value="custom" />
+
+              <span class="case-format-box">
+                <span class="case-format-title"> Other / Custom </span>
+
+                <span class="case-format-description">
+                  Define your own cover dimensions
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div class="custom-case-settings" id="custom-case-settings">
+            <div class="custom-case-heading">
+              <span>Custom cover ratio</span>
+
+              <p>Enter the approximate width and height of the cover.</p>
+            </div>
+
+            <div class="custom-case-fields">
+              <div class="form-field">
+                <label for="custom-width">Width</label>
+
+                <input
+                  type="number"
+                  id="custom-width"
+                  min="1"
+                  step="0.1"
+                  value="1"
+                />
+              </div>
+
+              <div class="custom-case-separator">×</div>
+
+              <div class="form-field">
+                <label for="custom-height">Height</label>
+
+                <input
+                  type="number"
+                  id="custom-height"
+                  min="1"
+                  step="0.1"
+                  value="1.4"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           Condition
+      ================================= -->
+
+      <section class="form-section">
+        <div class="form-section-heading">
+          <div>
+            <h2>Condition</h2>
+
+            <p>
+              Record the physical condition and completeness of this specific
+              copy.
+            </p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="condition"> Condition </label>
+
+            <select id="condition" name="condition">
+              <option value="">Select condition</option>
+
+              <option>Mint</option>
+              <option>Like New</option>
+              <option>Very Good</option>
+              <option>Good</option>
+              <option>Acceptable</option>
+              <option>Poor</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="completeness"> Completeness </label>
+
+            <select id="completeness" name="completeness">
+              <option value="">Select completeness</option>
+
+              <option>Complete</option>
+              <option>Complete — No Manual</option>
+              <option>Missing Manual</option>
+              <option>Manual Only</option>
+              <option>Missing Disc</option>
+              <option>Disc Only</option>
+              <option>Missing Cartridge</option>
+              <option>Cartridge Only</option>
+              <option>Missing Inserts</option>
+              <option>Missing Case</option>
+              <option>Box Only</option>
+              <option>Incomplete</option>
+              <option>Loose</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-field" id="disc-count-field">
+            <label for="disc-count"> Number of discs </label>
+
+            <input
+              type="number"
+              id="disc-count"
+              name="discCount"
+              min="1"
+              value="1"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           Purchase
+      ================================= -->
+
+      <section class="form-section">
+        <div class="form-section-heading">
+          <div>
+            <h2>Purchase</h2>
+
+            <p>Record the acquisition details and current estimated value.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="purchase-date"> Purchase date </label>
+
+            <input type="date" id="purchase-date" name="purchaseDate" />
+          </div>
+
+          <div class="form-field">
+            <label for="purchase-price"> Purchase price </label>
+
+            <div class="input-with-prefix">
+              <span>€</span>
+
+              <input
+                type="number"
+                id="purchase-price"
+                name="purchasePrice"
+                min="0"
+                step="0.01"
+                placeholder="25.00"
+              />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="estimated-value"> Estimated current value </label>
+
+            <div class="input-with-prefix">
+              <span>€</span>
+
+              <input
+                type="number"
+                id="estimated-value"
+                name="estimatedValue"
+                readonly
+                placeholder="Automatic"
+              />
+            </div>
+
+            <p class="value-status">
+              Current market value will be estimated automatically once market
+              data integration is connected.
+            </p>
+          </div>
+
+          <div class="form-field">
+            <label> Profit / loss </label>
+
+            <div class="form-value-preview" id="profit-loss">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           Physical Copy
+      ================================= -->
+
+      <section class="form-section">
+        <div class="form-section-heading">
+          <div>
+            <h2>Physical copy</h2>
+
+            <p>Photograph the different parts of the physical release.</p>
+          </div>
+        </div>
+
+        <div class="image-upload-grid" id="image-upload-grid">
+          <!-- Front -->
+
+          <div class="image-upload" data-image-role="front">
+            <div class="image-upload-preview">
+              <span>FRONT</span>
+            </div>
+
+            <label for="image-front" class="image-upload-button">
+              Add image
+            </label>
+
+            <input
+              type="file"
+              id="image-front"
+              name="imageFront"
+              accept="image/*"
+              hidden
+            />
+
+            <button
+              type="button"
+              class="image-remove-button"
+              data-remove-image="front"
+            >
+              Remove image
+            </button>
+          </div>
+
+          <!-- Disc -->
+
+          <div
+            class="image-upload media-image"
+            data-media="disc"
+            data-image-role="disc"
+            id="disc-upload"
+          >
+            <div class="image-upload-preview image-upload-preview-disc">
+              <span>DISC</span>
+            </div>
+
+            <label for="image-disc" class="image-upload-button">
+              Add image
+            </label>
+
+            <input
+              type="file"
+              id="image-disc"
+              name="imageDisc"
+              accept="image/*"
+              hidden
+            />
+
+            <button
+              type="button"
+              class="image-remove-button"
+              data-remove-image="disc"
+            >
+              Remove image
+            </button>
+          </div>
+
+          <!-- Cartridge -->
+
+          <div
+            class="image-upload media-image is-hidden"
+            data-media="cartridge"
+            data-image-role="cartridge"
+            id="cartridge-upload"
+          >
+            <div class="image-upload-preview">
+              <span>CARTRIDGE</span>
+            </div>
+
+            <label for="image-cartridge" class="image-upload-button">
+              Add image
+            </label>
+
+            <input
+              type="file"
+              id="image-cartridge"
+              name="imageCartridge"
+              accept="image/*"
+              hidden
+            />
+
+            <button
+              type="button"
+              class="image-remove-button"
+              data-remove-image="cartridge"
+            >
+              Remove image
+            </button>
+          </div>
+
+          <!-- Back -->
+
+          <div class="image-upload" data-image-role="back">
+            <div class="image-upload-preview">
+              <span>BACK</span>
+            </div>
+
+            <label for="image-back" class="image-upload-button">
+              Add image
+            </label>
+
+            <input
+              type="file"
+              id="image-back"
+              name="imageBack"
+              accept="image/*"
+              hidden
+            />
+
+            <button
+              type="button"
+              class="image-remove-button"
+              data-remove-image="back"
+            >
+              Remove image
+            </button>
+          </div>
+
+          <!-- Side -->
+
+          <div class="image-upload" data-image-role="side">
+            <div class="image-upload-preview">
+              <span>SIDE</span>
+            </div>
+
+            <label for="image-side" class="image-upload-button">
+              Add image
+            </label>
+
+            <input
+              type="file"
+              id="image-side"
+              name="imageSide"
+              accept="image/*"
+              hidden
+            />
+
+            <button
+              type="button"
+              class="image-remove-button"
+              data-remove-image="side"
+            >
+              Remove image
+            </button>
+          </div>
+
+          <!-- Manual -->
+
+          <div class="image-upload" data-image-role="manual">
+            <div class="image-upload-preview">
+              <span>MANUAL</span>
+            </div>
+
+            <label for="image-manual" class="image-upload-button">
+              Add image
+            </label>
+
+            <input
+              type="file"
+              id="image-manual"
+              name="imageManual"
+              accept="image/*"
+              hidden
+            />
+
+            <button
+              type="button"
+              class="image-remove-button"
+              data-remove-image="manual"
+            >
+              Remove image
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           Notes
+      ================================= -->
+
+      <section class="form-section">
+        <div class="form-section-heading">
+          <div>
+            <h2>Notes</h2>
+
+            <p>Anything else worth recording about this copy.</p>
+          </div>
+        </div>
+
+        <div class="form-field form-field-wide">
+          <label for="notes"> Notes </label>
+
+          <textarea
+            id="notes"
+            name="notes"
+            placeholder="Special markings, stickers, purchase details, history..."
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- ================================
+           Actions
+      ================================= -->
+
+      <div class="form-actions">
+        <a href="collection.html" class="form-button-secondary"> Cancel </a>
+
+        <button type="submit" class="button-primary" id="save-game">
+          Save game
+        </button>
+      </div>
+    </main>
+
+    <!-- ================================
+         Footer
+    ================================= -->
+
+    <footer class="site-footer">
+      <p>© 2026 Shelfmark</p>
+
+      <p>A personal collection archive.</p>
+    </footer>
+
+    <!-- ================================
+         Cropper
+    ================================= -->
+
+    <div class="cropper-modal" id="cropper-modal" aria-hidden="true">
+      <div class="cropper-dialog">
+        <div class="cropper-header">
+          <div>
+            <p class="cropper-eyebrow">Image</p>
+
+            <h2 id="cropper-title">Crop image</h2>
+          </div>
+
+          <button
+            type="button"
+            class="cropper-close"
+            id="cropper-close"
+            aria-label="Close cropper"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12"></path>
+
+              <path d="M18 6L6 18"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="cropper-stage" id="cropper-stage">
+          <canvas id="cropper-canvas"></canvas>
+
+          <div class="cropper-mask" id="cropper-mask"></div>
+        </div>
+
+        <div class="cropper-controls">
+          <button
+            type="button"
+            class="cropper-zoom-button"
+            id="cropper-zoom-out"
+          >
+            −
+          </button>
+
+          <input
+            type="range"
+            id="cropper-zoom"
+            min="0.35"
+            max="3"
+            step="0.01"
+            value="1"
+            aria-label="Zoom"
+          />
+
+          <button
+            type="button"
+            class="cropper-zoom-button"
+            id="cropper-zoom-in"
+          >
+            +
+          </button>
+        </div>
+
+        <div class="cropper-actions">
+          <button type="button" class="cropper-cancel" id="cropper-cancel">
+            Cancel
+          </button>
+
+          <button type="button" class="button-primary" id="cropper-apply">
+            Apply crop
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================
+         JavaScript
+    ================================= -->
+
+    <script src="js/main.js"></script>
+    <script src="js/forms.js"></script>
+  </body>
+</html>

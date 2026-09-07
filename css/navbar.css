@@ -1,0 +1,253 @@
+/* =========================================================
+   SITE HEADER
+   ========================================================= */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  width: 100%;
+
+  background: rgba(17, 17, 17, 0.96);
+
+  border-bottom: 1px solid var(--border);
+
+  backdrop-filter: blur(12px);
+}
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.site-header .navbar {
+  width: min(var(--max-width), calc(100% - 48px));
+
+  min-height: 74px;
+
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+
+  align-items: center;
+  gap: 30px;
+}
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.site-header .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  width: fit-content;
+
+  color: var(--text);
+}
+
+.site-header .brand-icon {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--accent);
+  color: var(--background);
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+.site-header .brand-name {
+  color: var(--text);
+
+  font-size: 0.86rem;
+  font-weight: 700;
+
+  letter-spacing: -0.02em;
+}
+
+/* =========================================================
+   NAV LINKS
+   ========================================================= */
+
+.site-header .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.site-header .nav-links a {
+  position: relative;
+
+  color: var(--text-muted);
+
+  font-size: 0.64rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  transition: color 0.2s ease;
+}
+
+.site-header .nav-links a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -7px;
+
+  width: 100%;
+  height: 1px;
+
+  background: var(--accent);
+
+  transform: scaleX(0);
+  transform-origin: right;
+
+  transition: transform 0.2s ease;
+}
+
+.site-header .nav-links a:hover {
+  color: var(--text);
+}
+
+.site-header .nav-links a:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* =========================================================
+   ACCOUNT
+   ========================================================= */
+
+.site-header .nav-account {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 18px;
+}
+
+.site-header .login-link {
+  color: var(--text-muted);
+
+  font-size: 0.64rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  transition: color 0.2s ease;
+}
+
+.site-header .login-link:hover {
+  color: var(--text);
+}
+
+/* =========================================================
+   REGISTER BUTTON
+   ========================================================= */
+
+.site-header .register-button {
+  min-height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 15px;
+
+  background: var(--accent);
+  color: var(--background);
+
+  border: 1px solid var(--accent);
+
+  font-size: 0.61rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.site-header .register-button:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+  .site-header .navbar {
+    width: min(var(--max-width), calc(100% - 30px));
+
+    min-height: 68px;
+
+    grid-template-columns: 1fr auto;
+
+    gap: 0;
+  }
+
+  .site-header .nav-links {
+    grid-column: 1 / -1;
+
+    grid-row: 2;
+
+    padding-bottom: 14px;
+
+    gap: 22px;
+  }
+
+  .site-header .nav-account {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .site-header .navbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .site-header .nav-links {
+    gap: 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .site-header .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-header .nav-links a {
+    flex-shrink: 0;
+  }
+
+  .site-header .login-link {
+    display: none;
+  }
+
+  .site-header .register-button {
+    min-height: 34px;
+    padding: 0 11px;
+
+    font-size: 0.56rem;
+  }
+}

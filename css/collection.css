@@ -1,0 +1,364 @@
+/* ========================================
+   Collection
+======================================== */
+
+/* ---------- Page ---------- */
+
+.collection-page {
+  width: min(var(--max-width), calc(100% - 48px));
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+/* ---------- Header ---------- */
+
+.collection-header {
+  min-height: 300px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+}
+
+.collection-header h1 {
+  margin-top: 12px;
+
+  font-size: clamp(3.5rem, 7vw, 6rem);
+  letter-spacing: -0.07em;
+}
+
+.collection-count {
+  margin-top: 16px;
+
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- Controls ---------- */
+
+.collection-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 18px 0;
+
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+
+  margin-bottom: 50px;
+}
+
+.search-container {
+  flex: 1;
+}
+
+.search-container input,
+.filter-container select {
+  height: 44px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+
+  padding: 0 14px;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+
+  outline: none;
+
+  transition: border-color 0.2s ease;
+}
+
+.search-container input {
+  width: 100%;
+}
+
+.search-container input:focus,
+.filter-container select:focus {
+  border-color: var(--text-muted);
+}
+
+.search-container input::placeholder {
+  color: #666666;
+}
+
+.filter-container {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-container select {
+  min-width: 140px;
+  cursor: pointer;
+}
+
+/* ---------- Grid ---------- */
+
+.collection-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  column-gap: 42px;
+  row-gap: 70px;
+}
+
+/* ---------- Game Card ---------- */
+
+.game-card {
+  position: relative;
+
+  min-width: 0;
+
+  z-index: 1;
+}
+
+.game-card:hover {
+  z-index: 20;
+}
+
+.game-card-link {
+  display: block;
+}
+
+/* ---------- Game Visual ---------- */
+
+.game-card-visual {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 0.76;
+
+  perspective: 1000px;
+
+  overflow: visible;
+}
+
+/* ---------- Game Case ---------- */
+
+.game-case {
+  position: relative;
+
+  z-index: 3;
+
+  width: 100%;
+  height: 100%;
+
+  background: var(--surface);
+
+  overflow: hidden;
+
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.4s ease;
+}
+
+.game-case img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transform: none;
+
+  transition: filter 0.3s ease;
+}
+
+/* ---------- Disc ---------- */
+
+.game-disc {
+  position: absolute;
+
+  z-index: 2;
+
+  width: 72%;
+  aspect-ratio: 1;
+
+  right: -4%;
+  top: 50%;
+
+  /*
+       Starting position.
+       The disc is mostly hidden behind
+       the game case.
+    */
+  transform: translateY(-50%) translateX(-8%);
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+  background: var(--surface-light);
+
+  border: 1px solid #444444;
+
+  opacity: 0;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+
+  /*
+       ONLY the disc's position fades/slides.
+       Rotation is controlled by JavaScript.
+    */
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.3s ease;
+}
+
+/* ---------- Disc Image ---------- */
+
+.game-disc img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  /*
+       JavaScript controls this rotation.
+       This means the current rotation angle
+       can be preserved when the mouse leaves.
+    */
+  transform: rotate(0deg);
+}
+
+/* ---------- Disc Hover ---------- */
+
+.game-card:hover .game-disc {
+  opacity: 1;
+
+  /*
+       Slide the disc out of the case.
+       Rotation is NOT included here.
+    */
+  transform: translateY(-50%) translateX(42%);
+}
+
+/* ---------- Case Hover ---------- */
+
+.game-card:hover .game-case {
+  transform: translateX(-8px);
+
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.4);
+}
+
+.game-card:hover .game-case img {
+  transform: none;
+
+  filter: brightness(0.92);
+}
+
+/* ---------- Card Information ---------- */
+
+.game-card-info {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-top: 18px;
+}
+
+.game-card-info h2 {
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+}
+
+.game-card-info p {
+  margin-top: 5px;
+
+  color: var(--text-muted);
+
+  font-size: 0.7rem;
+}
+
+.game-condition {
+  flex-shrink: 0;
+
+  padding: 4px 7px;
+
+  border: 1px solid var(--border);
+
+  color: var(--text-muted);
+
+  font-size: 0.6rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+/* ---------- Empty ---------- */
+
+.collection-empty {
+  display: none;
+
+  padding: 100px 20px;
+
+  text-align: center;
+
+  border: 1px solid var(--border);
+}
+
+.collection-empty.visible {
+  display: block;
+}
+
+.empty-icon {
+  width: 50px;
+  height: 50px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--accent);
+  color: var(--background);
+
+  font-weight: 900;
+}
+
+.collection-empty h2 {
+  font-size: 1.5rem;
+}
+
+.collection-empty p {
+  margin-top: 8px;
+
+  color: var(--text-muted);
+
+  font-size: 0.85rem;
+}
+
+/* ---------- Accessibility ---------- */
+
+.visually-hidden {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  padding: 0;
+  margin: -1px;
+
+  overflow: hidden;
+
+  clip: rect(0, 0, 0, 0);
+
+  white-space: nowrap;
+
+  border: 0;
+}
