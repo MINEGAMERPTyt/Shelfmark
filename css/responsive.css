@@ -1,19 +1,22 @@
 /* ========================================
-   Responsive
+   SHELFMARK
+   Global / Homepage Responsive Rules
+
+   Page-specific responsive rules belong
+   in their respective CSS files:
+   - navbar.css
+   - auth.css
+   - collection.css
+   - forms.css
+   - game.css
+======================================== */
+
+/* ========================================
+   TABLET
 ======================================== */
 
 @media (max-width: 800px) {
-  .navbar {
-    min-height: 64px;
-  }
-
-  .nav-links {
-    display: none;
-  }
-
-  .login-link {
-    display: none;
-  }
+  /* ---------- Homepage Hero ---------- */
 
   .hero {
     min-height: auto;
@@ -30,7 +33,7 @@
   }
 
   .hero-description {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
 
   .hero-visual {
@@ -40,6 +43,8 @@
   .archive-card {
     width: min(85%, 330px);
   }
+
+  /* ---------- Homepage Intro ---------- */
 
   .intro-section {
     margin-top: 40px;
@@ -51,6 +56,8 @@
     gap: 40px;
   }
 
+  /* ---------- Homepage Features ---------- */
+
   .feature-section {
     grid-template-columns: 1fr;
 
@@ -61,11 +68,13 @@
     padding: 30px 0;
 
     border-left: 0;
+
     border-bottom: 1px solid var(--border);
   }
 
   .feature:last-child {
     border-right: 0;
+
     border-bottom: 0;
   }
 
@@ -73,27 +82,27 @@
     margin-top: 30px;
   }
 
+  /* ---------- Footer ---------- */
+
   .site-footer {
     flex-direction: column;
+
+    align-items: flex-start;
+
     gap: 6px;
   }
 }
 
+/* ========================================
+   MOBILE
+======================================== */
+
 @media (max-width: 450px) {
-  .navbar,
   .hero,
   .intro-section,
   .feature-section,
   .site-footer {
-    width: min(100% - 30px, var(--max-width));
-  }
-
-  .brand-name {
-    font-size: 0.95rem;
-  }
-
-  .register-button {
-    padding: 9px 12px;
+    width: var(--page-width-mobile);
   }
 
   .hero {
@@ -104,193 +113,11 @@
     flex-direction: column;
   }
 
-  .button {
+  .hero-actions .button {
     width: 100%;
   }
 
   .archive-card {
     width: 90%;
-  }
-}
-
-/* ========================================
-   Collection responsive
-======================================== */
-
-@media (max-width: 1000px) {
-  .collection-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .collection-controls {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .filter-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .filter-container select {
-    width: 100%;
-  }
-}
-
-@media (max-width: 700px) {
-  .collection-header {
-    min-height: 240px;
-
-    align-items: flex-start;
-    justify-content: center;
-
-    flex-direction: column;
-  }
-
-  .collection-header .button {
-    width: auto;
-  }
-
-  .collection-grid {
-    grid-template-columns: repeat(2, 1fr);
-
-    gap: 40px 14px;
-  }
-
-  .filter-container {
-    grid-template-columns: 1fr;
-  }
-
-  .game-card-info {
-    display: block;
-  }
-
-  .game-condition {
-    display: inline-block;
-
-    margin-top: 8px;
-  }
-}
-
-@media (max-width: 450px) {
-  .collection-page {
-    width: calc(100% - 30px);
-  }
-
-  .collection-grid {
-    gap: 35px 10px;
-  }
-
-  .game-card-info h2 {
-    font-size: 0.82rem;
-  }
-
-  .game-card-info p {
-    font-size: 0.65rem;
-  }
-}
-
-/* ========================================
-   Game Details Responsive
-======================================== */
-
-@media (max-width: 850px) {
-  .game-main {
-    grid-template-columns: 280px 1fr;
-
-    gap: 45px;
-  }
-
-  .game-heading h1 {
-    font-size: clamp(2.5rem, 7vw, 4rem);
-  }
-
-  .game-meta {
-    margin-top: 35px;
-  }
-
-  .game-gallery {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .gallery-image-large {
-    grid-row: auto;
-  }
-
-  .game-financial {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .financial-item:nth-child(2) {
-    border-right: 1px solid var(--border);
-  }
-}
-
-@media (max-width: 600px) {
-  .game-page {
-    width: min(var(--max-width), calc(100% - 32px));
-  }
-
-  .game-main {
-    display: block;
-
-    margin-top: 40px;
-
-    padding-bottom: 70px;
-  }
-
-  .game-cover {
-    width: min(75%, 320px);
-
-    margin: 0 auto 50px;
-  }
-
-  .game-heading h1 {
-    font-size: 3rem;
-  }
-
-  .game-meta {
-    grid-template-columns: 1fr;
-
-    margin-top: 35px;
-  }
-
-  .meta-item:nth-child(odd) {
-    margin-right: 0;
-  }
-
-  .game-condition-large {
-    grid-template-columns: 1fr;
-  }
-
-  .game-section {
-    padding: 60px 0;
-  }
-
-  .game-gallery {
-    grid-template-columns: 1fr;
-  }
-
-  .gallery-image,
-  .gallery-placeholder {
-    min-height: 300px;
-  }
-
-  .game-financial {
-    grid-template-columns: 1fr;
-  }
-
-  .financial-item {
-    border-left: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-  }
-
-  .game-actions {
-    flex-direction: column;
-  }
-
-  .button-primary,
-  .button-danger {
-    width: 100%;
   }
 }

@@ -1,31 +1,60 @@
 /* ========================================
    SHELFMARK
-   Global styles
+   Global Design System
 ======================================== */
 
 :root {
+  /* ---------- Core palette ---------- */
+
   --background: #111111;
+
   --surface: #181818;
   --surface-light: #222222;
 
   --text: #f1f0eb;
   --text-muted: #999994;
+  --text-faint: #666666;
 
   --accent: #d6ff4b;
   --accent-dark: #b8dc35;
 
   --border: #2b2b2b;
+  --border-hover: #444444;
+
+  --danger: #ff7777;
+  --danger-dark: #a83f3f;
+
+  /* ---------- Layout ---------- */
 
   --max-width: 1200px;
 
+  --page-width: min(var(--max-width), calc(100% - 48px));
+
+  --page-width-mobile: min(var(--max-width), calc(100% - 30px));
+
+  /* ---------- Controls ---------- */
+
+  --control-height: 50px;
+  --button-height: 46px;
+
+  /* ---------- Typography ---------- */
+
   --font-main: Arial, Helvetica, sans-serif;
+
+  /* ---------- Motion ---------- */
+
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.3s ease;
 }
 
-/* ---------- Reset ---------- */
+/* ========================================
+   RESET
+======================================== */
 
 * {
   margin: 0;
   padding: 0;
+
   box-sizing: border-box;
 }
 
@@ -34,23 +63,43 @@ html {
 }
 
 body {
+  min-height: 100vh;
+
   background: var(--background);
+
   color: var(--text);
+
   font-family: var(--font-main);
+
   line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border-radius: 0;
 }
 
 a {
   color: inherit;
+
   text-decoration: none;
 }
 
 img {
   display: block;
+
   max-width: 100%;
 }
 
-/* ---------- Typography ---------- */
+/* ========================================
+   TYPOGRAPHY
+======================================== */
 
 h1,
 h2,
@@ -62,73 +111,145 @@ p {
 h1,
 h2,
 h3 {
+  color: var(--text);
+
   line-height: 1.05;
 }
 
 .eyebrow {
-  color: var(--text-muted);
-  font-size: 0.7rem;
+  color: var(--accent);
+
+  font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+
   text-transform: uppercase;
+
+  letter-spacing: 0.09em;
 }
 
-/* ---------- Buttons ---------- */
+/* ========================================
+   GLOBAL FOCUS
+======================================== */
 
-.button {
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 1px solid var(--accent);
+
+  outline-offset: 3px;
+}
+
+/* ========================================
+   BUTTON SYSTEM
+======================================== */
+
+.button,
+.button-primary,
+.button-secondary {
+  min-height: var(--button-height);
+
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
-  min-height: 48px;
-  padding: 0 22px;
+  padding: 0 20px;
 
-  border: 1px solid var(--border);
+  border-radius: 0;
 
-  font-size: 0.85rem;
+  font-family: inherit;
+
+  font-size: 0.63rem;
   font-weight: 700;
 
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+
+  cursor: pointer;
+
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    opacity var(--transition-fast);
 }
 
-.button:hover {
-  transform: translateY(-2px);
+.button:hover,
+.button-primary:hover,
+.button-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.button:active,
+.button-primary:active,
+.button-secondary:active {
+  transform: translateY(0);
 }
 
 .button-primary {
   background: var(--accent);
-  color: #111111;
-  border-color: var(--accent);
+
+  color: var(--background);
+
+  border: 1px solid var(--accent);
 }
 
-.button-primary:hover {
+.button-primary:hover:not(:disabled) {
   background: var(--accent-dark);
+
   border-color: var(--accent-dark);
 }
 
 .button-secondary {
   background: transparent;
-  color: var(--text);
+
+  color: var(--text-muted);
+
+  border: 1px solid var(--border);
 }
 
 .button-secondary:hover {
   background: var(--surface);
+
+  color: var(--text);
+
+  border-color: var(--border-hover);
 }
 
-/* ---------- Hero ---------- */
+button:disabled,
+.button:disabled,
+.button-primary:disabled,
+.button-secondary:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* ========================================
+   HOMEPAGE HERO
+======================================== */
 
 .hero {
-  width: min(var(--max-width), calc(100% - 48px));
+  width: var(--page-width);
+
   min-height: 680px;
 
   margin: 0 auto;
 
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+
+  grid-template-columns:
+    1.1fr
+    0.9fr;
+
   align-items: center;
 
   gap: 80px;
@@ -142,6 +263,9 @@ h3 {
   margin-top: 18px;
 
   font-size: clamp(4rem, 8vw, 7.5rem);
+
+  line-height: 0.88;
+
   letter-spacing: -0.07em;
 }
 
@@ -156,47 +280,56 @@ h3 {
 
   color: var(--text-muted);
 
-  font-size: 1.05rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
 }
 
 .hero-actions {
   display: flex;
-  gap: 12px;
+
+  gap: 10px;
 
   margin-top: 36px;
 }
 
-/* ---------- Hero visual ---------- */
+/* ========================================
+   HOMEPAGE ARCHIVE CARD
+======================================== */
 
 .hero-visual {
   display: flex;
-  justify-content: center;
+
   align-items: center;
+  justify-content: center;
 }
 
 .archive-card {
   width: min(100%, 360px);
 
+  padding: 18px;
+
   background: var(--surface);
 
   border: 1px solid var(--border);
 
-  padding: 18px;
+  box-shadow: 25px 25px 0 #0a0a0a;
 
   transform: rotate(3deg);
-
-  box-shadow: 25px 25px 0 #0a0a0a;
 }
 
 .archive-card-label {
   display: flex;
+
   justify-content: space-between;
 
   color: var(--text-muted);
 
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.1em;
 }
 
 .archive-card-placeholder {
@@ -204,11 +337,12 @@ h3 {
 
   margin-top: 18px;
 
-  background: var(--surface-light);
-
   display: flex;
+
   align-items: center;
   justify-content: center;
+
+  background: var(--surface-light);
 }
 
 .archive-card-placeholder span {
@@ -217,37 +351,46 @@ h3 {
   font-size: 8rem;
   font-weight: 900;
 
+  line-height: 1;
+
   letter-spacing: -0.1em;
 }
 
 .archive-card-info {
   display: flex;
-  justify-content: space-between;
+
   align-items: center;
+  justify-content: space-between;
 
   padding-top: 18px;
 
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .archive-card-info span {
   color: var(--text-muted);
 }
 
-/* ---------- Intro ---------- */
+/* ========================================
+   HOMEPAGE INTRO
+======================================== */
 
 .intro-section {
-  width: min(var(--max-width), calc(100% - 48px));
+  width: var(--page-width);
 
   margin: 100px auto 0;
 
   padding: 100px 0;
 
-  border-top: 1px solid var(--border);
-
   display: grid;
-  grid-template-columns: 1fr 1fr;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
   gap: 80px;
+
+  border-top: 1px solid var(--border);
 }
 
 .section-heading h2 {
@@ -256,6 +399,7 @@ h3 {
   margin-top: 14px;
 
   font-size: clamp(2.5rem, 5vw, 4.5rem);
+
   letter-spacing: -0.05em;
 }
 
@@ -264,24 +408,28 @@ h3 {
 
   color: var(--text-muted);
 
-  font-size: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.75;
 }
 
 .intro-text p + p {
   margin-top: 20px;
 }
 
-/* ---------- Features ---------- */
+/* ========================================
+   HOMEPAGE FEATURES
+======================================== */
 
 .feature-section {
-  width: min(var(--max-width), calc(100% - 48px));
+  width: var(--page-width);
 
   margin: 0 auto;
 
   padding-bottom: 120px;
 
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   border-bottom: 1px solid var(--border);
 }
@@ -299,14 +447,18 @@ h3 {
 .feature-number {
   color: var(--accent);
 
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
+
+  letter-spacing: 0.07em;
 }
 
 .feature h3 {
   margin-top: 55px;
 
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+
+  letter-spacing: -0.035em;
 }
 
 .feature p {
@@ -314,22 +466,80 @@ h3 {
 
   color: var(--text-muted);
 
-  font-size: 0.9rem;
+  font-size: 0.78rem;
+  line-height: 1.65;
 }
 
-/* ---------- Footer ---------- */
+/* ========================================
+   FOOTER
+======================================== */
 
 .site-footer {
-  width: min(var(--max-width), calc(100% - 48px));
+  width: var(--page-width);
 
   margin: 0 auto;
 
   padding: 30px 0;
 
   display: flex;
+
+  align-items: center;
   justify-content: space-between;
+
+  gap: 20px;
 
   color: var(--text-muted);
 
-  font-size: 0.7rem;
+  font-size: 0.65rem;
+
+  border-top: 0;
+}
+
+/* ========================================
+   GLOBAL SELECT STYLE
+======================================== */
+
+select {
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: 0;
+
+  outline: none;
+
+  font-family: inherit;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+select:hover {
+  border-color: var(--border-hover);
+}
+
+select:focus {
+  border-color: var(--accent);
+
+  background: var(--surface-light);
+}
+
+/* Dropdown options */
+
+select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/*
+  Supported by some browsers,
+  but not reliably by all of them.
+*/
+
+select option:checked {
+  background: var(--accent);
+  color: var(--background);
 }

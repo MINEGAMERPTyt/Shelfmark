@@ -4,7 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Resident Evil 4 - Shelfmark</title>
+    <title>Game - Shelfmark</title>
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
 
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/navbar.css" />
@@ -25,18 +36,18 @@
         </a>
 
         <div class="nav-links">
-          <a href="index.html"> Home </a>
+          <a href="index.html">Home</a>
 
           <a href="collection.html" class="active" data-auth="user" hidden>
             Collection
           </a>
 
-          <a href="add-game.html" data-auth="user" hidden> Add Game </a>
+          <a href="add-game.html" data-auth="user" hidden>Add Game</a>
         </div>
 
         <div class="nav-account">
           <div class="nav-guest" data-auth="guest" hidden>
-            <a href="login.html" class="login-link"> Log in </a>
+            <a href="login.html" class="login-link">Log in</a>
 
             <a href="register.html" class="register-button"> Create account </a>
           </div>
@@ -73,181 +84,322 @@
       </a>
 
       <!-- ================================
-           Main Game Header
+           Loading / Error State
       ================================= -->
 
-      <section class="game-main">
-        <!-- Cover -->
+      <section class="game-state" id="game-state" aria-live="polite">
+        <p class="game-state-eyebrow">Collection</p>
 
-        <div class="game-cover">
-          <img
-            src="assets/images/games/resident-evil-4.jpg"
-            alt="Resident Evil 4 PlayStation 2 cover"
-          />
-        </div>
+        <h1 id="game-state-title">Loading game…</h1>
 
-        <!-- Main Information -->
+        <p id="game-state-message">
+          Retrieving this copy from your collection.
+        </p>
 
-        <div class="game-primary">
-          <div class="game-heading">
-            <p class="game-platform">PlayStation 2</p>
-
-            <h1>Resident Evil 4</h1>
-
-            <p class="game-release">2005</p>
-          </div>
-
-          <div class="game-meta">
-            <div class="meta-item">
-              <span>Genre</span>
-              <strong>Horror</strong>
-            </div>
-
-            <div class="meta-item">
-              <span>Region</span>
-              <strong>Europe</strong>
-            </div>
-
-            <div class="meta-item">
-              <span>Type</span>
-              <strong>Full Game</strong>
-            </div>
-
-            <div class="meta-item">
-              <span>Edition</span>
-              <strong>Standard Edition</strong>
-            </div>
-
-            <div class="meta-item">
-              <span>Developer</span>
-              <strong>Capcom</strong>
-            </div>
-
-            <div class="meta-item">
-              <span>Publisher</span>
-              <strong>Capcom</strong>
-            </div>
-          </div>
-
-          <!-- Condition -->
-
-          <div class="game-condition-large">
-            <div>
-              <span>Condition</span>
-              <strong>Very Good</strong>
-            </div>
-
-            <div>
-              <span>Completeness</span>
-              <strong>Complete</strong>
-            </div>
-
-            <div>
-              <span>Discs</span>
-              <strong>1</strong>
-            </div>
-          </div>
-        </div>
+        <a href="collection.html" class="game-state-link">
+          Return to collection
+        </a>
       </section>
 
       <!-- ================================
-           Physical Copy
+           Dynamic Game Content
       ================================= -->
 
-      <section class="game-section">
-        <div class="section-heading">
-          <h2>Physical copy</h2>
-        </div>
+      <div id="game-content" hidden>
+        <!-- ================================
+             Main Game Header
+        ================================= -->
 
-        <div class="game-gallery">
-          <button class="gallery-image gallery-image-large" type="button">
-            <img
-              src="assets/images/games/resident-evil-4.jpg"
-              alt="Resident Evil 4 front cover"
-            />
+        <section class="game-main">
+          <!-- Cover -->
 
-            <span>Front</span>
+          <div class="game-cover" id="game-cover">
+            <img id="game-cover-image" src="" alt="" hidden />
+
+            <div class="game-cover-placeholder" id="game-cover-placeholder">
+              <span>No cover image</span>
+            </div>
+          </div>
+
+          <!-- Main Information -->
+
+          <div class="game-primary">
+            <div class="game-heading">
+              <p class="game-platform" id="game-platform">N/D</p>
+
+              <h1 id="game-title">Game</h1>
+
+              <p class="game-release" id="game-release">N/D</p>
+            </div>
+
+            <div class="game-meta">
+              <div class="meta-item">
+                <span>Genre</span>
+
+                <strong id="game-genre"> N/D </strong>
+              </div>
+
+              <div class="meta-item">
+                <span>Region</span>
+
+                <strong id="game-region"> N/D </strong>
+              </div>
+
+              <div class="meta-item">
+                <span>Country</span>
+
+                <strong id="game-country"> N/D </strong>
+              </div>
+
+              <div class="meta-item">
+                <span>Type</span>
+
+                <strong id="game-type"> N/D </strong>
+              </div>
+
+              <div class="meta-item">
+                <span>Edition</span>
+
+                <strong id="game-edition"> N/D </strong>
+              </div>
+
+              <div class="meta-item">
+                <span>Developer</span>
+
+                <strong id="game-developer"> N/D </strong>
+              </div>
+
+              <div class="meta-item">
+                <span>Publisher</span>
+
+                <strong id="game-publisher"> N/D </strong>
+              </div>
+            </div>
+
+            <!-- Condition -->
+
+            <div class="game-condition-large">
+              <div>
+                <span>Condition</span>
+
+                <strong id="game-condition"> N/D </strong>
+              </div>
+
+              <div>
+                <span>Completeness</span>
+
+                <strong id="game-completeness"> N/D </strong>
+              </div>
+
+              <div>
+                <span>Physical format</span>
+
+                <strong id="game-physical-format"> N/D </strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================
+             Physical Copy
+        ================================= -->
+
+        <section class="game-section">
+          <div class="section-heading">
+            <div>
+              <h2>Physical copy</h2>
+
+              <p>
+                Images recorded for the packaging and physical media of this
+                copy.
+              </p>
+            </div>
+          </div>
+
+          <div class="game-photo-groups">
+            <!-- Packaging -->
+
+            <div class="game-photo-group">
+              <div class="game-photo-group-heading">
+                <div>
+                  <h3>Packaging</h3>
+
+                  <p>Case artwork and printed material.</p>
+                </div>
+              </div>
+
+              <div class="game-packaging-gallery" id="packaging-gallery"></div>
+            </div>
+
+            <!-- Media -->
+
+            <div class="game-photo-group">
+              <div class="game-photo-group-heading">
+                <div>
+                  <h3>Media</h3>
+
+                  <p>Disc, discs or cartridge included with this copy.</p>
+                </div>
+
+                <span class="game-photo-group-status" id="media-gallery-status">
+                  N/D
+                </span>
+              </div>
+
+              <div class="game-media-gallery" id="media-gallery"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================
+     Purchase & Value
+================================= -->
+
+        <section class="game-section">
+          <div class="section-heading">
+            <div>
+              <h2>Purchase & value</h2>
+
+              <p>
+                Purchase information and the most recently recorded manual
+                market estimate.
+              </p>
+            </div>
+          </div>
+
+          <div class="game-financial">
+            <div class="financial-item">
+              <span>Purchase date</span>
+
+              <strong id="game-purchase-date"> N/D </strong>
+            </div>
+
+            <div class="financial-item">
+              <span>Purchase price</span>
+
+              <strong id="game-purchase-price"> N/D </strong>
+            </div>
+
+            <div class="financial-item">
+              <span>Estimated value</span>
+
+              <strong id="game-estimated-value"> N/D </strong>
+            </div>
+
+            <div class="financial-item">
+              <span>Value source</span>
+
+              <strong id="game-value-source"> N/D </strong>
+            </div>
+
+            <div class="financial-item">
+              <span>Last checked</span>
+
+              <strong id="game-value-checked"> N/D </strong>
+            </div>
+
+            <div class="financial-item financial-profit">
+              <span>Profit / Loss</span>
+
+              <strong id="game-profit-loss"> N/D </strong>
+            </div>
+          </div>
+
+          <div class="game-market-research">
+            <div class="game-market-research-heading">
+              <div>
+                <span>Research current value</span>
+
+                <p>
+                  Compare current market information before updating your
+                  estimate.
+                </p>
+              </div>
+            </div>
+
+            <div class="game-market-research-links">
+              <a
+                href="#"
+                class="game-market-research-link"
+                data-market-provider="pricecharting"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled="true"
+              >
+                <img src="assets/images/icons/PriceCharting_logo.png" alt="" />
+
+                <span>PriceCharting</span>
+              </a>
+
+              <a
+                href="#"
+                class="game-market-research-link"
+                data-market-provider="ebay"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled="true"
+              >
+                <img src="assets/images/icons/eBay_logo.png" alt="" />
+
+                <span>eBay sold</span>
+              </a>
+
+              <a
+                href="#"
+                class="game-market-research-link"
+                data-market-provider="cex"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled="true"
+              >
+                <img src="assets/images/icons/CeX_logo.png" alt="" />
+
+                <span>CeX</span>
+              </a>
+            </div>
+
+            <p class="game-market-research-note">
+              To change Shelfmark's estimate, use Edit game.
+            </p>
+          </div>
+        </section>
+
+        <!-- ================================
+             Notes
+        ================================= -->
+
+        <section class="game-section">
+          <div class="section-heading">
+            <h2>Notes</h2>
+          </div>
+
+          <div class="game-notes">
+            <p id="game-notes-text">
+              No notes have been recorded for this copy.
+            </p>
+          </div>
+        </section>
+
+        <!-- ================================
+             Actions
+        ================================= -->
+
+        <section class="game-actions">
+          <button class="button-primary" id="edit-game" type="button" disabled>
+            Edit game
           </button>
 
-          <button class="gallery-image" type="button">
-            <img
-              src="assets/images/games/resident-evil-4-disc.jpg"
-              alt="Resident Evil 4 disc"
-            />
-
-            <span>Disc</span>
+          <button class="button-danger" id="delete-game" type="button">
+            Delete game
           </button>
 
-          <div class="gallery-placeholder">
-            <span>Back</span>
-            <small>No image</small>
-          </div>
-
-          <div class="gallery-placeholder">
-            <span>Side</span>
-            <small>No image</small>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================
-           Purchase & Value
-      ================================= -->
-
-      <section class="game-section">
-        <div class="section-heading">
-          <h2>Purchase</h2>
-        </div>
-
-        <div class="game-financial">
-          <div class="financial-item">
-            <span>Purchase date</span>
-            <strong>12 June 2025</strong>
-          </div>
-
-          <div class="financial-item">
-            <span>Purchase price</span>
-            <strong>€25.00</strong>
-          </div>
-
-          <div class="financial-item">
-            <span>Estimated value</span>
-            <strong>€40.00</strong>
-          </div>
-
-          <div class="financial-item financial-profit">
-            <span>Profit / Loss</span>
-            <strong>+€15.00</strong>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================
-           Notes
-      ================================= -->
-
-      <section class="game-section">
-        <div class="section-heading">
-          <h2>Notes</h2>
-        </div>
-
-        <div class="game-notes">
-          <p>
-            Original European release. Case has minor signs of wear, but the
-            disc is in very good condition.
-          </p>
-        </div>
-      </section>
-
-      <!-- ================================
-           Actions
-      ================================= -->
-
-      <section class="game-actions">
-        <a href="add-game.html" class="button-primary"> Edit game </a>
-
-        <button class="button-danger" type="button">Delete game</button>
-      </section>
+          <p
+            class="game-action-status"
+            id="game-action-status"
+            aria-live="polite"
+          ></p>
+        </section>
+      </div>
     </main>
 
     <!-- ================================
@@ -259,6 +411,73 @@
 
       <p>A personal collection archive.</p>
     </footer>
+
+    <!-- ================================
+     Delete Confirmation
+================================= -->
+
+    <div class="delete-modal" id="delete-modal" aria-hidden="true">
+      <div
+        class="delete-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-message"
+      >
+        <div class="delete-dialog-header">
+          <div>
+            <p class="delete-dialog-eyebrow">Remove item</p>
+
+            <h2 id="delete-dialog-title">Delete game?</h2>
+          </div>
+
+          <button
+            type="button"
+            class="delete-dialog-close"
+            id="delete-dialog-close"
+            aria-label="Close delete confirmation"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12"></path>
+              <path d="M18 6L6 18"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="delete-dialog-body">
+          <p id="delete-dialog-message">
+            This game will be permanently removed from your collection,
+            including its saved images.
+          </p>
+
+          <div class="delete-dialog-item">
+            <span>Game</span>
+
+            <strong id="delete-dialog-game-title"> — </strong>
+          </div>
+
+          <p class="delete-dialog-warning">This action cannot be undone.</p>
+        </div>
+
+        <div class="delete-dialog-actions">
+          <button
+            type="button"
+            class="delete-dialog-cancel"
+            id="delete-dialog-cancel"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="delete-dialog-confirm"
+            id="delete-dialog-confirm"
+          >
+            Delete game
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ================================
          Image Lightbox
@@ -278,7 +497,7 @@
       </button>
 
       <div class="lightbox-content">
-        <img id="lightbox-image" src="" alt="" />
+        <img id="lightbox-image" alt="" />
 
         <span id="lightbox-label"></span>
       </div>

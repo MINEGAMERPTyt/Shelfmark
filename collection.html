@@ -8,6 +8,17 @@
 
     <title>Collection - Shelfmark</title>
 
+    <link
+      rel="icon"
+      type="image/png"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/navbar.css" />
     <link rel="stylesheet" href="css/collection.css" />
@@ -15,6 +26,10 @@
   </head>
 
   <body data-require-auth="true">
+    <!-- ================================
+         Navigation
+    ================================= -->
+
     <header class="site-header">
       <nav class="navbar">
         <a href="index.html" class="brand">
@@ -23,7 +38,7 @@
         </a>
 
         <div class="nav-links">
-          <a href="index.html"> Home </a>
+          <a href="index.html">Home</a>
 
           <a href="collection.html" class="active" data-auth="user" hidden>
             Collection
@@ -57,7 +72,9 @@
     </header>
 
     <main class="collection-page">
-      <!-- Collection heading -->
+      <!-- ================================
+           Header
+      ================================= -->
 
       <section class="collection-header">
         <div>
@@ -65,13 +82,17 @@
 
           <h1>Collection</h1>
 
-          <p class="collection-count">6 items in your collection</p>
+          <p class="collection-count" id="collection-count">
+            Loading collection…
+          </p>
         </div>
 
         <a href="add-game.html" class="button button-primary"> + Add game </a>
       </section>
 
-      <!-- Filters -->
+      <!-- ================================
+           Filters
+      ================================= -->
 
       <section class="collection-controls">
         <div class="search-container">
@@ -83,6 +104,7 @@
             type="search"
             id="game-search"
             placeholder="Search your collection..."
+            autocomplete="off"
           />
         </div>
 
@@ -93,20 +115,12 @@
 
           <select id="platform-filter">
             <option value="all">All platforms</option>
-            <option value="PlayStation 2">PlayStation 2</option>
-            <option value="PlayStation">PlayStation</option>
-            <option value="Xbox 360">Xbox 360</option>
-            <option value="Nintendo DS">Nintendo DS</option>
           </select>
 
           <label for="genre-filter" class="visually-hidden"> Genre </label>
 
           <select id="genre-filter">
             <option value="all">All genres</option>
-            <option value="Action">Action</option>
-            <option value="Horror">Horror</option>
-            <option value="RPG">RPG</option>
-            <option value="Racing">Racing</option>
           </select>
 
           <label for="sort-games" class="visually-hidden">
@@ -114,247 +128,89 @@
           </label>
 
           <select id="sort-games">
-            <option value="title">Title</option>
+            <option value="title">Title A–Z</option>
+
             <option value="newest">Recently added</option>
+
             <option value="oldest">Oldest added</option>
+
             <option value="price-low">Purchase price: low</option>
+
             <option value="price-high">Purchase price: high</option>
           </select>
         </div>
       </section>
 
-      <!-- Collection -->
+      <!-- ================================
+           Loading / Error State
+      ================================= -->
 
-      <section class="collection-grid" id="collection-grid">
-        <!-- Game 1 -->
+      <section
+        class="collection-state"
+        id="collection-state"
+        aria-live="polite"
+      >
+        <div class="collection-state-mark">S</div>
 
-        <article
-          class="game-card"
-          data-title="Resident Evil 4"
-          data-platform="PlayStation 2"
-          data-genre="Horror"
-          data-year="2005"
+        <h2 id="collection-state-title">Loading collection…</h2>
+
+        <p id="collection-state-message">
+          Retrieving the games in your Shelfmark archive.
+        </p>
+
+        <button
+          type="button"
+          class="collection-retry"
+          id="collection-retry"
+          hidden
         >
-          <a href="game.html" class="game-card-link">
-            <div class="game-card-visual">
-              <div class="game-case">
-                <img
-                  src="assets/images/games/resident-evil-4.jpg"
-                  alt="Resident Evil 4 front cover"
-                />
-              </div>
-
-              <div class="game-disc">
-                <img
-                  src="assets/images/games/resident-evil-4-disc.jpg"
-                  alt=""
-                />
-                <span>PS2</span>
-              </div>
-            </div>
-
-            <div class="game-card-info">
-              <div>
-                <h2>Resident Evil 4</h2>
-                <p>PlayStation 2 · 2005</p>
-              </div>
-
-              <span class="game-condition"> Very Good </span>
-            </div>
-          </a>
-        </article>
-
-        <!-- Game 2 -->
-
-        <article
-          class="game-card"
-          data-title="Halo 3"
-          data-platform="Xbox 360"
-          data-genre="Action"
-          data-year="2007"
-        >
-          <a href="game.html" class="game-card-link">
-            <div class="game-card-visual">
-              <div class="game-case">
-                <img
-                  src="assets/images/games/halo-3.jpg"
-                  alt="Halo 3 front cover"
-                />
-              </div>
-
-              <div class="game-disc">
-                <div class="disc-hole"></div>
-                <span>X360</span>
-              </div>
-            </div>
-
-            <div class="game-card-info">
-              <div>
-                <h2>Halo 3</h2>
-                <p>Xbox 360 · 2007</p>
-              </div>
-
-              <span class="game-condition"> Good </span>
-            </div>
-          </a>
-        </article>
-
-        <!-- Game 3 -->
-
-        <article
-          class="game-card"
-          data-title="Gran Turismo 4"
-          data-platform="PlayStation 2"
-          data-genre="Racing"
-          data-year="2004"
-        >
-          <a href="game.html" class="game-card-link">
-            <div class="game-card-visual">
-              <div class="game-case">
-                <img
-                  src="assets/images/games/gran-turismo-4.jpg"
-                  alt="Gran Turismo 4 front cover"
-                />
-              </div>
-
-              <div class="game-disc">
-                <img src="assets/images/games/gran-turismo-4-disc.jpg" alt="" />
-                <span>PS2</span>
-              </div>
-            </div>
-
-            <div class="game-card-info">
-              <div>
-                <h2>Gran Turismo 4</h2>
-                <p>PlayStation 2 · 2004</p>
-              </div>
-
-              <span class="game-condition"> Very Good </span>
-            </div>
-          </a>
-        </article>
-
-        <!-- Game 4 -->
-
-        <article
-          class="game-card"
-          data-title="Metal Gear Solid"
-          data-platform="PlayStation"
-          data-genre="Action"
-          data-year="1998"
-        >
-          <a href="game.html" class="game-card-link">
-            <div class="game-card-visual">
-              <div class="game-case">
-                <img
-                  src="assets/images/games/metal-gear-solid.jpg"
-                  alt="Metal Gear Solid front cover"
-                />
-              </div>
-
-              <div class="game-disc">
-                <div class="disc-hole"></div>
-                <span>PS1</span>
-              </div>
-            </div>
-
-            <div class="game-card-info">
-              <div>
-                <h2>Metal Gear Solid</h2>
-                <p>PlayStation · 1998</p>
-              </div>
-
-              <span class="game-condition"> Good </span>
-            </div>
-          </a>
-        </article>
-
-        <!-- Game 5 -->
-
-        <article
-          class="game-card"
-          data-title="The Legend of Zelda: Phantom Hourglass"
-          data-platform="Nintendo DS"
-          data-genre="RPG"
-          data-year="2007"
-        >
-          <a href="game.html" class="game-card-link">
-            <div class="game-card-visual">
-              <div class="game-case">
-                <img
-                  src="assets/images/games/phantom-hourglass.jpg"
-                  alt="The Legend of Zelda Phantom Hourglass front cover"
-                />
-              </div>
-
-              <div class="game-disc">
-                <div class="disc-hole"></div>
-                <span>DS</span>
-              </div>
-            </div>
-
-            <div class="game-card-info">
-              <div>
-                <h2>Phantom Hourglass</h2>
-                <p>Nintendo DS · 2007</p>
-              </div>
-
-              <span class="game-condition"> Complete </span>
-            </div>
-          </a>
-        </article>
-
-        <!-- Game 6 -->
-
-        <article
-          class="game-card"
-          data-title="Silent Hill 2"
-          data-platform="PlayStation 2"
-          data-genre="Horror"
-          data-year="2001"
-        >
-          <a href="game.html" class="game-card-link">
-            <div class="game-card-visual">
-              <div class="game-case">
-                <img
-                  src="assets/images/games/silent-hill-2.jpg"
-                  alt="Silent Hill 2 front cover"
-                />
-              </div>
-
-              <div class="game-disc">
-                <div class="disc-hole"></div>
-                <span>PS2</span>
-              </div>
-            </div>
-
-            <div class="game-card-info">
-              <div>
-                <h2>Silent Hill 2</h2>
-                <p>PlayStation 2 · 2001</p>
-              </div>
-
-              <span class="game-condition"> Very Good </span>
-            </div>
-          </a>
-        </article>
+          Try again
+        </button>
       </section>
 
-      <!-- Empty state -->
+      <!-- ================================
+           Dynamic Collection
+      ================================= -->
+
+      <section class="collection-grid" id="collection-grid"></section>
+
+      <!-- ================================
+           Empty State
+      ================================= -->
 
       <section class="collection-empty" id="collection-empty">
         <div class="empty-icon">S</div>
 
-        <h2>Nothing found.</h2>
+        <h2 id="collection-empty-title">Nothing found.</h2>
 
-        <p>Try changing your search or filters.</p>
+        <p id="collection-empty-message">
+          Try changing your search or filters.
+        </p>
+
+        <a
+          href="add-game.html"
+          class="collection-empty-add"
+          id="collection-empty-add"
+          hidden
+        >
+          Add your first game
+        </a>
       </section>
     </main>
 
+    <!-- ================================
+         Footer
+    ================================= -->
+
     <footer class="site-footer">
       <p>© 2026 Shelfmark</p>
+
       <p>A personal collection archive.</p>
     </footer>
+
+    <!-- ================================
+         JavaScript
+    ================================= -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>

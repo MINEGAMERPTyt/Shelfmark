@@ -1,49 +1,56 @@
 /* =========================================================
-   SITE HEADER
-   ========================================================= */
+   SHELFMARK NAVIGATION
+========================================================= */
 
 .site-header {
   position: sticky;
+
   top: 0;
+
   z-index: 100;
 
   width: 100%;
 
-  background: rgba(17, 17, 17, 0.96);
+  background: var(--background);
 
   border-bottom: 1px solid var(--border);
-
-  backdrop-filter: blur(12px);
 }
 
 /* =========================================================
    NAVBAR
-   ========================================================= */
+========================================================= */
 
 .site-header .navbar {
-  width: min(var(--max-width), calc(100% - 48px));
+  width: var(--page-width);
 
   min-height: 74px;
 
   margin: 0 auto;
 
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+
+  grid-template-columns:
+    1fr
+    auto
+    1fr;
 
   align-items: center;
+
   gap: 30px;
 }
 
 /* =========================================================
    BRAND
-   ========================================================= */
+========================================================= */
 
 .site-header .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-
   width: fit-content;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 10px;
 
   color: var(--text);
 }
@@ -53,14 +60,16 @@
   height: 30px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
   background: var(--accent);
+
   color: var(--background);
 
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 900;
 
   line-height: 1;
 }
@@ -75,12 +84,14 @@
 }
 
 /* =========================================================
-   NAV LINKS
-   ========================================================= */
+   NAVIGATION LINKS
+========================================================= */
 
 .site-header .nav-links {
   display: flex;
+
   align-items: center;
+
   gap: 30px;
 }
 
@@ -89,13 +100,14 @@
 
   color: var(--text-muted);
 
-  font-size: 0.64rem;
+  font-size: 0.62rem;
   font-weight: 700;
 
   text-transform: uppercase;
+
   letter-spacing: 0.06em;
 
-  transition: color 0.2s ease;
+  transition: color var(--transition-fast);
 }
 
 .site-header .nav-links a::after {
@@ -112,9 +124,10 @@
   background: var(--accent);
 
   transform: scaleX(0);
+
   transform-origin: right;
 
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-fast);
 }
 
 .site-header .nav-links a:hover {
@@ -123,30 +136,60 @@
 
 .site-header .nav-links a:hover::after {
   transform: scaleX(1);
+
+  transform-origin: left;
+}
+
+/* ---------- Active page ---------- */
+
+.site-header .nav-links a.active {
+  color: var(--text);
+}
+
+.site-header .nav-links a.active::after {
+  transform: scaleX(1);
+
   transform-origin: left;
 }
 
 /* =========================================================
-   ACCOUNT
-   ========================================================= */
+   ACCOUNT AREA
+========================================================= */
 
 .site-header .nav-account {
   display: flex;
-  justify-content: flex-end;
+
   align-items: center;
+  justify-content: flex-end;
+
   gap: 18px;
 }
+
+.site-header .nav-guest,
+.site-header .nav-user {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 18px;
+}
+
+/* =========================================================
+   LOG IN
+========================================================= */
 
 .site-header .login-link {
   color: var(--text-muted);
 
-  font-size: 0.64rem;
+  font-size: 0.61rem;
   font-weight: 700;
 
   text-transform: uppercase;
+
   letter-spacing: 0.06em;
 
-  transition: color 0.2s ease;
+  transition: color var(--transition-fast);
 }
 
 .site-header .login-link:hover {
@@ -154,128 +197,61 @@
 }
 
 /* =========================================================
-   REGISTER BUTTON
-   ========================================================= */
+   CREATE ACCOUNT
+========================================================= */
 
 .site-header .register-button {
   min-height: 38px;
 
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
   padding: 0 15px;
 
   background: var(--accent);
+
   color: var(--background);
 
   border: 1px solid var(--accent);
 
-  font-size: 0.61rem;
+  font-size: 0.6rem;
   font-weight: 800;
 
   text-transform: uppercase;
+
   letter-spacing: 0.05em;
 
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .site-header .register-button:hover {
   background: var(--accent-dark);
+
   border-color: var(--accent-dark);
 
   transform: translateY(-1px);
 }
 
 /* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 800px) {
-  .site-header .navbar {
-    width: min(var(--max-width), calc(100% - 30px));
-
-    min-height: 68px;
-
-    grid-template-columns: 1fr auto;
-
-    gap: 0;
-  }
-
-  .site-header .nav-links {
-    grid-column: 1 / -1;
-
-    grid-row: 2;
-
-    padding-bottom: 14px;
-
-    gap: 22px;
-  }
-
-  .site-header .nav-account {
-    grid-column: 2;
-    grid-row: 1;
-  }
-}
-
-@media (max-width: 520px) {
-  .site-header .navbar {
-    grid-template-columns: 1fr auto;
-  }
-
-  .site-header .nav-links {
-    gap: 18px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .site-header .nav-links::-webkit-scrollbar {
-    display: none;
-  }
-
-  .site-header .nav-links a {
-    flex-shrink: 0;
-  }
-
-  .site-header .login-link {
-    display: none;
-  }
-
-  .site-header .register-button {
-    min-height: 34px;
-    padding: 0 11px;
-
-    font-size: 0.56rem;
-  }
-}
-
-/* =========================================================
-   AUTH-AWARE NAVBAR
+   USER
 ========================================================= */
-
-[hidden] {
-  display: none !important;
-}
-
-.site-header .nav-guest,
-.site-header .nav-user {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 18px;
-}
 
 .site-header .nav-user-link {
   color: var(--text);
-  font-size: 0.64rem;
+
+  font-size: 0.61rem;
   font-weight: 700;
+
   text-transform: uppercase;
+
   letter-spacing: 0.06em;
 
-  transition: color 0.2s ease;
+  transition: color var(--transition-fast);
 }
 
 .site-header .nav-user-link:hover {
@@ -286,36 +262,116 @@
   padding: 0;
 
   background: transparent;
+
   color: var(--text-muted);
 
   border: 0;
 
   font-family: inherit;
-  font-size: 0.61rem;
+
+  font-size: 0.6rem;
   font-weight: 700;
+
   text-transform: uppercase;
+
   letter-spacing: 0.06em;
 
   cursor: pointer;
 
-  transition: color 0.2s ease;
+  transition: color var(--transition-fast);
 }
 
 .site-header .logout-button:hover {
-  color: #d86b6b;
+  color: var(--danger);
 }
 
+/* =========================================================
+   AUTH STATE
+========================================================= */
+
+[hidden] {
+  display: none !important;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 800px) {
+  .site-header .navbar {
+    width: var(--page-width-mobile);
+
+    min-height: 68px;
+
+    grid-template-columns:
+      1fr
+      auto;
+
+    gap: 0;
+  }
+
+  .site-header .brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .site-header .nav-account {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .site-header .nav-links {
+    grid-column: 1 / -1;
+    grid-row: 2;
+
+    width: 100%;
+
+    padding-bottom: 14px;
+
+    gap: 22px;
+
+    overflow-x: auto;
+
+    scrollbar-width: none;
+  }
+
+  .site-header .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-header .nav-links a {
+    flex-shrink: 0;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
 @media (max-width: 520px) {
+  .site-header .nav-links {
+    gap: 18px;
+  }
+
   .site-header .nav-guest,
   .site-header .nav-user {
     gap: 11px;
   }
 
-  .site-header .nav-user-link {
-    font-size: 0.57rem;
+  .site-header .login-link {
+    display: none;
   }
 
+  .site-header .register-button {
+    min-height: 34px;
+
+    padding: 0 11px;
+
+    font-size: 0.55rem;
+  }
+
+  .site-header .nav-user-link,
   .site-header .logout-button {
-    font-size: 0.56rem;
+    font-size: 0.55rem;
   }
 }

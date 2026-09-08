@@ -1,21 +1,29 @@
 /* ========================================
+   Shelfmark
    Collection
 ======================================== */
 
-/* ---------- Page ---------- */
+/* ========================================
+   Page
+======================================== */
 
 .collection-page {
   width: min(var(--max-width), calc(100% - 48px));
+
   margin: 0 auto;
+
   padding-bottom: 100px;
 }
 
-/* ---------- Header ---------- */
+/* ========================================
+   Header
+======================================== */
 
 .collection-header {
   min-height: 300px;
 
   display: flex;
+
   align-items: center;
   justify-content: space-between;
 
@@ -26,6 +34,9 @@
   margin-top: 12px;
 
   font-size: clamp(3.5rem, 7vw, 6rem);
+
+  line-height: 0.9;
+
   letter-spacing: -0.07em;
 }
 
@@ -33,13 +44,17 @@
   margin-top: 16px;
 
   color: var(--text-muted);
+
   font-size: 0.85rem;
 }
 
-/* ---------- Controls ---------- */
+/* ========================================
+   Controls
+======================================== */
 
 .collection-controls {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
 
@@ -47,14 +62,17 @@
 
   padding: 18px 0;
 
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-
   margin-bottom: 50px;
+
+  border-top: 1px solid var(--border);
+
+  border-bottom: 1px solid var(--border);
 }
 
 .search-container {
   flex: 1;
+
+  min-width: 200px;
 }
 
 .search-container input,
@@ -62,6 +80,7 @@
   height: 44px;
 
   background: var(--surface);
+
   color: var(--text);
 
   border: 1px solid var(--border);
@@ -73,7 +92,10 @@
 
   outline: none;
 
-  transition: border-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .search-container input {
@@ -82,35 +104,153 @@
 
 .search-container input:focus,
 .filter-container select:focus {
-  border-color: var(--text-muted);
+  border-color: var(--accent);
+
+  background: var(--surface-light);
 }
 
 .search-container input::placeholder {
   color: #666666;
 }
 
+.search-container input:disabled,
+.filter-container select:disabled {
+  opacity: 0.5;
+
+  cursor: wait;
+}
+
 .filter-container {
   display: flex;
+
   gap: 8px;
 }
 
 .filter-container select {
   min-width: 140px;
+
   cursor: pointer;
 }
 
-/* ---------- Grid ---------- */
+/* ========================================
+   Loading / Error State
+======================================== */
+
+.collection-state {
+  min-height: 340px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 70px 20px;
+
+  border: 1px solid var(--border);
+
+  text-align: center;
+}
+
+.collection-state[hidden] {
+  display: none;
+}
+
+.collection-state-mark {
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 22px;
+
+  background: var(--accent);
+
+  color: var(--background);
+
+  font-weight: 900;
+}
+
+.collection-state.error .collection-state-mark {
+  background: #a83f3f;
+
+  color: #ffffff;
+}
+
+.collection-state h2 {
+  font-size: 1.5rem;
+
+  letter-spacing: -0.03em;
+}
+
+.collection-state p {
+  max-width: 500px;
+
+  margin-top: 9px;
+
+  color: var(--text-muted);
+
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.collection-retry {
+  min-height: 42px;
+
+  margin-top: 24px;
+
+  padding: 0 18px;
+
+  background: transparent;
+
+  color: var(--text);
+
+  border: 1px solid var(--border);
+
+  font-family: inherit;
+
+  font-size: 0.62rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.collection-retry:hover {
+  background: var(--surface);
+
+  border-color: #555;
+}
+
+/* ========================================
+   Grid
+======================================== */
 
 .collection-grid {
   display: grid;
 
   grid-template-columns: repeat(4, minmax(0, 1fr));
 
+  align-items: start;
+
   column-gap: 42px;
   row-gap: 70px;
 }
 
-/* ---------- Game Card ---------- */
+/* ========================================
+   Game Card
+======================================== */
 
 .game-card {
   position: relative;
@@ -120,28 +260,43 @@
   z-index: 1;
 }
 
+.game-card[hidden] {
+  display: none;
+}
+
 .game-card:hover {
   z-index: 20;
 }
 
 .game-card-link {
   display: block;
+
+  color: inherit;
+
+  text-decoration: none;
 }
 
-/* ---------- Game Visual ---------- */
+/* ========================================
+   Game Visual
+======================================== */
 
 .game-card-visual {
+  --case-ratio: 0.76;
+
   position: relative;
 
   width: 100%;
-  aspect-ratio: 0.76;
+
+  aspect-ratio: var(--case-ratio);
 
   perspective: 1000px;
 
   overflow: visible;
 }
 
-/* ---------- Game Case ---------- */
+/* ========================================
+   Game Case
+======================================== */
 
 .game-case {
   position: relative;
@@ -173,7 +328,75 @@
   transition: filter 0.3s ease;
 }
 
-/* ---------- Disc ---------- */
+/* ========================================
+   No Cover Placeholder
+======================================== */
+
+.game-case-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  background-color: #151515;
+
+  background-image:
+    linear-gradient(45deg, #1d1d1d 25%, transparent 25%),
+    linear-gradient(-45deg, #1d1d1d 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #1d1d1d 75%),
+    linear-gradient(-45deg, transparent 75%, #1d1d1d 75%);
+
+  background-size: 22px 22px;
+
+  background-position:
+    0 0,
+    0 11px,
+    11px -11px,
+    -11px 0;
+
+  color: var(--text-muted);
+}
+
+.game-case-placeholder-mark {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: var(--accent);
+
+  color: var(--background);
+
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.game-case-placeholder small {
+  padding: 5px 8px;
+
+  background: var(--background);
+
+  font-size: 0.56rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.07em;
+}
+
+/* ========================================
+   Disc
+======================================== */
 
 .game-disc {
   position: absolute;
@@ -181,16 +404,12 @@
   z-index: 2;
 
   width: 72%;
+
   aspect-ratio: 1;
 
   right: -4%;
   top: 50%;
 
-  /*
-       Starting position.
-       The disc is mostly hidden behind
-       the game case.
-    */
   transform: translateY(-50%) translateX(-8%);
 
   border-radius: 50%;
@@ -205,16 +424,10 @@
 
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
 
-  /*
-       ONLY the disc's position fades/slides.
-       Rotation is controlled by JavaScript.
-    */
   transition:
     transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
     opacity 0.3s ease;
 }
-
-/* ---------- Disc Image ---------- */
 
 .game-disc img {
   width: 100%;
@@ -222,29 +435,155 @@
 
   display: block;
 
-  object-fit: cover;
+  object-fit: contain;
 
-  /*
-       JavaScript controls this rotation.
-       This means the current rotation angle
-       can be preserved when the mouse leaves.
-    */
   transform: rotate(0deg);
 }
 
-/* ---------- Disc Hover ---------- */
+/* ========================================
+   Generic Disc
+======================================== */
+
+.game-disc.game-media-placeholder {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at center, var(--surface) 0 8%, transparent 8.5%),
+    radial-gradient(
+      circle at center,
+      #2b2b2b 0 47%,
+      #202020 47.5% 49%,
+      #181818 49.5%
+    );
+}
+
+.game-disc .disc-hole {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 13%;
+
+  aspect-ratio: 1;
+
+  transform: translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background: var(--background);
+
+  border: 1px solid #555;
+}
+
+.game-disc > span {
+  position: absolute;
+
+  left: 50%;
+  bottom: 18%;
+
+  transform: translateX(-50%);
+
+  color: var(--text-muted);
+
+  font-size: 0.55rem;
+  font-weight: 800;
+
+  letter-spacing: 0.06em;
+
+  text-transform: uppercase;
+}
+
+/* ========================================
+   Disc Hover
+======================================== */
 
 .game-card:hover .game-disc {
   opacity: 1;
 
-  /*
-       Slide the disc out of the case.
-       Rotation is NOT included here.
-    */
   transform: translateY(-50%) translateX(42%);
 }
 
-/* ---------- Case Hover ---------- */
+/* ========================================
+   Cartridge
+======================================== */
+
+.game-cartridge {
+  position: absolute;
+
+  z-index: 2;
+
+  width: 47%;
+
+  aspect-ratio: 0.78;
+
+  right: 2%;
+  top: 50%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  transform: translateY(-50%) translateX(-12%);
+
+  overflow: hidden;
+
+  background: var(--surface-light);
+
+  border: 1px solid #444444;
+
+  opacity: 0;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.3s ease;
+}
+
+.game-cartridge img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+.game-cartridge.game-media-placeholder {
+  background: #252525;
+
+  border: 1px solid #555;
+}
+
+.game-cartridge > span {
+  color: var(--text-muted);
+
+  font-size: 0.58rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.07em;
+}
+
+/* ========================================
+   Cartridge Hover
+======================================== */
+
+.game-card:hover .game-cartridge {
+  opacity: 1;
+
+  transform: translateY(-50%) translateX(54%);
+}
+
+/* ========================================
+   Case Hover
+======================================== */
 
 .game-card:hover .game-case {
   transform: translateX(-8px);
@@ -258,7 +597,9 @@
   filter: brightness(0.92);
 }
 
-/* ---------- Card Information ---------- */
+/* ========================================
+   Card Information
+======================================== */
 
 .game-card-info {
   display: flex;
@@ -271,9 +612,18 @@
   margin-top: 18px;
 }
 
+.game-card-info > div {
+  min-width: 0;
+}
+
 .game-card-info h2 {
   font-size: 0.95rem;
+
+  line-height: 1.25;
+
   letter-spacing: -0.02em;
+
+  overflow-wrap: anywhere;
 }
 
 .game-card-info p {
@@ -282,10 +632,14 @@
   color: var(--text-muted);
 
   font-size: 0.7rem;
+
+  line-height: 1.4;
 }
 
 .game-condition {
   flex-shrink: 0;
+
+  max-width: 110px;
 
   padding: 4px 7px;
 
@@ -293,13 +647,19 @@
 
   color: var(--text-muted);
 
-  font-size: 0.6rem;
+  font-size: 0.56rem;
   font-weight: 700;
+
+  line-height: 1.3;
+
+  text-align: center;
 
   text-transform: uppercase;
 }
 
-/* ---------- Empty ---------- */
+/* ========================================
+   Empty
+======================================== */
 
 .collection-empty {
   display: none;
@@ -322,10 +682,12 @@
   margin: 0 auto 20px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
   background: var(--accent);
+
   color: var(--background);
 
   font-weight: 900;
@@ -336,14 +698,60 @@
 }
 
 .collection-empty p {
-  margin-top: 8px;
+  max-width: 520px;
+
+  margin: 8px auto 0;
 
   color: var(--text-muted);
 
   font-size: 0.85rem;
+
+  line-height: 1.6;
 }
 
-/* ---------- Accessibility ---------- */
+.collection-empty-add {
+  min-height: 43px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 25px;
+
+  padding: 0 18px;
+
+  background: var(--accent);
+
+  color: var(--background);
+
+  border: 1px solid var(--accent);
+
+  font-size: 0.62rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.collection-empty-add:hover {
+  background: var(--accent-dark);
+
+  border-color: var(--accent-dark);
+}
+
+.collection-empty-add[hidden] {
+  display: none;
+}
+
+/* ========================================
+   Accessibility
+======================================== */
 
 .visually-hidden {
   position: absolute;
@@ -361,4 +769,123 @@
   white-space: nowrap;
 
   border: 0;
+}
+
+/* ========================================
+   Responsive — Large
+======================================== */
+
+@media (max-width: 1150px) {
+  .collection-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    column-gap: 36px;
+  }
+}
+
+/* ========================================
+   Responsive — Tablet
+======================================== */
+
+@media (max-width: 850px) {
+  .collection-header {
+    min-height: 250px;
+  }
+
+  .collection-controls {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .search-container {
+    width: 100%;
+  }
+
+  .filter-container {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .filter-container select {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    column-gap: 34px;
+    row-gap: 60px;
+  }
+}
+
+/* ========================================
+   Responsive — Mobile
+======================================== */
+
+@media (max-width: 600px) {
+  .collection-page {
+    width: min(var(--max-width), calc(100% - 30px));
+  }
+
+  .collection-header {
+    min-height: 230px;
+
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 25px;
+  }
+
+  .collection-header .button {
+    align-self: flex-start;
+  }
+
+  .filter-container {
+    grid-template-columns: 1fr;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    column-gap: 20px;
+    row-gap: 50px;
+  }
+
+  .game-card-info {
+    flex-direction: column;
+
+    gap: 9px;
+  }
+
+  .game-condition {
+    align-self: flex-start;
+  }
+
+  .collection-state,
+  .collection-empty {
+    padding: 75px 20px;
+  }
+}
+
+/* ========================================
+   Responsive — Small Mobile
+======================================== */
+
+@media (max-width: 430px) {
+  .collection-grid {
+    grid-template-columns: 1fr;
+
+    row-gap: 60px;
+  }
+
+  .game-card {
+    width: min(100%, 320px);
+  }
 }

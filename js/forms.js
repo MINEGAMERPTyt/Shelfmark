@@ -7,6 +7,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveGameButton = document.getElementById("save-game");
   const supabaseClient = window.shelfmarkSupabase;
 
+  const formHeading = document.querySelector(".form-header h1");
+
+  const formIntro = document.querySelector(".form-intro");
+
+  const formEyebrow = document.querySelector(".form-eyebrow");
+
+  const cancelButton = document.querySelector(".form-button-secondary");
+
+  const urlParams = new URLSearchParams(window.location.search);
+
+  const editItemId = urlParams.get("edit");
+
+  const isEditMode = Boolean(editItemId);
+
+  let editOriginalItem = null;
+  let editOriginalGame = null;
+  let editOriginalImages = [];
+
   const gameTitleInput = document.getElementById("game-title");
   const platformInput = document.getElementById("platform");
   const releaseYearInput = document.getElementById("release-year");
@@ -41,7 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.closest(".input-with-prefix")
     ?.querySelector("span");
   const valueStatus = document.getElementById("value-status");
+
+  const valueSourceInput = document.getElementById("value-source");
+
+  const valueCheckedPreview = document.getElementById("value-checked-preview");
+
+  const marketResearchLinks = document.querySelectorAll(
+    ".market-research-link",
+  );
+
   const profitLoss = document.getElementById("profit-loss");
+
+  let valuationDirty = false;
+  let pendingValueCheckedAt = null;
   const notesInput = document.getElementById("notes");
 
   const discUploadGroup = document.getElementById("disc-upload-group");
@@ -297,23 +327,92 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =====================================================
-     ESTIMATED VALUE / PROFIT LOSS
-  ===================================================== */
+   MANUAL VALUE / PROFIT LOSS
+===================================================== */
 
   function setEstimatedValueField(value) {
     if (!estimatedValueInput) {
       return;
     }
 
-    if (estimatedValueInput.type !== "text") {
-      estimatedValueInput.type = "text";
-    }
-
-    estimatedValueInput.value = value;
+    estimatedValueInput.value = value ?? "";
 
     if (estimatedValuePrefix) {
-      estimatedValuePrefix.hidden = value === "" || value === "N/D";
+      estimatedValuePrefix.hidden = estimatedValueInput.value === "";
     }
+  }
+
+  function formatValueCheckedAt(value) {
+    if (!value) {
+      return "Not checked yet";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return "Not checked yet";
+    }
+
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  }
+
+  function setValueCheckedPreview(value) {
+    if (!valueCheckedPreview) {
+      return;
+    }
+
+    valueCheckedPreview.textContent = formatValueCheckedAt(value);
+  }
+
+  function setValueStatus(message, state = "") {
+    if (!valueStatus) {
+      return;
+    }
+
+    valueStatus.textContent = message;
+
+    valueStatus.classList.remove("success", "error");
+
+    if (state) {
+      valueStatus.classList.add(state);
+    }
+  }
+
+  function markValuationChanged() {
+    valuationDirty = true;
+
+    const rawValue = estimatedValueInput?.value.trim() || "";
+
+    if (!rawValue) {
+      pendingValueCheckedAt = null;
+
+      setValueCheckedPreview(null);
+
+      if (valueSourceInput) {
+        valueSourceInput.value = "";
+      }
+
+      setValueStatus(
+        "Research the market below, then enter the value you consider appropriate for this copy.",
+      );
+
+      return;
+    }
+
+    pendingValueCheckedAt = new Date().toISOString();
+
+    setValueCheckedPreview(pendingValueCheckedAt);
+
+    setValueStatus(
+      "Manual estimate ready to save. Choose the source you used.",
+      "success",
+    );
   }
 
   function updateProfitLoss() {
@@ -321,28 +420,32 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (
-      estimatedValueInput.value === "N/D" ||
-      estimatedValueInput.value.trim() === ""
-    ) {
+    if (estimatedValueInput.value.trim() === "") {
       profitLoss.textContent = "N/D";
+
       profitLoss.classList.remove("positive", "negative");
+
       return;
     }
 
     const purchasePrice = parseFloat(purchasePriceInput.value);
+
     const estimatedValue = parseFloat(estimatedValueInput.value);
 
     if (Number.isNaN(purchasePrice) || Number.isNaN(estimatedValue)) {
       profitLoss.textContent = "N/D";
+
       profitLoss.classList.remove("positive", "negative");
+
       return;
     }
 
     const difference = estimatedValue - purchasePrice;
+
     const sign = difference >= 0 ? "+" : "-";
 
     profitLoss.textContent = `${sign}€${Math.abs(difference).toFixed(2)}`;
+
     profitLoss.classList.remove("positive", "negative");
 
     if (difference > 0) {
@@ -353,6 +456,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   purchasePriceInput?.addEventListener("input", updateProfitLoss);
+
+  estimatedValueInput?.addEventListener("input", () => {
+    markValuationChanged();
+    updateProfitLoss();
+  });
+
+  valueSourceInput?.addEventListener("change", () => {
+    if (estimatedValueInput?.value.trim()) {
+      markValuationChanged();
+    }
+  });
 
   /* =====================================================
      PLATFORM DEFAULTS
@@ -604,7 +718,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const state = imageState.get(uploadBox);
-    const hasImage = Boolean(state?.hasImage && input.files?.length);
+
+    const hasImage = Boolean(
+      state?.hasImage &&
+      (state.file || state.existingImage || input.files?.length),
+    );
 
     removeButton.style.display = hasImage ? "inline-flex" : "none";
   }
@@ -658,6 +776,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (placeholder) {
       placeholder.style.display = "";
+
+      if (placeholder.dataset.defaultLabel) {
+        placeholder.textContent = placeholder.dataset.defaultLabel;
+      }
     }
 
     if (input) {
@@ -1344,6 +1466,7 @@ document.addEventListener("DOMContentLoaded", () => {
         hasImage: true,
         objectUrl: previewUrl,
         file: croppedFile,
+        existingImage: oldState?.existingImage || null,
       });
 
       try {
@@ -1526,143 +1649,163 @@ document.addEventListener("DOMContentLoaded", () => {
   regionInput?.addEventListener("change", updateCountryOptions);
 
   /* =====================================================
-     MARKET VALUE
-  ===================================================== */
+   MARKET RESEARCH
+===================================================== */
 
-  const VALUE_ENDPOINT = "/api/game-value";
-  let valueLookupTimer = null;
-  let valueLookupController = null;
+  function getResearchEdition() {
+    const edition = editionInput?.value || "";
 
-  function setValueStatus(message, state = "") {
-    if (!valueStatus) {
-      return;
+    if (!edition || edition === "Standard Edition" || edition === "Other") {
+      return "";
     }
 
-    valueStatus.textContent = message;
-    valueStatus.classList.remove("loading", "success", "error");
-
-    if (state) {
-      valueStatus.classList.add(state);
-    }
+    return edition;
   }
 
-  function getGameValuePayload() {
-    return {
-      name: gameTitleInput?.value.trim() || "",
-      platform: platformInput?.value || "",
-      edition: editionInput?.value || "",
-      condition: conditionInput?.value || "",
-      completeness: completenessInput?.value || "",
-      region: regionInput?.value || "",
-      country: countryInput?.value || "",
-      type: typeInput?.value || "",
-    };
-  }
+  function getResearchRegionLabel(provider) {
+    const region = regionInput?.value || "";
 
-  function hasEnoughValueData(payload) {
-    return Boolean(payload.name && payload.platform);
-  }
+    if (provider === "pricecharting") {
+      if (region === "Europe" || region === "Australia") {
+        return "PAL";
+      }
 
-  async function updateEstimatedValue() {
-    const payload = getGameValuePayload();
+      if (region === "Japan") {
+        return "JP";
+      }
 
-    if (!hasEnoughValueData(payload)) {
-      setEstimatedValueField("");
-      updateProfitLoss();
-      setValueStatus(
-        "Enter the game title and platform to estimate its current market value.",
-      );
-      return;
+      return "";
     }
 
-    if (valueLookupController) {
-      valueLookupController.abort();
+    if (region === "Europe") {
+      return "PAL";
     }
 
-    valueLookupController = new AbortController();
-    setValueStatus("Checking current market value…", "loading");
+    if (region === "North America") {
+      return "NTSC";
+    }
 
-    try {
-      const response = await fetch(VALUE_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-        signal: valueLookupController.signal,
-      });
+    if (region === "Japan") {
+      return "Japanese";
+    }
 
-      if (response.status === 404) {
-        setEstimatedValueField("N/D");
-        updateProfitLoss();
-        setValueStatus("No current market price could be found for this game.");
+    return "";
+  }
+
+  function buildMarketResearchQuery(provider) {
+    const title = gameTitleInput?.value.trim() || "";
+
+    const platform = platformInput?.value || "";
+
+    if (!title || !platform) {
+      return "";
+    }
+
+    const region = getResearchRegionLabel(provider);
+
+    const edition = getResearchEdition();
+
+    return [title, region, platform, edition].filter(Boolean).join(" ");
+  }
+
+  function createMarketResearchUrl(provider, query) {
+    if (!query) {
+      return null;
+    }
+
+    let url;
+
+    if (provider === "pricecharting") {
+      url = new URL("/search-products", "https:" + "//www.pricecharting.com");
+
+      url.searchParams.set("type", "prices");
+
+      url.searchParams.set("q", query);
+
+      return url.toString();
+    }
+
+    if (provider === "ebay") {
+      url = new URL("/sch/i.html", "https:" + "//www.ebay.com");
+
+      url.searchParams.set("_nkw", query);
+
+      /*
+      Show sold AND completed items.
+
+      This is much more useful for
+      valuation research than simply
+      showing active asking prices.
+    */
+
+      url.searchParams.set("LH_Sold", "1");
+
+      url.searchParams.set("LH_Complete", "1");
+
+      return url.toString();
+    }
+
+    if (provider === "cex") {
+      url = new URL("/search/", "https:" + "//pt.webuy.com");
+
+      url.searchParams.set("stext", query);
+
+      return url.toString();
+    }
+
+    return null;
+  }
+
+  function updateMarketResearchLinks() {
+    marketResearchLinks.forEach((link) => {
+      const provider = link.dataset.marketProvider;
+
+      const query = buildMarketResearchQuery(provider);
+
+      const url = createMarketResearchUrl(provider, query);
+
+      if (!url) {
+        link.href = "#";
+
+        link.setAttribute("aria-disabled", "true");
+
         return;
       }
 
-      if (!response.ok) {
-        throw new Error(`Market value request failed: ${response.status}`);
-      }
+      link.href = url;
 
-      const data = await response.json();
-      const rawValue = data?.value;
-
-      if (
-        rawValue === null ||
-        rawValue === undefined ||
-        rawValue === "" ||
-        data?.found === false
-      ) {
-        setEstimatedValueField("N/D");
-        updateProfitLoss();
-        setValueStatus("No current market price could be found for this game.");
-        return;
-      }
-
-      const value = Number(rawValue);
-
-      if (!Number.isFinite(value) || value < 0) {
-        setEstimatedValueField("N/D");
-        updateProfitLoss();
-        setValueStatus("No current market price could be found for this game.");
-        return;
-      }
-
-      setEstimatedValueField(value.toFixed(2));
-      updateProfitLoss();
-      setValueStatus("Estimated from current market data.", "success");
-    } catch (error) {
-      if (error.name === "AbortError") {
-        return;
-      }
-
-      console.warn("Market value lookup unavailable:", error);
-      setEstimatedValueField("N/D");
-      updateProfitLoss();
-      setValueStatus("Market value is currently unavailable.", "error");
-    }
+      link.setAttribute("aria-disabled", "false");
+    });
   }
 
-  function scheduleValueLookup() {
-    clearTimeout(valueLookupTimer);
+  marketResearchLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      if (link.getAttribute("aria-disabled") === "true") {
+        event.preventDefault();
+        return;
+      }
 
-    valueLookupTimer = setTimeout(() => {
-      updateEstimatedValue();
-    }, 500);
-  }
+      /*
+          If the user hasn't chosen a
+          source yet, selecting a research
+          service automatically fills it.
 
-  [
-    gameTitleInput,
-    platformInput,
-    editionInput,
-    conditionInput,
-    completenessInput,
-    regionInput,
-    countryInput,
-    typeInput,
-  ].forEach((input) => {
-    input?.addEventListener("input", scheduleValueLookup);
-    input?.addEventListener("change", scheduleValueLookup);
+          They can still change it later.
+        */
+
+      if (valueSourceInput && !valueSourceInput.value) {
+        valueSourceInput.value = link.dataset.valueSource || "";
+      }
+    });
   });
+
+  [gameTitleInput, platformInput, regionInput, editionInput].forEach(
+    (input) => {
+      input?.addEventListener("input", updateMarketResearchLinks);
+
+      input?.addEventListener("change", updateMarketResearchLinks);
+    },
+  );
 
   /* =====================================================
      SAVE STATUS / VALIDATION
@@ -1840,6 +1983,29 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    if (estimatedValueInput?.value !== "") {
+      const estimatedValue = Number(estimatedValueInput.value);
+
+      if (!Number.isFinite(estimatedValue) || estimatedValue < 0) {
+        setFormSaveMessage("Enter a valid estimated value.", "error");
+
+        focusInvalidField(estimatedValueInput);
+
+        return false;
+      }
+
+      if (!valueSourceInput?.value) {
+        setFormSaveMessage(
+          "Select the source used for the estimated value.",
+          "error",
+        );
+
+        focusInvalidField(valueSourceInput);
+
+        return false;
+      }
+    }
+
     if (mediaType === "disc") {
       const discCount = getValidDiscCount();
 
@@ -1884,13 +2050,471 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* =====================================================
+   EDIT MODE
+===================================================== */
+
+  function isValidUuid(value) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
+    );
+  }
+
+  function setEditModeInterface(item) {
+    document.title = `Edit ${item.title} - Shelfmark`;
+
+    if (formHeading) {
+      formHeading.textContent = "Edit game";
+    }
+
+    if (formEyebrow) {
+      formEyebrow.textContent = "Collection / Edit";
+    }
+
+    if (formIntro) {
+      formIntro.textContent =
+        "Update the information recorded for this physical copy.";
+    }
+
+    if (saveGameButton) {
+      saveGameButton.textContent = "Save changes";
+
+      saveGameButton.dataset.originalText = "Save changes";
+    }
+
+    if (cancelButton) {
+      cancelButton.href = `game.html?id=${encodeURIComponent(item.id)}`;
+    }
+  }
+
+  async function addEditSignedUrls(images) {
+    if (!images.length) {
+      return [];
+    }
+
+    const paths = images.map((image) => image.storage_path);
+
+    const { data, error } = await supabaseClient.storage
+      .from("item-images")
+      .createSignedUrls(paths, 3600);
+
+    if (error) {
+      console.warn("Shelfmark edit signed URL error:", error);
+
+      return images.map((image) => ({
+        ...image,
+        signedUrl: null,
+      }));
+    }
+
+    return images.map((image, index) => {
+      const signedEntry =
+        data?.find((entry) => entry.path === image.storage_path) ||
+        data?.[index] ||
+        null;
+
+      return {
+        ...image,
+
+        signedUrl: signedEntry?.signedUrl || signedEntry?.signedURL || null,
+      };
+    });
+  }
+
+  function getUploadBoxForExistingImage(image) {
+    if (image.image_type === "disc") {
+      return (
+        discUploadGroup?.querySelector(
+          `.image-upload[data-disc-number="${image.disc_number}"]`,
+        ) || null
+      );
+    }
+
+    return (
+      document.querySelector(
+        `.image-upload[data-image-role="${image.image_type}"]`,
+      ) || null
+    );
+  }
+
+  function showExistingImage(uploadBox, imageRecord) {
+    if (!uploadBox) {
+      return;
+    }
+
+    const input = uploadBox.querySelector('input[type="file"]');
+
+    const preview = uploadBox.querySelector(".image-upload-preview");
+
+    const placeholder = preview?.querySelector(".image-upload-placeholder");
+
+    if (!preview || !input) {
+      return;
+    }
+
+    if (placeholder && !placeholder.dataset.defaultLabel) {
+      placeholder.dataset.defaultLabel = placeholder.textContent.trim();
+    }
+
+    preview.querySelector(".cropped-preview-image")?.remove();
+
+    input.value = "";
+
+    if (imageRecord.signedUrl) {
+      const image = document.createElement("img");
+
+      image.className = "cropped-preview-image";
+
+      image.src = imageRecord.signedUrl;
+
+      image.alt =
+        imageRecord.image_type === "disc"
+          ? `Disc ${imageRecord.disc_number} image`
+          : `${imageRecord.image_type} image`;
+
+      preview.appendChild(image);
+
+      uploadBox.classList.add("has-image");
+
+      if (placeholder) {
+        placeholder.style.display = "none";
+      }
+    } else {
+      uploadBox.classList.remove("has-image");
+
+      if (placeholder) {
+        placeholder.textContent = "SAVED IMAGE";
+
+        placeholder.style.display = "";
+      }
+    }
+
+    imageState.set(uploadBox, {
+      hasImage: true,
+      objectUrl: null,
+      file: null,
+      existingImage: imageRecord,
+    });
+
+    updateRemoveButton(uploadBox);
+  }
+
+  function setInputValue(input, value) {
+    if (!input) {
+      return;
+    }
+
+    input.value = value ?? "";
+  }
+
+  async function loadEditMode() {
+    if (!isEditMode) {
+      return;
+    }
+
+    if (!editItemId || !isValidUuid(editItemId)) {
+      setFormSaveMessage(
+        "This edit link does not contain a valid game ID.",
+        "error",
+      );
+
+      if (saveGameButton) {
+        saveGameButton.disabled = true;
+
+        saveGameButton.textContent = "Unavailable";
+      }
+
+      return;
+    }
+
+    if (!supabaseClient) {
+      setFormSaveMessage("Shelfmark could not connect to Supabase.", "error");
+
+      return;
+    }
+
+    setSaveLoading(true, "Loading game…");
+
+    setFormSaveMessage("Loading game information…", "loading");
+
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabaseClient.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error("You must be logged in to edit this game.");
+      }
+
+      const [itemResult, gameResult, imagesResult] = await Promise.all([
+        supabaseClient
+          .from("collection_items")
+          .select(
+            `
+              id,
+              user_id,
+              category,
+              title,
+              condition,
+              completeness,
+              region,
+              country,
+              purchase_date,
+              purchase_price,
+              estimated_value,
+              value_source,
+              value_checked_at,
+              notes
+            `,
+          )
+          .eq("id", editItemId)
+          .eq("user_id", user.id)
+          .eq("category", "game")
+          .maybeSingle(),
+
+        supabaseClient
+          .from("games")
+          .select(
+            `
+              item_id,
+              platform,
+              release_year,
+              genre,
+              game_type,
+              edition,
+              developer,
+              publisher,
+              media_type,
+              case_format,
+              custom_case_width,
+              custom_case_height,
+              disc_count
+            `,
+          )
+          .eq("item_id", editItemId)
+          .maybeSingle(),
+
+        supabaseClient
+          .from("item_images")
+          .select(
+            `
+              id,
+              item_id,
+              image_type,
+              storage_path,
+              disc_number,
+              sort_order
+            `,
+          )
+          .eq("item_id", editItemId)
+          .order("sort_order", {
+            ascending: true,
+          }),
+      ]);
+
+      if (itemResult.error) {
+        throw itemResult.error;
+      }
+
+      if (gameResult.error) {
+        throw gameResult.error;
+      }
+
+      if (imagesResult.error) {
+        throw imagesResult.error;
+      }
+
+      if (!itemResult.data || !gameResult.data) {
+        throw new Error("This game could not be found in your collection.");
+      }
+
+      editOriginalItem = itemResult.data;
+
+      editOriginalGame = gameResult.data;
+
+      editOriginalImages = await addEditSignedUrls(imagesResult.data || []);
+
+      const item = editOriginalItem;
+
+      const game = editOriginalGame;
+
+      /* =================================================
+       BASIC GAME DATA
+    ================================================= */
+
+      setInputValue(gameTitleInput, item.title);
+
+      setInputValue(platformInput, game.platform);
+
+      setInputValue(releaseYearInput, game.release_year);
+
+      setInputValue(genreInput, game.genre);
+
+      setInputValue(typeInput, game.game_type);
+
+      setInputValue(editionInput, game.edition);
+
+      setInputValue(developerInput, game.developer);
+
+      setInputValue(publisherInput, game.publisher);
+
+      /* =================================================
+       PHYSICAL FORMAT
+    ================================================= */
+
+      setRadioGroupValue("mediaType", game.media_type || "");
+
+      setRadioGroupValue("caseFormat", game.case_format || "");
+
+      if (discCountInput) {
+        discCountInput.value = String(game.disc_count || 1);
+      }
+
+      if (customWidth) {
+        customWidth.value = game.custom_case_width ?? 1;
+      }
+
+      if (customHeight) {
+        customHeight.value = game.custom_case_height ?? 1.4;
+      }
+
+      /*
+      This also creates the correct
+      dynamic Disc 1, Disc 2, etc.
+      upload slots.
+    */
+
+      updateMediaType();
+      updateCaseFormat();
+
+      /* =================================================
+       CONDITION
+    ================================================= */
+
+      setInputValue(conditionInput, item.condition);
+
+      updateCompletenessOptions();
+
+      setInputValue(completenessInput, item.completeness);
+
+      /* =================================================
+       REGION / COUNTRY
+    ================================================= */
+
+      setInputValue(regionInput, item.region);
+
+      updateCountryOptions();
+
+      setInputValue(countryInput, item.country);
+
+      /* =================================================
+       PURCHASE
+    ================================================= */
+
+      setInputValue(purchaseDateInput, item.purchase_date);
+
+      setInputValue(purchasePriceInput, item.purchase_price);
+
+      if (item.estimated_value !== null && item.estimated_value !== undefined) {
+        const estimated = Number(item.estimated_value);
+
+        setEstimatedValueField(
+          Number.isFinite(estimated) ? estimated.toFixed(2) : "",
+        );
+      } else {
+        setEstimatedValueField("");
+      }
+
+      setInputValue(valueSourceInput, item.value_source);
+
+      pendingValueCheckedAt = item.value_checked_at || null;
+
+      valuationDirty = false;
+
+      setValueCheckedPreview(item.value_checked_at);
+
+      updateMarketResearchLinks();
+
+      setInputValue(notesInput, item.notes);
+
+      updateProfitLoss();
+
+      /* =================================================
+       EXISTING IMAGES
+    ================================================= */
+
+      editOriginalImages.forEach((imageRecord) => {
+        const uploadBox = getUploadBoxForExistingImage(imageRecord);
+
+        if (!uploadBox) {
+          return;
+        }
+
+        showExistingImage(uploadBox, imageRecord);
+      });
+
+      updateUploadPreviewGeometry();
+
+      /* =================================================
+       INTERFACE
+    ================================================= */
+
+      setEditModeInterface(item);
+
+      setFormSaveMessage("");
+
+      if (item.estimated_value !== null && item.estimated_value !== undefined) {
+        setValueStatus(
+          "Saved manual market estimate. Use the research links below if you want to review it.",
+          "success",
+        );
+      } else {
+        setValueStatus(
+          "Research the market below, then enter your own estimated value.",
+        );
+      }
+
+      setSaveLoading(false);
+    } catch (error) {
+      console.error("Shelfmark edit load error:", error);
+
+      setFormSaveMessage(
+        error?.message || "The game could not be loaded for editing.",
+        "error",
+      );
+
+      if (saveGameButton) {
+        saveGameButton.disabled = true;
+
+        saveGameButton.textContent = "Unavailable";
+      }
+    }
+  }
+
+  /* =====================================================
      DATABASE PAYLOAD
   ===================================================== */
 
   function getGameFormData(userId) {
     const mediaType = getSelectedMediaType();
+
     const caseFormat = getSelectedCaseFormat();
+
     const estimatedValueRaw = estimatedValueInput?.value.trim() || "";
+
+    const estimatedValue = estimatedValueRaw
+      ? optionalNumber(estimatedValueRaw)
+      : null;
+
+    let valueCheckedAt = null;
+
+    if (estimatedValue !== null) {
+      if (isEditMode && !valuationDirty) {
+        valueCheckedAt = editOriginalItem?.value_checked_at ?? null;
+      } else {
+        valueCheckedAt = pendingValueCheckedAt || new Date().toISOString();
+      }
+    }
 
     return {
       collectionItem: {
@@ -1903,10 +2527,14 @@ document.addEventListener("DOMContentLoaded", () => {
         country: optionalString(countryInput?.value),
         purchase_date: optionalString(purchaseDateInput?.value),
         purchase_price: optionalNumber(purchasePriceInput?.value),
-        estimated_value:
-          estimatedValueRaw && estimatedValueRaw !== "N/D"
-            ? optionalNumber(estimatedValueRaw)
+        estimated_value: estimatedValue,
+
+        value_source:
+          estimatedValue !== null
+            ? optionalString(valueSourceInput?.value)
             : null,
+
+        value_checked_at: valueCheckedAt,
         notes: optionalString(notesInput?.value),
       },
 
@@ -2016,6 +2644,466 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
       })
       .sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
+  /* =====================================================
+   EDIT IMAGE PLAN
+===================================================== */
+
+  function getEditImagePlan(mediaType) {
+    const keepExistingIds = new Set();
+
+    const newImages = [];
+
+    document
+      .querySelectorAll(".image-upload[data-image-role]")
+      .forEach((uploadBox) => {
+        const role = uploadBox.dataset.imageRole;
+
+        const discNumber =
+          role === "disc" ? Number(uploadBox.dataset.discNumber) || null : null;
+
+        /*
+          Ignore the media format that
+          is no longer active.
+
+          For example, changing Disc to
+          Cartridge removes the old disc
+          images when changes are saved.
+        */
+
+        if (role === "disc" && mediaType !== "disc") {
+          return;
+        }
+
+        if (role === "cartridge" && mediaType !== "cartridge") {
+          return;
+        }
+
+        const state = imageState.get(uploadBox);
+
+        if (!state?.hasImage) {
+          return;
+        }
+
+        /*
+          A newly cropped File means this
+          slot is new or replacing its old
+          stored image.
+        */
+
+        if (state.file) {
+          newImages.push({
+            role,
+            discNumber,
+            file: state.file,
+
+            sortOrder: getImageSortOrder(role, discNumber),
+          });
+
+          return;
+        }
+
+        /*
+          No local File + existingImage
+          means the stored image should
+          remain untouched.
+        */
+
+        if (state.existingImage?.id) {
+          keepExistingIds.add(state.existingImage.id);
+        }
+      });
+
+    /*
+    Anything that existed in Supabase but
+    is no longer represented as a kept
+    image should be removed.
+
+    This naturally handles:
+    - clicking Remove image
+    - replacing an image
+    - reducing disc count
+    - switching Disc -> Cartridge
+    - switching Cartridge -> Disc
+  */
+
+    const oldImagesToDelete = editOriginalImages.filter(
+      (image) => !keepExistingIds.has(image.id),
+    );
+
+    return {
+      newImages,
+      oldImagesToDelete,
+    };
+  }
+
+  function createEditStoragePath(userId, itemId, image, index) {
+    const extension = getFileExtension(image.file);
+
+    const baseName =
+      image.role === "disc" ? `disc-${image.discNumber}` : image.role;
+
+    const token = `${Date.now()}-${index}-${Math.random()
+      .toString(36)
+      .slice(2, 9)}`;
+
+    return `${userId}/` + `${itemId}/` + `${baseName}-${token}.${extension}`;
+  }
+
+  function getOriginalItemPayload() {
+    return {
+      title: editOriginalItem.title,
+
+      condition: editOriginalItem.condition,
+
+      completeness: editOriginalItem.completeness,
+
+      region: editOriginalItem.region,
+
+      country: editOriginalItem.country,
+
+      purchase_date: editOriginalItem.purchase_date,
+
+      purchase_price: editOriginalItem.purchase_price,
+
+      estimated_value: editOriginalItem.estimated_value,
+
+      value_source: editOriginalItem.value_source,
+
+      value_checked_at: editOriginalItem.value_checked_at,
+
+      notes: editOriginalItem.notes,
+    };
+  }
+
+  function getOriginalGamePayload() {
+    return {
+      platform: editOriginalGame.platform,
+
+      release_year: editOriginalGame.release_year,
+
+      genre: editOriginalGame.genre,
+
+      game_type: editOriginalGame.game_type,
+
+      edition: editOriginalGame.edition,
+
+      developer: editOriginalGame.developer,
+
+      publisher: editOriginalGame.publisher,
+
+      media_type: editOriginalGame.media_type,
+
+      case_format: editOriginalGame.case_format,
+
+      custom_case_width: editOriginalGame.custom_case_width,
+
+      custom_case_height: editOriginalGame.custom_case_height,
+
+      disc_count: editOriginalGame.disc_count,
+    };
+  }
+
+  async function updateExistingGame() {
+    if (
+      !supabaseClient ||
+      !editOriginalItem ||
+      !editOriginalGame ||
+      !editItemId
+    ) {
+      throw new Error("The game is not ready to be edited.");
+    }
+
+    setFormSaveMessage("Checking your account…", "loading");
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("You must be logged in to save changes.");
+    }
+
+    if (editOriginalItem.user_id !== user.id) {
+      throw new Error("This game does not belong to the current account.");
+    }
+
+    const { collectionItem, game, mediaType } = getGameFormData(user.id);
+
+    const itemUpdate = {
+      title: collectionItem.title,
+
+      condition: collectionItem.condition,
+
+      completeness: collectionItem.completeness,
+
+      region: collectionItem.region,
+
+      country: collectionItem.country,
+
+      purchase_date: collectionItem.purchase_date,
+
+      purchase_price: collectionItem.purchase_price,
+
+      estimated_value: collectionItem.estimated_value,
+
+      value_source: collectionItem.value_source,
+
+      value_checked_at: collectionItem.value_checked_at,
+
+      notes: collectionItem.notes,
+    };
+
+    const gameUpdate = {
+      ...game,
+    };
+
+    const { newImages, oldImagesToDelete } = getEditImagePlan(mediaType);
+
+    const uploadedPaths = [];
+
+    const insertedImageIds = [];
+
+    let itemUpdated = false;
+    let gameUpdated = false;
+
+    try {
+      /* =================================================
+       UPLOAD NEW / REPLACEMENT IMAGES FIRST
+    ================================================= */
+
+      const newImageRows = [];
+
+      for (let index = 0; index < newImages.length; index += 1) {
+        const image = newImages[index];
+
+        setFormSaveMessage(
+          `Uploading image ${index + 1} of ${newImages.length}…`,
+          "loading",
+        );
+
+        const storagePath = createEditStoragePath(
+          user.id,
+          editItemId,
+          image,
+          index,
+        );
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from("item-images")
+          .upload(storagePath, image.file, {
+            cacheControl: "3600",
+
+            contentType: image.file.type || "image/png",
+
+            upsert: false,
+          });
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        uploadedPaths.push(storagePath);
+
+        newImageRows.push({
+          item_id: editItemId,
+
+          image_type: image.role,
+
+          storage_path: storagePath,
+
+          disc_number: image.role === "disc" ? image.discNumber : null,
+
+          sort_order: image.sortOrder,
+        });
+      }
+
+      /* =================================================
+       CREATE NEW IMAGE DB ROWS
+    ================================================= */
+
+      if (newImageRows.length > 0) {
+        setFormSaveMessage("Saving replacement images…", "loading");
+
+        const { data: insertedImages, error: insertError } =
+          await supabaseClient
+            .from("item_images")
+            .insert(newImageRows)
+            .select("id");
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        (insertedImages || []).forEach((image) => {
+          if (image.id) {
+            insertedImageIds.push(image.id);
+          }
+        });
+      }
+
+      /* =================================================
+       UPDATE COLLECTION ITEM
+    ================================================= */
+
+      setFormSaveMessage("Updating game information…", "loading");
+
+      const { error: itemError } = await supabaseClient
+        .from("collection_items")
+        .update(itemUpdate)
+        .eq("id", editItemId)
+        .eq("user_id", user.id);
+
+      if (itemError) {
+        throw itemError;
+      }
+
+      itemUpdated = true;
+
+      /* =================================================
+       UPDATE GAME DETAILS
+    ================================================= */
+
+      const { error: gameError } = await supabaseClient
+        .from("games")
+        .update(gameUpdate)
+        .eq("item_id", editItemId);
+
+      if (gameError) {
+        throw gameError;
+      }
+
+      gameUpdated = true;
+
+      /* =================================================
+       REMOVE SUPERSEDED DB IMAGE ROWS
+    ================================================= */
+
+      const oldImageIds = oldImagesToDelete
+        .map((image) => image.id)
+        .filter(Boolean);
+
+      if (oldImageIds.length > 0) {
+        setFormSaveMessage("Removing old image records…", "loading");
+
+        const { error: imageDeleteError } = await supabaseClient
+          .from("item_images")
+          .delete()
+          .in("id", oldImageIds);
+
+        if (imageDeleteError) {
+          throw imageDeleteError;
+        }
+      }
+
+      /* =================================================
+       REMOVE OLD STORAGE FILES
+    ================================================= */
+
+      const oldStoragePaths = oldImagesToDelete
+        .map((image) => image.storage_path)
+        .filter(Boolean);
+
+      if (oldStoragePaths.length > 0) {
+        const { error: storageDeleteError } = await supabaseClient.storage
+          .from("item-images")
+          .remove(oldStoragePaths);
+
+        /*
+        At this point the database save
+        succeeded, so a Storage cleanup
+        failure should not undo the edit.
+
+        It would only leave an orphaned
+        file, which can be cleaned later.
+      */
+
+        if (storageDeleteError) {
+          console.warn(
+            "Shelfmark: Changes were saved, but some old image files could not be removed:",
+            storageDeleteError,
+          );
+        }
+      }
+
+      setFormSaveMessage("Changes saved successfully.", "success");
+
+      return editItemId;
+    } catch (error) {
+      console.error("Shelfmark edit save error:", error);
+
+      /*
+      Best-effort rollback of any newly
+      created image rows/files.
+    */
+
+      if (insertedImageIds.length > 0) {
+        const { error: imageRollbackError } = await supabaseClient
+          .from("item_images")
+          .delete()
+          .in("id", insertedImageIds);
+
+        if (imageRollbackError) {
+          console.warn(
+            "Shelfmark edit rollback: New image records could not be removed:",
+            imageRollbackError,
+          );
+        }
+      }
+
+      if (uploadedPaths.length > 0) {
+        const { error: storageRollbackError } = await supabaseClient.storage
+          .from("item-images")
+          .remove(uploadedPaths);
+
+        if (storageRollbackError) {
+          console.warn(
+            "Shelfmark edit rollback: New Storage files could not be removed:",
+            storageRollbackError,
+          );
+        }
+      }
+
+      /*
+      Restore text/game information if
+      one of the UPDATE operations already
+      completed before another operation
+      failed.
+    */
+
+      if (itemUpdated) {
+        const { error: itemRollbackError } = await supabaseClient
+          .from("collection_items")
+          .update(getOriginalItemPayload())
+          .eq("id", editItemId)
+          .eq("user_id", user.id);
+
+        if (itemRollbackError) {
+          console.warn(
+            "Shelfmark edit rollback: Collection item could not be restored:",
+            itemRollbackError,
+          );
+        }
+      }
+
+      if (gameUpdated) {
+        const { error: gameRollbackError } = await supabaseClient
+          .from("games")
+          .update(getOriginalGamePayload())
+          .eq("item_id", editItemId);
+
+        if (gameRollbackError) {
+          console.warn(
+            "Shelfmark edit rollback: Game details could not be restored:",
+            gameRollbackError,
+          );
+        }
+      }
+
+      throw error;
+    }
   }
 
   /* =====================================================
@@ -2171,22 +3259,36 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    setSaveLoading(true, "Saving game…");
-    setFormSaveMessage("Saving game…", "loading");
+    const loadingMessage = isEditMode ? "Saving changes…" : "Saving game…";
+
+    setSaveLoading(true, loadingMessage);
+
+    setFormSaveMessage(loadingMessage, "loading");
 
     try {
-      const itemId = await saveGame();
+      const itemId = isEditMode ? await updateExistingGame() : await saveGame();
 
       window.location.href = `game.html?id=${encodeURIComponent(itemId)}`;
     } catch (error) {
-      console.error("Shelfmark save game error:", error);
+      console.error(
+        isEditMode
+          ? "Shelfmark edit game error:"
+          : "Shelfmark save game error:",
+        error,
+      );
 
-      const message =
-        error?.message === "You must be logged in to save a game."
-          ? "Your session has expired. Log in again before saving the game."
+      const sessionExpired =
+        error?.message === "You must be logged in to save a game." ||
+        error?.message === "You must be logged in to save changes.";
+
+      const message = sessionExpired
+        ? "Your session has expired. Log in again before saving."
+        : isEditMode
+          ? "The changes could not be saved. Please try again."
           : "The game could not be saved. Please try again.";
 
       setFormSaveMessage(message, "error");
+
       setSaveLoading(false);
     }
   });
@@ -2202,11 +3304,19 @@ document.addEventListener("DOMContentLoaded", () => {
   updateMediaType();
   updateCaseFormat();
 
+  setValueCheckedPreview(null);
+
   setValueStatus(
-    "Enter the game title and platform to estimate its current market value.",
+    "Research the market below, then enter your own estimated value.",
   );
+
+  updateMarketResearchLinks();
 
   requestAnimationFrame(() => {
     updateUploadPreviewGeometry();
   });
+
+  if (isEditMode) {
+    loadEditMode();
+  }
 });

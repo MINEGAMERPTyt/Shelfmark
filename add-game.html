@@ -6,6 +6,17 @@
 
     <title>Add Game - Shelfmark</title>
 
+    <link
+      rel="icon"
+      type="image/png"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/navbar.css" />
     <link rel="stylesheet" href="css/forms.css" />
@@ -535,25 +546,30 @@
         </section>
 
         <!-- ================================
-             Purchase
-        ================================= -->
+     Purchase
+================================= -->
 
         <section class="form-section">
           <div class="form-section-heading">
             <div>
-              <h2>Purchase</h2>
-              <p>Record the acquisition details and current estimated value.</p>
+              <h2>Purchase & value</h2>
+
+              <p>
+                Record what you paid and, if you want, research the current
+                market and enter your own estimated value.
+              </p>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="form-field">
-              <label for="purchase-date">Purchase date</label>
+              <label for="purchase-date"> Purchase date </label>
+
               <input type="date" id="purchase-date" name="purchaseDate" />
             </div>
 
             <div class="form-field">
-              <label for="purchase-price">Purchase price</label>
+              <label for="purchase-price"> Purchase price </label>
 
               <div class="input-with-prefix">
                 <span>€</span>
@@ -570,29 +586,132 @@
             </div>
 
             <div class="form-field">
-              <label for="estimated-value">Estimated current value</label>
+              <label for="estimated-value"> Estimated current value </label>
 
               <div class="input-with-prefix">
                 <span>€</span>
 
                 <input
-                  type="text"
+                  type="number"
                   id="estimated-value"
                   name="estimatedValue"
-                  readonly
-                  placeholder="Automatic"
+                  min="0"
+                  step="0.01"
+                  placeholder="25.00"
                 />
               </div>
 
               <p class="value-status" id="value-status">
-                Enter the game title and platform to estimate its current market
-                value.
+                Research the market below, then enter the value you consider
+                appropriate for this copy.
               </p>
             </div>
 
             <div class="form-field">
-              <label>Profit / loss</label>
+              <label for="value-source"> Value source </label>
+
+              <select id="value-source" name="valueSource">
+                <option value="">Select source</option>
+
+                <option value="PriceCharting">PriceCharting</option>
+
+                <option value="eBay">eBay</option>
+
+                <option value="CeX">CeX</option>
+
+                <option value="Other">Other / Personal estimate</option>
+              </select>
+
+              <p class="form-field-note">
+                Required only when an estimated value is entered.
+              </p>
+            </div>
+
+            <div class="form-field">
+              <label> Last checked </label>
+
+              <div
+                class="form-value-preview value-checked-preview"
+                id="value-checked-preview"
+              >
+                Not checked yet
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label> Profit / loss </label>
+
               <div class="form-value-preview" id="profit-loss">N/D</div>
+            </div>
+
+            <!-- ================================
+         Market Research
+    ================================= -->
+
+            <div class="market-research form-field-wide">
+              <div class="market-research-heading">
+                <div>
+                  <span>Market research</span>
+
+                  <p>
+                    Shelfmark does not copy pricing data from these services.
+                    Open a search, compare the relevant listings or sales, then
+                    enter your own estimate above.
+                  </p>
+                </div>
+              </div>
+
+              <div class="market-research-links">
+                <a
+                  href="#"
+                  class="market-research-link"
+                  data-market-provider="pricecharting"
+                  data-value-source="PriceCharting"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-disabled="true"
+                >
+                  <img
+                    src="assets/images/icons/PriceCharting_logo.png"
+                    alt=""
+                  />
+
+                  <span> Search PriceCharting </span>
+                </a>
+
+                <a
+                  href="#"
+                  class="market-research-link"
+                  data-market-provider="ebay"
+                  data-value-source="eBay"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-disabled="true"
+                >
+                  <img src="assets/images/icons/eBay_logo.png" alt="" />
+
+                  <span> Search eBay sold </span>
+                </a>
+
+                <a
+                  href="#"
+                  class="market-research-link"
+                  data-market-provider="cex"
+                  data-value-source="CeX"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-disabled="true"
+                >
+                  <img src="assets/images/icons/CeX_logo.png" alt="" />
+
+                  <span> Search CeX </span>
+                </a>
+              </div>
+
+              <p class="market-research-note">
+                Search links become available after entering a title and
+                platform.
+              </p>
             </div>
           </div>
         </section>
