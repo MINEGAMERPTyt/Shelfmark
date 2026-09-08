@@ -251,3 +251,71 @@
     font-size: 0.56rem;
   }
 }
+
+/* =========================================================
+   AUTH-AWARE NAVBAR
+========================================================= */
+
+[hidden] {
+  display: none !important;
+}
+
+.site-header .nav-guest,
+.site-header .nav-user {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+.site-header .nav-user-link {
+  color: var(--text);
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  transition: color 0.2s ease;
+}
+
+.site-header .nav-user-link:hover {
+  color: var(--accent);
+}
+
+.site-header .logout-button {
+  padding: 0;
+
+  background: transparent;
+  color: var(--text-muted);
+
+  border: 0;
+
+  font-family: inherit;
+  font-size: 0.61rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.site-header .logout-button:hover {
+  color: #d86b6b;
+}
+
+@media (max-width: 520px) {
+  .site-header .nav-guest,
+  .site-header .nav-user {
+    gap: 11px;
+  }
+
+  .site-header .nav-user-link {
+    font-size: 0.57rem;
+  }
+
+  .site-header .logout-button {
+    font-size: 0.56rem;
+  }
+}

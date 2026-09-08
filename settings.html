@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Settings - Shelfmark</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+
+  <body data-require-auth="true">
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">S</span>
+          <span class="brand-name">Shelfmark</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+
+          <a href="collection.html" data-auth="user" hidden> Collection </a>
+
+          <a href="add-game.html" data-auth="user" hidden> Add Game </a>
+        </div>
+
+        <div class="nav-account">
+          <div class="nav-guest" data-auth="guest" hidden>
+            <a href="login.html" class="login-link"> Log in </a>
+
+            <a href="register.html" class="register-button"> Create account </a>
+          </div>
+
+          <div class="nav-user" data-auth="user" hidden>
+            <a href="profile.html" class="nav-user-link" data-user-name>
+              Account
+            </a>
+
+            <button
+              type="button"
+              class="logout-button"
+              data-auth-action="logout"
+            >
+              Log out
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="account-page">
+      <header class="account-header">
+        <p class="auth-eyebrow">Your account</p>
+
+        <h1>Settings.</h1>
+      </header>
+
+      <section class="account-section">
+        <h2>Profile</h2>
+
+        <form class="settings-form" id="username-settings-form" novalidate>
+          <div class="auth-field">
+            <label for="settings-username"> Username </label>
+
+            <input
+              type="text"
+              id="settings-username"
+              autocomplete="username"
+              minlength="2"
+              required
+            />
+          </div>
+
+          <div class="auth-field">
+            <label for="settings-email"> Email </label>
+
+            <input type="email" id="settings-email" readonly />
+          </div>
+
+          <p
+            class="auth-message"
+            id="settings-profile-message"
+            aria-live="polite"
+          ></p>
+
+          <button type="submit" class="auth-submit">Save profile</button>
+        </form>
+
+        <div class="settings-divider">
+          <h2>Change password</h2>
+
+          <form class="settings-form" id="password-settings-form" novalidate>
+            <div class="auth-field">
+              <label for="settings-password"> New password </label>
+
+              <input
+                type="password"
+                id="settings-password"
+                autocomplete="new-password"
+                minlength="8"
+                placeholder="At least 8 characters"
+                required
+              />
+            </div>
+
+            <div class="auth-field">
+              <label for="settings-confirm-password">
+                Confirm new password
+              </label>
+
+              <input
+                type="password"
+                id="settings-confirm-password"
+                autocomplete="new-password"
+                minlength="8"
+                placeholder="Repeat new password"
+                required
+              />
+            </div>
+
+            <p
+              class="auth-message"
+              id="settings-password-message"
+              aria-live="polite"
+            ></p>
+
+            <button type="submit" class="auth-submit">Change password</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 Shelfmark</p>
+      <p>A personal collection archive.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Profile - Shelfmark</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+
+  <body data-require-auth="true">
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">S</span>
+          <span class="brand-name">Shelfmark</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+
+          <a href="collection.html" data-auth="user" hidden> Collection </a>
+
+          <a href="add-game.html" data-auth="user" hidden> Add Game </a>
+        </div>
+
+        <div class="nav-account">
+          <div class="nav-guest" data-auth="guest" hidden>
+            <a href="login.html" class="login-link"> Log in </a>
+
+            <a href="register.html" class="register-button"> Create account </a>
+          </div>
+
+          <div class="nav-user" data-auth="user" hidden>
+            <a href="profile.html" class="nav-user-link" data-user-name>
+              Account
+            </a>
+
+            <button
+              type="button"
+              class="logout-button"
+              data-auth-action="logout"
+            >
+              Log out
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="account-page">
+      <header class="account-header">
+        <p class="auth-eyebrow">Your account</p>
+
+        <h1>Profile.</h1>
+      </header>
+
+      <section class="account-section">
+        <h2>Account information</h2>
+
+        <div class="account-details">
+          <div class="account-detail">
+            <span>Username</span>
+            <strong id="profile-username"> — </strong>
+          </div>
+
+          <div class="account-detail">
+            <span>Email</span>
+            <strong id="profile-email"> — </strong>
+          </div>
+
+          <div class="account-detail">
+            <span>Member since</span>
+            <strong id="profile-created-at"> — </strong>
+          </div>
+        </div>
+
+        <div class="account-actions">
+          <a href="settings.html" class="account-link"> Account settings </a>
+
+          <a href="collection.html" class="account-link"> View collection </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 Shelfmark</p>
+      <p>A personal collection archive.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

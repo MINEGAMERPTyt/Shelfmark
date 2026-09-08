@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Resident Evil 4 — Shelfmark</title>
+    <title>Resident Evil 4 - Shelfmark</title>
 
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/navbar.css" />
@@ -12,30 +12,50 @@
     <link rel="stylesheet" href="css/responsive.css" />
   </head>
 
-  <body>
+  <body data-require-auth="true">
     <!-- ================================
          Navigation
     ================================= -->
 
     <header class="site-header">
-      <div class="navbar">
+      <nav class="navbar">
         <a href="index.html" class="brand">
           <span class="brand-icon">S</span>
           <span class="brand-name">Shelfmark</span>
         </a>
 
-        <nav class="nav-links">
-          <a href="index.html">Home</a>
-          <a href="collection.html">Collection</a>
-          <a href="add-game.html">Add Game</a>
-        </nav>
+        <div class="nav-links">
+          <a href="index.html"> Home </a>
+
+          <a href="collection.html" class="active" data-auth="user" hidden>
+            Collection
+          </a>
+
+          <a href="add-game.html" data-auth="user" hidden> Add Game </a>
+        </div>
 
         <div class="nav-account">
-          <a href="login.html" class="login-link"> Log in </a>
+          <div class="nav-guest" data-auth="guest" hidden>
+            <a href="login.html" class="login-link"> Log in </a>
 
-          <a href="register.html" class="register-button"> Create account </a>
+            <a href="register.html" class="register-button"> Create account </a>
+          </div>
+
+          <div class="nav-user" data-auth="user" hidden>
+            <a href="profile.html" class="nav-user-link" data-user-name>
+              Account
+            </a>
+
+            <button
+              type="button"
+              class="logout-button"
+              data-auth-action="logout"
+            >
+              Log out
+            </button>
+          </div>
         </div>
-      </div>
+      </nav>
     </header>
 
     <main class="game-page">
@@ -268,6 +288,9 @@
          JavaScript
     ================================= -->
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script src="js/game.js"></script>
   </body>

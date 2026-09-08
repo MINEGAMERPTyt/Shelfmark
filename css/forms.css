@@ -104,6 +104,21 @@
   letter-spacing: 0.06em;
 }
 
+.field-required {
+  margin-left: 7px;
+  color: var(--accent);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.form-field-note {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+
 .form-field input,
 .form-field select,
 .form-field textarea {
@@ -155,6 +170,13 @@
   background: var(--background);
 }
 
+.form-field select:disabled {
+  color: #555;
+  background: var(--background);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .form-field input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
@@ -164,6 +186,28 @@
 .form-field input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
   appearance: none;
+}
+
+/* =========================================================
+   CUSTOM VALIDATION
+========================================================= */
+
+.form-field input.is-invalid,
+.form-field select.is-invalid,
+.form-field textarea.is-invalid {
+  border-color: #ff7777;
+}
+
+.form-field input.is-invalid:focus,
+.form-field select.is-invalid:focus,
+.form-field textarea.is-invalid:focus {
+  border-color: #ff7777;
+  background: var(--surface-light);
+}
+
+.format-selector.is-invalid .format-option-box,
+.case-format-selector.is-invalid .case-format-box {
+  border-color: #ff7777;
 }
 
 /* =========================================================
@@ -182,6 +226,10 @@
   font-size: 0.8rem;
   transform: translateY(-50%);
   pointer-events: none;
+}
+
+.input-with-prefix > span[hidden] {
+  display: none;
 }
 
 .input-with-prefix input {
@@ -208,7 +256,7 @@
 }
 
 .format-subsection-heading p {
-  max-width: 600px;
+  max-width: 650px;
   margin-top: 7px;
   color: var(--text-muted);
   font-size: 0.69rem;
@@ -266,7 +314,7 @@
 }
 
 .format-option-description {
-  max-width: 380px;
+  max-width: 390px;
   margin-top: 7px;
   color: var(--text-muted);
   font-size: 0.69rem;
@@ -389,6 +437,14 @@
   line-height: 1.55;
 }
 
+.value-status.success {
+  color: var(--accent);
+}
+
+.value-status.error {
+  color: #ff7777;
+}
+
 .form-value-preview {
   height: 50px;
   display: flex;
@@ -409,22 +465,82 @@
 }
 
 /* =========================================================
-   IMAGE UPLOADS
+   PHOTO GROUPS
 ========================================================= */
 
-.image-upload-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: start;
-  gap: 22px;
+.photo-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
 }
+
+.photo-group {
+  min-width: 0;
+}
+
+.photo-group-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+
+  margin-bottom: 24px;
+  padding-bottom: 17px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.photo-group-heading h3 {
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.photo-group-heading p {
+  max-width: 580px;
+  margin-top: 7px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  line-height: 1.55;
+}
+
+.photo-group-status {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.59rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* =========================================================
+   PACKAGING GRID
+========================================================= */
+
+.packaging-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  gap: 18px;
+}
+
+/* =========================================================
+   IMAGE UPLOAD CARD
+========================================================= */
 
 .image-upload {
   min-width: 0;
   align-self: start;
+
   background: var(--surface);
+
   border: 1px solid var(--border);
-  transition: border-color 0.2s ease;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .image-upload:hover {
@@ -435,6 +551,7 @@
   --preview-ratio: 0.7;
 
   position: relative;
+
   width: 100%;
   aspect-ratio: var(--preview-ratio);
 
@@ -445,6 +562,7 @@
   overflow: hidden;
 
   background-color: #151515;
+
   background-image:
     linear-gradient(45deg, #202020 25%, transparent 25%),
     linear-gradient(-45deg, #202020 25%, transparent 25%),
@@ -469,77 +587,9 @@
   padding: 6px 9px;
   background: var(--background);
   color: var(--text-muted);
-  font-size: 0.58rem;
+  font-size: 0.56rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-}
-
-/* =========================================================
-   SIDE IMAGE
-========================================================= */
-
-.image-upload[data-image-role="side"] {
-  width: 110px;
-  justify-self: start;
-}
-
-.image-upload-preview.preview-side {
-  width: var(--side-preview-width, 45px);
-  height: var(--side-preview-height, 380px);
-
-  aspect-ratio: auto;
-
-  margin: 0 auto;
-}
-
-/* =========================================================
-   DISC
-========================================================= */
-
-.image-upload[data-image-role="disc"] {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.image-upload-preview.preview-disc {
-  width: min(100%, 260px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  margin: 0 auto;
-}
-
-/* =========================================================
-   CARTRIDGE
-========================================================= */
-
-.image-upload-preview.preview-cartridge {
-  aspect-ratio: 0.78;
-}
-
-/* =========================================================
-   IMAGE BUTTON
-========================================================= */
-
-.image-upload-button {
-  display: block;
-  padding: 13px 15px;
-  border-top: 1px solid var(--border);
-  color: var(--text-muted);
-  font-size: 0.63rem;
-  font-weight: 700;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-}
-
-.image-upload-button:hover {
-  background: var(--accent);
-  color: var(--background);
 }
 
 .image-upload.has-image .image-upload-preview {
@@ -553,36 +603,191 @@
   object-fit: cover;
 }
 
-.image-upload.has-image .image-upload-preview span {
+.image-upload.has-image .image-upload-placeholder {
   display: none;
 }
 
-.media-image {
-  display: block;
+.image-upload-placeholder {
+  transition: opacity 0.2s ease;
+}
+
+/* =========================================================
+   SIDE IMAGE
+========================================================= */
+
+.image-upload[data-image-role="side"] {
+  width: 100%;
+  justify-self: stretch;
+}
+
+.image-upload-preview.preview-side {
+  width: var(--side-preview-width, 40px);
+  height: var(--side-preview-height, 380px);
+  max-width: calc(100% - 30px);
+
+  aspect-ratio: auto;
+
+  margin: 0 auto;
+}
+
+/* =========================================================
+   MEDIA AREA
+========================================================= */
+
+.media-upload-area {
+  min-height: 180px;
 }
 
 .media-image.is-hidden {
   display: none;
 }
 
+.media-upload-empty {
+  display: none;
+
+  max-width: 470px;
+
+  padding: 20px;
+
+  border: 1px dashed var(--border);
+
+  color: var(--text-muted);
+
+  font-size: 0.67rem;
+  line-height: 1.55;
+}
+
+.media-upload-empty.visible {
+  display: block;
+}
+
+/* =========================================================
+   DISC GRID
+========================================================= */
+
+.disc-upload-group {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(180px, 220px));
+
+  justify-content: start;
+  align-items: start;
+
+  gap: 20px;
+}
+
+.disc-upload-group.is-hidden {
+  display: none;
+}
+
+/* =========================================================
+   DISC CARD
+========================================================= */
+
+.disc-upload-item {
+  width: 100%;
+}
+
+.image-upload[data-image-role="disc"] {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.image-upload-preview.preview-disc {
+  width: min(calc(100% - 24px), 190px);
+
+  aspect-ratio: 1;
+
+  margin: 12px auto;
+
+  border-radius: 50%;
+}
+
+/* =========================================================
+   CARTRIDGE
+========================================================= */
+
+.cartridge-upload {
+  width: min(100%, 220px);
+}
+
+.image-upload-preview.preview-cartridge {
+  aspect-ratio: 0.78;
+}
+
+/* =========================================================
+   IMAGE BUTTONS
+========================================================= */
+
+.image-upload-button {
+  display: block;
+
+  padding: 13px 15px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--text-muted);
+
+  font-size: 0.63rem;
+  font-weight: 700;
+
+  text-align: center;
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.image-upload-button:hover {
+  background: var(--accent);
+  color: var(--background);
+}
+
 .image-remove-button {
   display: none;
+
+  width: 100%;
+  min-height: 34px;
+
+  align-items: center;
+  justify-content: center;
+
   margin-top: 10px;
-  padding: 0;
+  padding: 8px 12px;
+
   border: 0;
+
   background: transparent;
   color: var(--text-muted);
+
   font-family: inherit;
-  font-size: 0.62rem;
+
+  font-size: 0.6rem;
   font-weight: 700;
+  line-height: 1;
+
+  text-align: center;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+
+  letter-spacing: 0.07em;
+
   cursor: pointer;
-  transition: color 0.2s ease;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
 }
 
 .image-remove-button:hover {
   color: #d86b6b;
+  background: rgba(216, 107, 107, 0.05);
 }
 
 /* =========================================================
@@ -624,6 +829,7 @@ body.cropper-open {
   max-height: calc(100vh - 40px);
 
   background: var(--surface);
+
   border: 1px solid var(--border);
 
   overflow: hidden;
@@ -645,17 +851,23 @@ body.cropper-open {
 
 .cropper-eyebrow {
   margin-bottom: 7px;
+
   color: var(--accent);
+
   font-size: 0.59rem;
   font-weight: 700;
+
   text-transform: uppercase;
+
   letter-spacing: 0.09em;
 }
 
 .cropper-header h2 {
   color: var(--text);
+
   font-size: 1.12rem;
   line-height: 1;
+
   letter-spacing: -0.03em;
 }
 
@@ -688,6 +900,7 @@ body.cropper-open {
 
   fill: none;
   stroke: currentColor;
+
   stroke-width: 1.5;
   stroke-linecap: round;
 }
@@ -717,6 +930,7 @@ body.cropper-open {
   background: #0d0d0d;
 
   cursor: grab;
+
   touch-action: none;
 }
 
@@ -776,6 +990,7 @@ body.cropper-open {
   top: 50%;
 
   width: 13%;
+
   aspect-ratio: 1;
 
   transform: translate(-50%, -50%);
@@ -783,6 +998,7 @@ body.cropper-open {
   border-radius: 50%;
 
   background: #0d0d0d;
+
   border: 1px solid var(--accent);
 }
 
@@ -793,21 +1009,13 @@ body.cropper-open {
 .cropper-controls {
   display: flex;
   align-items: center;
+
   gap: 12px;
 
   padding: 16px 24px;
 
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-}
-
-.cropper-controls input[type="range"] {
-  flex: 1;
-  height: 3px;
-
-  accent-color: var(--accent);
-
-  cursor: pointer;
 }
 
 .cropper-zoom-button {
@@ -837,35 +1045,97 @@ body.cropper-open {
   border-color: var(--accent);
 }
 
-#cropper-zoom::-webkit-slider-thumb {
+#cropper-zoom {
   appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: none;
+  -webkit-appearance: none;
+
+  flex: 1;
+
+  height: 16px !important;
+
+  background: transparent !important;
+
+  border: 0 !important;
+
+  outline: none !important;
+
   cursor: pointer;
 }
 
 #cropper-zoom::-webkit-slider-runnable-track {
   height: 3px;
+
   background: var(--border);
+
   border-radius: 0;
+}
+
+#cropper-zoom::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 16px;
+  height: 16px;
+
+  margin-top: -6.5px;
+
+  border-radius: 50%;
+
+  background: var(--accent);
+
+  border: 0;
+
+  box-shadow: none;
+
+  cursor: pointer;
+}
+
+#cropper-zoom:hover::-webkit-slider-thumb,
+#cropper-zoom:active::-webkit-slider-thumb {
+  background: var(--accent);
+
+  box-shadow: 0 0 0 4px rgba(214, 255, 75, 0.12);
+}
+
+#cropper-zoom::-moz-range-track {
+  height: 3px;
+
+  background: var(--border);
+
+  border-radius: 0;
+}
+
+#cropper-zoom::-moz-range-progress {
+  height: 3px;
+
+  background: var(--accent);
 }
 
 #cropper-zoom::-moz-range-thumb {
   width: 16px;
   height: 16px;
+
   border-radius: 50%;
+
   background: var(--accent);
-  border: none;
+
+  border: 0;
+
+  box-shadow: none;
+
   cursor: pointer;
 }
 
-#cropper-zoom::-moz-range-track {
-  height: 3px;
-  background: var(--border);
-  border-radius: 0;
+#cropper-zoom:hover::-moz-range-thumb,
+#cropper-zoom:active::-moz-range-thumb {
+  background: var(--accent);
+
+  box-shadow: 0 0 0 4px rgba(214, 255, 75, 0.12);
+}
+
+#cropper-zoom:focus-visible {
+  outline: 1px solid var(--accent) !important;
+  outline-offset: 3px;
 }
 
 /* =========================================================
@@ -888,10 +1158,12 @@ body.cropper-open {
   padding: 0 19px;
 
   font-family: inherit;
+
   font-size: 0.63rem;
   font-weight: 700;
 
   text-transform: uppercase;
+
   letter-spacing: 0.06em;
 
   cursor: pointer;
@@ -911,12 +1183,15 @@ body.cropper-open {
 
 .cropper-cancel:hover {
   color: var(--text);
+
   background: var(--surface-light);
+
   border-color: #444;
 }
 
 .cropper-actions .button-primary {
   min-height: 44px;
+
   padding: 0 22px;
 
   background: var(--accent);
@@ -932,8 +1207,51 @@ body.cropper-open {
 
 .cropper-actions .button-primary:hover {
   background: var(--accent-dark);
+
   border-color: var(--accent-dark);
+
   transform: translateY(-1px);
+}
+
+/* =========================================================
+   SAVE MESSAGE
+========================================================= */
+
+.form-save-message {
+  display: none;
+
+  margin-top: 34px;
+
+  padding: 14px 16px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  color: var(--text-muted);
+
+  font-size: 0.68rem;
+  line-height: 1.55;
+}
+
+.form-save-message.visible {
+  display: block;
+}
+
+.form-save-message.error {
+  color: #ff7777;
+
+  border-color: rgba(255, 119, 119, 0.35);
+}
+
+.form-save-message.success {
+  color: var(--accent);
+
+  border-color: rgba(214, 255, 75, 0.35);
+}
+
+.form-save-message.loading {
+  color: var(--text);
 }
 
 /* =========================================================
@@ -946,6 +1264,7 @@ body.cropper-open {
   align-items: center;
 
   margin-top: 0;
+
   padding-top: 34px;
 }
 
@@ -962,15 +1281,18 @@ body.cropper-open {
   border-radius: 0;
 
   font-family: inherit;
+
   font-size: 0.63rem;
   font-weight: 700;
 
   line-height: 1;
 
   text-transform: uppercase;
+
   letter-spacing: 0.06em;
 
   text-decoration: none;
+
   cursor: pointer;
 
   box-sizing: border-box;
@@ -978,6 +1300,7 @@ body.cropper-open {
 
 .form-button-secondary {
   color: var(--text-muted);
+
   background: transparent;
 
   border: 1px solid var(--border);
@@ -990,12 +1313,15 @@ body.cropper-open {
 
 .form-button-secondary:hover {
   color: var(--text);
+
   background: var(--surface);
+
   border-color: #444;
 }
 
 .form-actions #save-game {
   color: var(--background);
+
   background: var(--accent);
 
   border: 1px solid var(--accent);
@@ -1008,7 +1334,9 @@ body.cropper-open {
 
 .form-actions #save-game:hover {
   background: var(--accent-dark);
+
   border-color: var(--accent-dark);
+
   transform: translateY(-1px);
 }
 
@@ -1016,8 +1344,16 @@ body.cropper-open {
   transform: translateY(0);
 }
 
+.form-actions #save-game:disabled {
+  opacity: 0.55;
+
+  cursor: wait;
+
+  transform: none;
+}
+
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — TABLET
 ========================================================= */
 
 @media (max-width: 900px) {
@@ -1025,14 +1361,22 @@ body.cropper-open {
     grid-template-columns: 1fr;
   }
 
-  .image-upload-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .form-grid-three {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .packaging-upload-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .disc-upload-group {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 210px));
+  }
 }
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
 
 @media (max-width: 650px) {
   .form-page {
@@ -1052,13 +1396,13 @@ body.cropper-open {
   }
 
   .form-grid,
-  .format-selector,
-  .image-upload-grid {
+  .format-selector {
     grid-template-columns: 1fr;
   }
 
   .custom-case-fields {
     grid-template-columns: 1fr;
+
     gap: 10px;
   }
 
@@ -1066,13 +1410,39 @@ body.cropper-open {
     display: none;
   }
 
-  .image-upload[data-image-role="side"] {
-    justify-self: start;
+  /* =====================================================
+     PHOTO GROUPS
+  ===================================================== */
+
+  .photo-groups {
+    gap: 55px;
+  }
+
+  .photo-group-heading {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 12px;
+  }
+
+  .packaging-upload-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .disc-upload-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    justify-content: stretch;
   }
 
   .image-upload-preview.preview-disc {
-    width: min(100%, 240px);
+    width: min(calc(100% - 18px), 170px);
   }
+
+  /* =====================================================
+     CROPPER
+  ===================================================== */
 
   .cropper-modal {
     padding: 10px;
@@ -1084,6 +1454,7 @@ body.cropper-open {
 
   .cropper-stage {
     height: 55vh;
+
     min-height: 300px;
   }
 
@@ -1103,8 +1474,13 @@ body.cropper-open {
     padding-right: 15px;
   }
 
+  /* =====================================================
+     ACTIONS
+  ===================================================== */
+
   .form-actions {
     flex-direction: row;
+
     gap: 10px;
   }
 
@@ -1113,9 +1489,28 @@ body.cropper-open {
   }
 }
 
+/* =========================================================
+   RESPONSIVE — SMALL MOBILE
+========================================================= */
+
 @media (max-width: 430px) {
+  .packaging-upload-grid,
+  .disc-upload-group {
+    grid-template-columns: 1fr;
+  }
+
+  .disc-upload-item,
+  .cartridge-upload {
+    width: min(100%, 280px);
+  }
+
+  .image-upload[data-image-role="side"] {
+    width: min(100%, 280px);
+  }
+
   .form-actions {
     flex-direction: column-reverse;
+
     align-items: stretch;
   }
 
