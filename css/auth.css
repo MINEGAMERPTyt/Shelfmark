@@ -377,3 +377,82 @@
 .auth-field input.is-valid {
   border-color: var(--border);
 }
+
+/* =========================================================
+   AUTH HELPERS
+========================================================= */
+
+.auth-forgot-link {
+  width: fit-content;
+
+  margin-top: 2px;
+
+  color: var(--text-muted);
+
+  font-size: 0.62rem;
+  font-weight: 600;
+
+  transition: color var(--transition-fast);
+}
+
+.auth-forgot-link:hover {
+  color: var(--accent);
+}
+
+.auth-field-note {
+  margin-top: -8px;
+
+  color: var(--text-muted);
+
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   ACCOUNT DELETION
+========================================================= */
+
+.auth-eyebrow-danger {
+  color: #ff7777;
+}
+
+.account-delete-warning {
+  margin-bottom: 30px;
+
+  padding: 18px;
+
+  background: var(--surface);
+
+  border: 1px solid rgba(255, 119, 119, 0.35);
+}
+
+.account-delete-warning strong {
+  display: block;
+
+  color: #ff7777;
+
+  font-size: 0.72rem;
+}
+
+.account-delete-warning p {
+  margin-top: 8px;
+
+  color: var(--text-muted);
+
+  font-size: 0.68rem;
+  line-height: 1.6;
+}
+
+.auth-submit-danger {
+  background: #a83f3f;
+
+  color: #ffffff;
+
+  border-color: #a83f3f;
+}
+
+.auth-submit-danger:hover:not(:disabled) {
+  background: #c34d4d;
+
+  border-color: #c34d4d;
+}

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Delete Account - Shelfmark</title>
+
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#111111" />
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+
+  <body data-require-auth="true">
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">S</span>
+          <span class="brand-name">Shelfmark</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+
+          <a href="collection.html" data-auth="user" hidden> Collection </a>
+        </div>
+
+        <div class="nav-account">
+          <div class="nav-user" data-auth="user" hidden>
+            <a href="profile.html" class="nav-user-link" data-user-name>
+              Account
+            </a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="auth-page">
+      <header class="auth-header">
+        <p class="auth-eyebrow auth-eyebrow-danger">Danger zone</p>
+
+        <h1>Delete account.</h1>
+
+        <p class="auth-description">
+          Permanently delete your Shelfmark account, collection records and
+          uploaded images.
+        </p>
+      </header>
+
+      <div class="account-delete-warning">
+        <strong>This cannot be undone.</strong>
+
+        <p>
+          Your collection, game information and Shelfmark images will be
+          permanently removed.
+        </p>
+      </div>
+
+      <form class="auth-form" id="delete-account-form" novalidate>
+        <div class="auth-field">
+          <label for="delete-password"> Current password </label>
+
+          <input
+            type="password"
+            id="delete-password"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+
+        <div class="auth-field">
+          <label for="delete-confirmation"> Type DELETE to confirm </label>
+
+          <input
+            type="text"
+            id="delete-confirmation"
+            autocomplete="off"
+            placeholder="DELETE"
+            required
+          />
+        </div>
+
+        <p
+          class="auth-message"
+          id="delete-account-message"
+          aria-live="polite"
+        ></p>
+
+        <button
+          type="submit"
+          class="auth-submit auth-submit-danger"
+          id="delete-account-submit"
+        >
+          Permanently delete account
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Changed your mind?
+        <a href="settings.html"> Return to settings </a>
+      </p>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/delete-account.js"></script>
+  </body>
+</html>

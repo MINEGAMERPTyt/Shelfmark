@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Privacy - Shelfmark</title>
+
+    <meta
+      name="description"
+      content="Information about how Shelfmark stores and uses account and collection data."
+    />
+
+    <meta name="theme-color" content="#111111" />
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/legal.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+
+  <body>
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">S</span>
+          <span class="brand-name">Shelfmark</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+
+          <a href="collection.html" data-auth="user" hidden> Collection </a>
+        </div>
+
+        <div class="nav-account">
+          <div class="nav-guest" data-auth="guest" hidden>
+            <a href="login.html" class="login-link"> Log in </a>
+
+            <a href="register.html" class="register-button"> Create account </a>
+          </div>
+
+          <div class="nav-user" data-auth="user" hidden>
+            <a href="profile.html" class="nav-user-link" data-user-name>
+              Account
+            </a>
+
+            <button
+              type="button"
+              class="logout-button"
+              data-auth-action="logout"
+            >
+              Log out
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="legal-page">
+      <header class="legal-header">
+        <p class="legal-eyebrow">Shelfmark</p>
+
+        <h1>Privacy</h1>
+
+        <p>Last updated 9 September 2026</p>
+      </header>
+
+      <article class="legal-content">
+        <section>
+          <h2>Overview</h2>
+
+          <p>
+            Shelfmark is a personal collection archive. This privacy notice
+            explains what information is stored when you create and use a
+            Shelfmark account.
+          </p>
+        </section>
+
+        <section>
+          <h2>Information Shelfmark stores</h2>
+
+          <p>When you use Shelfmark, the application may store:</p>
+
+          <ul>
+            <li>
+              Your email address and authentication information required to
+              operate your account.
+            </li>
+
+            <li>Profile information you choose to provide.</li>
+
+            <li>
+              Collection information such as titles, platforms, condition,
+              purchase information, estimated values and notes.
+            </li>
+
+            <li>Images you choose to upload for items in your collection.</li>
+
+            <li>
+              Technical information required by the hosting and backend services
+              used to operate Shelfmark.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>How the information is used</h2>
+
+          <p>
+            Information stored by Shelfmark is used to provide your account,
+            maintain your personal collection archive, display your saved items
+            and images, and provide the features of the application.
+          </p>
+
+          <p>
+            Shelfmark does not sell personal information and does not use
+            collection information for advertising.
+          </p>
+        </section>
+
+        <section>
+          <h2>Service providers</h2>
+
+          <p>
+            Shelfmark currently relies on third-party infrastructure to operate
+            the application.
+          </p>
+
+          <dl>
+            <div>
+              <dt>Supabase</dt>
+
+              <dd>
+                Provides authentication, PostgreSQL database services and
+                private image storage.
+              </dd>
+            </div>
+
+            <div>
+              <dt>Netlify</dt>
+
+              <dd>Hosts and delivers the Shelfmark web application.</dd>
+            </div>
+          </dl>
+
+          <p>
+            These providers may process technical information necessary to
+            deliver their services according to their own privacy and security
+            policies.
+          </p>
+        </section>
+
+        <section>
+          <h2>Authentication and browser storage</h2>
+
+          <p>
+            Shelfmark uses browser storage where necessary to maintain an
+            authenticated Supabase session. This allows you to remain signed in
+            between page loads.
+          </p>
+        </section>
+
+        <section>
+          <h2>Market research links</h2>
+
+          <p>
+            Shelfmark may provide links to external services such as
+            PriceCharting, eBay and CeX to help users research item values.
+          </p>
+
+          <p>
+            Shelfmark does not automatically retrieve or store pricing
+            information from those services. When you choose to open an external
+            link, you leave Shelfmark and the privacy policy of that external
+            service applies.
+          </p>
+        </section>
+
+        <section>
+          <h2>Data retention</h2>
+
+          <p>
+            Your active Shelfmark collection data is retained while your account
+            exists or until you remove individual items.
+          </p>
+
+          <p>
+            When you permanently delete your account, Shelfmark removes the
+            account's collection records and uploaded Shelfmark images as part
+            of the deletion process. Infrastructure providers may retain limited
+            backup or operational records according to their own retention
+            policies.
+          </p>
+        </section>
+
+        <section>
+          <h2>Your choices and rights</h2>
+
+          <p>
+            Depending on applicable law, you may have rights relating to access,
+            correction, deletion, restriction, portability or objection
+            regarding your personal information.
+          </p>
+
+          <p>
+            Shelfmark also provides an account deletion option for permanently
+            removing your account and associated collection data.
+          </p>
+
+          <a href="delete-account.html" class="legal-action">
+            Delete Shelfmark account
+          </a>
+        </section>
+
+        <section>
+          <h2>Contact</h2>
+
+          <p>Questions about privacy or personal data can be sent to:</p>
+
+          <p>
+            <strong>martimjorge75@gmail.com</strong>
+          </p>
+        </section>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <p>© 2026 Shelfmark</p>
+        <p>A personal collection archive.</p>
+      </div>
+
+      <nav class="site-footer-links">
+        <a href="privacy.html">Privacy</a>
+
+        <a
+          href="https://github.com/MINEGAMERPTyt/Shelfmark"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>
+      </nav>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
