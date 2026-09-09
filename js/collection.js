@@ -14,6 +14,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const sortSelect = document.getElementById("sort-games");
 
+  const pageSizeSelect = document.getElementById("games-per-page");
+
+  const viewButtons = document.querySelectorAll("[data-collection-view]");
+
+  const collectionResults = document.getElementById("collection-results");
+
+  const collectionRange = document.getElementById("collection-range");
+
+  const collectionPagination = document.getElementById("collection-pagination");
+
+  const paginationPages = document.getElementById("pagination-pages");
+
+  const paginationPrevious = document.getElementById("pagination-previous");
+
+  const paginationNext = document.getElementById("pagination-next");
+
   const collectionGrid = document.getElementById("collection-grid");
 
   const collectionCount = document.getElementById("collection-count");
@@ -41,18 +57,217 @@ document.addEventListener("DOMContentLoaded", () => {
   let collectionRecords = [];
   let gameCards = [];
 
+  let currentPage = 1;
+  let currentUserId = null;
+  let currentView = "grid";
+
+  const DEFAULT_PAGE_SIZE = "12";
+
+  const ALLOWED_PAGE_SIZES = new Set(["12", "24", "48", "all"]);
+
+  const DEFAULT_VIEW = "grid";
+
+  const ALLOWED_VIEWS = new Set(["grid", "list"]);
+
+  /* ========================================
+   Collection Preferences
+======================================== */
+
+  function getPreferenceKey(name) {
+    if (!currentUserId) {
+      return null;
+    }
+
+    return `shelfmark.collection.${currentUserId}.${name}`;
+  }
+
+  function selectHasValue(select, value) {
+    if (!select) {
+      return false;
+    }
+
+    return Array.from(select.options).some((option) => option.value === value);
+  }
+
+  function applyCollectionView(view) {
+    currentView = ALLOWED_VIEWS.has(view) ? view : DEFAULT_VIEW;
+
+    if (collectionGrid) {
+      collectionGrid.classList.toggle("list-view", currentView === "list");
+    }
+
+    viewButtons.forEach((button) => {
+      const isActive = button.dataset.collectionView === currentView;
+
+      button.classList.toggle("active", isActive);
+
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+  }
+
+  function restoreCollectionPreferences() {
+    if (!currentUserId) {
+      return;
+    }
+
+    /* ---------- Page size ---------- */
+
+    const storedPageSize = localStorage.getItem(getPreferenceKey("pageSize"));
+
+    if (pageSizeSelect && ALLOWED_PAGE_SIZES.has(storedPageSize)) {
+      pageSizeSelect.value = storedPageSize;
+    } else if (pageSizeSelect) {
+      pageSizeSelect.value = DEFAULT_PAGE_SIZE;
+    }
+
+    /* ---------- View ---------- */
+
+    const storedView = localStorage.getItem(getPreferenceKey("view"));
+
+    if (storedView && ALLOWED_VIEWS.has(storedView)) {
+      applyCollectionView(storedView);
+    } else {
+      applyCollectionView(DEFAULT_VIEW);
+    }
+
+    /* ---------- Sort ---------- */
+
+    const storedSort = localStorage.getItem(getPreferenceKey("sort"));
+
+    if (sortSelect && selectHasValue(sortSelect, storedSort)) {
+      sortSelect.value = storedSort;
+    }
+
+    /* ---------- Platform ---------- */
+
+    const storedPlatform = localStorage.getItem(getPreferenceKey("platform"));
+
+    if (platformFilter && selectHasValue(platformFilter, storedPlatform)) {
+      platformFilter.value = storedPlatform;
+    }
+
+    /* ---------- Genre ---------- */
+
+    const storedGenre = localStorage.getItem(getPreferenceKey("genre"));
+
+    if (genreFilter && selectHasValue(genreFilter, storedGenre)) {
+      genreFilter.value = storedGenre;
+    }
+
+    /* ---------- Search ---------- */
+
+    const storedSearch = sessionStorage.getItem(getPreferenceKey("search"));
+
+    if (searchInput && storedSearch !== null) {
+      searchInput.value = storedSearch;
+    }
+
+    /* ---------- Page ---------- */
+
+    const storedPage = Number(sessionStorage.getItem(getPreferenceKey("page")));
+
+    if (Number.isInteger(storedPage) && storedPage > 0) {
+      currentPage = storedPage;
+    } else {
+      currentPage = 1;
+    }
+  }
+
+  function saveCollectionPreferences() {
+    if (!currentUserId) {
+      return;
+    }
+
+    if (pageSizeSelect) {
+      localStorage.setItem(getPreferenceKey("pageSize"), pageSizeSelect.value);
+    }
+
+    localStorage.setItem(getPreferenceKey("view"), currentView);
+
+    if (sortSelect) {
+      localStorage.setItem(getPreferenceKey("sort"), sortSelect.value);
+    }
+
+    if (platformFilter) {
+      localStorage.setItem(getPreferenceKey("platform"), platformFilter.value);
+    }
+
+    if (genreFilter) {
+      localStorage.setItem(getPreferenceKey("genre"), genreFilter.value);
+    }
+
+    if (searchInput) {
+      sessionStorage.setItem(getPreferenceKey("search"), searchInput.value);
+    }
+
+    sessionStorage.setItem(getPreferenceKey("page"), String(currentPage));
+  }
+
+  function saveCollectionPosition() {
+    if (!currentUserId) {
+      return;
+    }
+
+    saveCollectionPreferences();
+
+    sessionStorage.setItem(getPreferenceKey("scrollY"), String(window.scrollY));
+
+    sessionStorage.setItem(getPreferenceKey("restoreScroll"), "true");
+  }
+
+  function restoreCollectionPosition() {
+    if (!currentUserId) {
+      return;
+    }
+
+    const shouldRestore =
+      sessionStorage.getItem(getPreferenceKey("restoreScroll")) === "true";
+
+    if (!shouldRestore) {
+      return;
+    }
+
+    const scrollY = Number(sessionStorage.getItem(getPreferenceKey("scrollY")));
+
+    sessionStorage.removeItem(getPreferenceKey("restoreScroll"));
+
+    sessionStorage.removeItem(getPreferenceKey("scrollY"));
+
+    if (!Number.isFinite(scrollY)) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: scrollY,
+          left: 0,
+          behavior: "auto",
+        });
+      });
+    });
+  }
+
   /* ========================================
      Page State
   ======================================== */
 
   function setControlsDisabled(disabled) {
-    [searchInput, platformFilter, genreFilter, sortSelect].forEach(
-      (control) => {
-        if (control) {
-          control.disabled = disabled;
-        }
-      },
-    );
+    [
+      searchInput,
+      platformFilter,
+      genreFilter,
+      sortSelect,
+      pageSizeSelect,
+    ].forEach((control) => {
+      if (control) {
+        control.disabled = disabled;
+      }
+    });
+
+    viewButtons.forEach((button) => {
+      button.disabled = disabled;
+    });
   }
 
   function showCollectionState(title, message, { error = false } = {}) {
@@ -89,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function setCollectionCount(visibleCount = collectionRecords.length) {
+  function setCollectionCount(matchingCount = collectionRecords.length) {
     if (!collectionCount) {
       return;
     }
@@ -97,19 +312,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const total = collectionRecords.length;
 
     if (total === 0) {
-      collectionCount.textContent = "0 items in your collection";
+      collectionCount.textContent = "0 games in your collection";
 
       return;
     }
 
-    if (visibleCount !== total) {
-      collectionCount.textContent = `${visibleCount} of ${total} items`;
+    if (matchingCount !== total) {
+      collectionCount.textContent = `${matchingCount} of ${total} games`;
 
       return;
     }
 
     collectionCount.textContent = `${total} ${
-      total === 1 ? "item" : "items"
+      total === 1 ? "game" : "games"
     } in your collection`;
   }
 
@@ -154,11 +369,12 @@ document.addEventListener("DOMContentLoaded", () => {
     ==================================== */
 
     if (emptyTitle) {
-      emptyTitle.textContent = "Nothing found.";
+      emptyTitle.textContent = "No games found.";
     }
 
     if (emptyMessage) {
-      emptyMessage.textContent = "Try changing your search or filters.";
+      emptyMessage.textContent =
+        "No games match your current search or filters.";
     }
 
     if (emptyAddButton) {
@@ -205,6 +421,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return ratios[game?.case_format] || 0.76;
+  }
+
+  function formatCurrency(value) {
+    if (value === null || value === undefined || value === "") {
+      return "N/D";
+    }
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+      return "N/D";
+    }
+
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: "EUR",
+
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(number);
   }
 
   function getPlatformShortLabel(platform) {
@@ -485,6 +721,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       image.alt = "";
 
+      image.loading = "lazy";
+
+      image.decoding = "async";
+
       disc.appendChild(image);
 
       return disc;
@@ -524,6 +764,10 @@ document.addEventListener("DOMContentLoaded", () => {
       image.src = mediaImage.signedUrl;
 
       image.alt = "";
+
+      image.loading = "lazy";
+
+      image.decoding = "async";
 
       cartridge.appendChild(image);
 
@@ -622,6 +866,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       coverImage.alt = `${item.title} front cover`;
 
+      coverImage.loading = "lazy";
+
+      coverImage.decoding = "async";
+
       gameCase.appendChild(coverImage);
     } else {
       gameCase.appendChild(createCasePlaceholder(item.title));
@@ -657,7 +905,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     subline.textContent = getSubline(game);
 
-    infoMain.append(title, subline);
+    /* ---------- List metadata ---------- */
+
+    const listMeta = document.createElement("p");
+
+    listMeta.className = "game-card-list-meta";
+
+    const listMetaParts = [
+      game?.genre,
+      game?.edition && game.edition !== "Standard Edition"
+        ? game.edition
+        : null,
+    ].filter(Boolean);
+
+    listMeta.textContent = listMetaParts.join(" · ");
+
+    if (!listMeta.textContent) {
+      listMeta.textContent = "No additional details";
+    }
+
+    infoMain.append(title, subline, listMeta);
 
     const condition = document.createElement("span");
 
@@ -667,7 +934,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     info.append(infoMain, condition);
 
-    link.append(visual, info);
+    /* ====================================
+   LIST PRICE
+==================================== */
+
+    const price = document.createElement("div");
+
+    price.className = "game-card-list-price";
+
+    const priceLabel = document.createElement("span");
+
+    priceLabel.textContent = "Purchase price";
+
+    const priceValue = document.createElement("strong");
+
+    priceValue.textContent = formatCurrency(item.purchase_price);
+
+    price.append(priceLabel, priceValue);
+
+    link.append(visual, info, price);
 
     card.appendChild(link);
 
@@ -701,6 +986,154 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ========================================
+   Pagination
+======================================== */
+
+  function getPageSize() {
+    const value = pageSizeSelect?.value || DEFAULT_PAGE_SIZE;
+
+    if (value === "all") {
+      return null;
+    }
+
+    const number = Number(value);
+
+    return Number.isInteger(number) && number > 0 ? number : 12;
+  }
+
+  function getPaginationItems(totalPages, page) {
+    if (totalPages <= 7) {
+      return Array.from(
+        {
+          length: totalPages,
+        },
+        (_, index) => index + 1,
+      );
+    }
+
+    if (page <= 4) {
+      return [1, 2, 3, 4, 5, "...", totalPages];
+    }
+
+    if (page >= totalPages - 3) {
+      return [
+        1,
+        "...",
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    }
+
+    return [1, "...", page - 1, page, page + 1, "...", totalPages];
+  }
+
+  function renderPagination(totalPages) {
+    if (!collectionPagination || !paginationPages) {
+      return;
+    }
+
+    if (totalPages <= 1) {
+      collectionPagination.hidden = true;
+
+      paginationPages.innerHTML = "";
+
+      return;
+    }
+
+    collectionPagination.hidden = false;
+
+    if (paginationPrevious) {
+      paginationPrevious.disabled = currentPage <= 1;
+    }
+
+    if (paginationNext) {
+      paginationNext.disabled = currentPage >= totalPages;
+    }
+
+    paginationPages.innerHTML = "";
+
+    const fragment = document.createDocumentFragment();
+
+    getPaginationItems(totalPages, currentPage).forEach((entry) => {
+      if (entry === "...") {
+        const ellipsis = document.createElement("span");
+
+        ellipsis.className = "pagination-ellipsis";
+
+        ellipsis.textContent = "…";
+
+        fragment.appendChild(ellipsis);
+
+        return;
+      }
+
+      const button = document.createElement("button");
+
+      button.type = "button";
+
+      button.className = "pagination-page";
+
+      button.textContent = String(entry);
+
+      button.setAttribute("aria-label", `Page ${entry}`);
+
+      if (entry === currentPage) {
+        button.classList.add("active");
+
+        button.setAttribute("aria-current", "page");
+      }
+
+      button.addEventListener("click", () => {
+        goToPage(entry);
+      });
+
+      fragment.appendChild(button);
+    });
+
+    paginationPages.appendChild(fragment);
+  }
+
+  function updateCollectionRange(matchingCount, startIndex, endIndex) {
+    if (!collectionResults || !collectionRange) {
+      return;
+    }
+
+    if (matchingCount === 0) {
+      collectionResults.hidden = true;
+
+      return;
+    }
+
+    collectionResults.hidden = false;
+
+    if (matchingCount === 1) {
+      collectionRange.textContent = "Showing 1 of 1 game";
+
+      return;
+    }
+
+    collectionRange.textContent = `Showing ${startIndex + 1}–${endIndex} of ${
+      matchingCount
+    } games`;
+  }
+
+  function goToPage(page) {
+    currentPage = Math.max(1, Number(page) || 1);
+
+    filterCollection();
+
+    const target = collectionResults || collectionGrid;
+
+    target?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+
+  /* ========================================
      Filter Collection
   ======================================== */
 
@@ -711,9 +1144,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const selectedGenre = genreFilter?.value || "all";
 
-    let visibleGames = 0;
-
-    gameCards.forEach((card) => {
+    const matchingCards = gameCards.filter((card) => {
       const matchesSearch = card.dataset.search.includes(searchTerm);
 
       const matchesPlatform =
@@ -723,13 +1154,37 @@ document.addEventListener("DOMContentLoaded", () => {
       const matchesGenre =
         selectedGenre === "all" || card.dataset.genre === selectedGenre;
 
-      const visible = matchesSearch && matchesPlatform && matchesGenre;
+      return matchesSearch && matchesPlatform && matchesGenre;
+    });
+
+    const matchingCount = matchingCards.length;
+
+    const pageSize = getPageSize();
+
+    const totalPages =
+      matchingCount === 0
+        ? 1
+        : pageSize === null
+          ? 1
+          : Math.ceil(matchingCount / pageSize);
+
+    currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+    const startIndex = pageSize === null ? 0 : (currentPage - 1) * pageSize;
+
+    const endIndex =
+      pageSize === null
+        ? matchingCount
+        : Math.min(startIndex + pageSize, matchingCount);
+
+    const visibleCards = new Set(matchingCards.slice(startIndex, endIndex));
+
+    gameCards.forEach((card) => {
+      const visible = visibleCards.has(card);
 
       card.hidden = !visible;
 
-      if (visible) {
-        visibleGames += 1;
-      } else {
+      if (!visible) {
         const state = discStates.get(card);
 
         if (state?.stopTimer) {
@@ -742,9 +1197,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    setCollectionCount(visibleGames);
+    setCollectionCount(matchingCount);
 
-    updateEmptyState(visibleGames);
+    updateEmptyState(matchingCount);
+
+    updateCollectionRange(matchingCount, startIndex, endIndex);
+
+    renderPagination(totalPages);
+
+    saveCollectionPreferences();
   }
 
   /* ========================================
@@ -846,6 +1307,8 @@ document.addEventListener("DOMContentLoaded", () => {
     sortedCards.forEach((card) => {
       collectionGrid.appendChild(card);
     });
+
+    gameCards = sortedCards;
   }
 
   /* ========================================
@@ -1010,6 +1473,14 @@ document.addEventListener("DOMContentLoaded", () => {
       collectionGrid.innerHTML = "";
     }
 
+    if (collectionResults) {
+      collectionResults.hidden = true;
+    }
+
+    if (collectionPagination) {
+      collectionPagination.hidden = true;
+    }
+
     if (collectionCount) {
       collectionCount.textContent = "Loading collection…";
     }
@@ -1036,6 +1507,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!user) {
         throw new Error("You must be logged in to view your collection.");
       }
+
+      currentUserId = user.id;
 
       /* ==================================
          COLLECTION ITEMS
@@ -1079,6 +1552,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         populateFilters();
 
+        restoreCollectionPreferences();
+
         hideCollectionState();
 
         setControlsDisabled(false);
@@ -1086,6 +1561,14 @@ document.addEventListener("DOMContentLoaded", () => {
         setCollectionCount(0);
 
         updateEmptyState(0);
+
+        if (collectionResults) {
+          collectionResults.hidden = true;
+        }
+
+        if (collectionPagination) {
+          collectionPagination.hidden = true;
+        }
 
         return;
       }
@@ -1185,11 +1668,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       populateFilters();
 
+      restoreCollectionPreferences();
+
       renderCollectionCards();
 
       hideCollectionState();
 
       setControlsDisabled(false);
+
+      restoreCollectionPosition();
     } catch (error) {
       console.error("Shelfmark collection load error:", error);
 
@@ -1225,19 +1712,75 @@ document.addEventListener("DOMContentLoaded", () => {
      Events
   ======================================== */
 
-  searchInput?.addEventListener("input", filterCollection);
+  searchInput?.addEventListener("input", () => {
+    currentPage = 1;
 
-  platformFilter?.addEventListener("change", filterCollection);
+    filterCollection();
+  });
 
-  genreFilter?.addEventListener("change", filterCollection);
+  platformFilter?.addEventListener("change", () => {
+    currentPage = 1;
+
+    filterCollection();
+  });
+
+  genreFilter?.addEventListener("change", () => {
+    currentPage = 1;
+
+    filterCollection();
+  });
 
   sortSelect?.addEventListener("change", () => {
+    currentPage = 1;
+
     sortCollection();
 
     filterCollection();
   });
 
+  pageSizeSelect?.addEventListener("change", () => {
+    currentPage = 1;
+
+    filterCollection();
+  });
+
   collectionRetry?.addEventListener("click", loadCollection);
+
+  paginationPrevious?.addEventListener("click", () => {
+    if (currentPage <= 1) {
+      return;
+    }
+
+    goToPage(currentPage - 1);
+  });
+
+  paginationNext?.addEventListener("click", () => {
+    goToPage(currentPage + 1);
+  });
+
+  collectionGrid?.addEventListener("click", (event) => {
+    const link = event.target.closest(".game-card-link");
+
+    if (!link) {
+      return;
+    }
+
+    saveCollectionPosition();
+  });
+
+  viewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const view = button.dataset.collectionView;
+
+      if (!ALLOWED_VIEWS.has(view)) {
+        return;
+      }
+
+      applyCollectionView(view);
+
+      saveCollectionPreferences();
+    });
+  });
 
   /* ========================================
      Start

@@ -133,6 +133,171 @@
 }
 
 /* ========================================
+   Collection Results
+======================================== */
+
+.collection-results {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 28px;
+}
+
+.collection-results[hidden] {
+  display: none;
+}
+
+.collection-range {
+  color: var(--text-muted);
+
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.collection-page-size {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.collection-page-size label {
+  color: var(--text-muted);
+
+  font-size: 0.58rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.collection-page-size select {
+  height: 38px;
+
+  min-width: 76px;
+
+  padding: 0 12px;
+
+  background: var(--surface);
+
+  color: var(--text);
+
+  border: 1px solid var(--border);
+
+  font-size: 0.7rem;
+
+  cursor: pointer;
+}
+
+.collection-page-size select:hover {
+  border-color: var(--border-hover);
+}
+
+.collection-page-size select:focus {
+  border-color: var(--accent);
+
+  background: var(--surface-light);
+}
+
+.collection-results-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 22px;
+}
+
+/* ========================================
+   View Controls
+======================================== */
+
+.collection-view-control {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.collection-view-label {
+  color: var(--text-muted);
+
+  font-size: 0.58rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.collection-view-buttons {
+  display: flex;
+
+  gap: 5px;
+}
+
+.collection-view-button {
+  width: 38px;
+  height: 38px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: var(--surface);
+
+  color: var(--text-muted);
+
+  border: 1px solid var(--border);
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.collection-view-button svg {
+  width: 17px;
+  height: 17px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 1.5;
+
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.collection-view-button:hover:not(.active) {
+  color: var(--text);
+
+  border-color: var(--border-hover);
+
+  background: var(--surface-light);
+}
+
+.collection-view-button.active {
+  background: var(--accent);
+
+  color: var(--background);
+
+  border-color: var(--accent);
+}
+
+/* ========================================
    Loading / Error State
 ======================================== */
 
@@ -246,6 +411,269 @@
 
   column-gap: 42px;
   row-gap: 70px;
+}
+
+/* ========================================
+   Collection — List View
+======================================== */
+
+.collection-grid.list-view {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.collection-grid.list-view .game-card {
+  width: 100%;
+}
+
+.collection-grid.list-view .game-card-link {
+  display: grid;
+
+  grid-template-columns:
+    76px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 22px;
+
+  min-height: 112px;
+
+  padding: 12px 18px 12px 12px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.collection-grid.list-view .game-card-link:hover {
+  background: var(--surface-light);
+
+  border-color: var(--border-hover);
+}
+
+/* ---------- Cover ---------- */
+
+.collection-grid.list-view .game-card-visual {
+  width: 76px;
+
+  justify-self: start;
+
+  perspective: none;
+}
+
+.collection-grid.list-view .game-case {
+  box-shadow: none;
+}
+
+.collection-grid.list-view .game-card:hover .game-case {
+  transform: none;
+
+  box-shadow: none;
+}
+
+.collection-grid.list-view .game-card:hover .game-case img {
+  filter: brightness(0.94);
+}
+
+/*
+  Disc/cartridge animation belongs to
+  the visual grid layout. It would make
+  list rows unnecessarily busy.
+*/
+
+.collection-grid.list-view .game-disc,
+.collection-grid.list-view .game-cartridge {
+  display: none;
+}
+
+/* ---------- Information ---------- */
+
+.collection-grid.list-view .game-card-info {
+  margin-top: 0;
+
+  align-items: center;
+
+  gap: 24px;
+}
+
+.collection-grid.list-view .game-card-info h2 {
+  font-size: 1rem;
+}
+
+.collection-grid.list-view .game-card-info p {
+  margin-top: 4px;
+}
+
+.game-card-list-meta {
+  display: none;
+}
+
+.collection-grid.list-view .game-card-list-meta {
+  display: block;
+
+  color: var(--text-faint);
+
+  font-size: 0.63rem;
+
+  line-height: 1.5;
+}
+
+/* ---------- Purchase price ---------- */
+
+.game-card-list-price {
+  display: none;
+}
+
+.collection-grid.list-view .game-card-list-price {
+  min-width: 90px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 4px;
+
+  text-align: right;
+}
+
+.game-card-list-price span {
+  color: var(--text-muted);
+
+  font-size: 0.53rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.game-card-list-price strong {
+  color: var(--text);
+
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ========================================
+   Pagination
+======================================== */
+
+.collection-pagination {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 60px;
+
+  padding-top: 30px;
+
+  border-top: 1px solid var(--border);
+}
+
+.collection-pagination[hidden] {
+  display: none;
+}
+
+.pagination-pages {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+.pagination-navigation,
+.pagination-page {
+  height: 40px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 14px;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  border: 1px solid var(--border);
+
+  font-family: inherit;
+
+  font-size: 0.61rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.pagination-page {
+  width: 40px;
+
+  padding: 0;
+}
+
+.pagination-navigation:hover:not(:disabled),
+.pagination-page:hover:not(.active) {
+  background: var(--surface);
+
+  color: var(--text);
+
+  border-color: var(--border-hover);
+}
+
+.pagination-page.active {
+  background: var(--accent);
+
+  color: var(--background);
+
+  border-color: var(--accent);
+
+  cursor: default;
+}
+
+.pagination-navigation:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+  width: 30px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text-faint);
+
+  font-size: 0.7rem;
 }
 
 /* ========================================
@@ -872,6 +1300,100 @@
   .collection-empty {
     padding: 75px 20px;
   }
+
+  .collection-results {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 14px;
+  }
+
+  .collection-page-size {
+    width: 100%;
+
+    justify-content: space-between;
+  }
+
+  .collection-results-actions {
+    width: 100%;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 12px;
+  }
+
+  .collection-view-control {
+    width: 100%;
+
+    justify-content: space-between;
+  }
+
+  .collection-grid.list-view .game-card-link {
+    grid-template-columns:
+      64px
+      minmax(0, 1fr);
+
+    gap: 14px;
+
+    min-height: 100px;
+
+    padding: 10px 12px 10px 10px;
+  }
+
+  .collection-grid.list-view .game-card-visual {
+    width: 64px;
+  }
+
+  .collection-grid.list-view .game-card-info {
+    margin: 0;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 8px;
+  }
+
+  .collection-grid.list-view .game-card-list-price {
+    grid-column: 2;
+
+    min-width: 0;
+
+    align-items: flex-start;
+
+    margin-top: -5px;
+
+    text-align: left;
+  }
+
+  .collection-pagination {
+    justify-content: space-between;
+
+    gap: 10px;
+  }
+
+  .collection-view-button:disabled {
+    opacity: 0.45;
+
+    cursor: wait;
+  }
+
+  .pagination-pages {
+    order: 3;
+
+    width: 100%;
+
+    justify-content: center;
+
+    margin-top: 4px;
+  }
+
+  .pagination-navigation {
+    flex: 1;
+  }
 }
 
 /* ========================================
@@ -885,7 +1407,11 @@
     row-gap: 60px;
   }
 
-  .game-card {
+  .collection-grid:not(.list-view) .game-card {
     width: min(100%, 320px);
+  }
+
+  .collection-grid.list-view .game-card {
+    width: 100%;
   }
 }

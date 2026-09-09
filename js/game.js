@@ -237,6 +237,36 @@ document.addEventListener("DOMContentLoaded", () => {
     return ratios[game.case_format] || 135 / 190;
   }
 
+  function getSideRatio(game) {
+    if (!game) {
+      return 14 / 190;
+    }
+
+    const ratios = {
+      dvd: 14 / 190,
+      "blu-ray": 13 / 171.5,
+      ps1: 10 / 142,
+      gamecube: 17 / 149,
+      psp: 14 / 168,
+      vita: 12 / 135,
+      ds: 15 / 135,
+      switch: 10 / 170,
+    };
+
+    if (game.case_format === "custom") {
+      const coverRatio = getCoverRatio(game);
+
+      /*
+      Approximate a normal game-case
+      spine relative to the custom cover.
+    */
+
+      return coverRatio * (14 / 135);
+    }
+
+    return ratios[game.case_format] || 14 / 190;
+  }
+
   function getImageByRole(role) {
     return (
       currentImages.find(
@@ -457,12 +487,8 @@ document.addEventListener("DOMContentLoaded", () => {
      GALLERY BUILDERS
   ======================================== */
 
-  function createGalleryCard({ image, label, alt, large = false, kind = "" }) {
+  function createGalleryCard({ image, label, alt, kind = "" }) {
     const classNames = ["gallery-image"];
-
-    if (large) {
-      classNames.push("gallery-image-large");
-    }
 
     if (kind) {
       classNames.push(`gallery-image-${kind}`);
@@ -556,11 +582,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const title = currentItem.title;
 
+    /*
+    Give CSS the actual proportions of
+    this game's case.
+
+    Front, back and manual use the case
+    ratio. Side uses the spine ratio.
+  */
+
+    packagingGallery.style.setProperty(
+      "--case-ratio",
+      String(getCoverRatio(currentGame)),
+    );
+
+    packagingGallery.style.setProperty(
+      "--side-ratio",
+      String(getSideRatio(currentGame)),
+    );
+
     const definitions = [
       {
         role: "front",
         label: "Front",
-        large: true,
         kind: "front",
       },
       {
@@ -588,8 +631,6 @@ document.addEventListener("DOMContentLoaded", () => {
           label: definition.label,
 
           alt: `${title} ${definition.label.toLowerCase()} image`,
-
-          large: Boolean(definition.large),
 
           kind: definition.kind,
         }),

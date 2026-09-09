@@ -146,6 +146,72 @@
       </section>
 
       <!-- ================================
+            Collection Results
+      ================================= -->
+
+      <section class="collection-results" id="collection-results" hidden>
+        <p class="collection-range" id="collection-range">Showing collection</p>
+
+        <div class="collection-results-actions">
+          <div class="collection-page-size">
+            <label for="games-per-page"> Games per page </label>
+
+            <select id="games-per-page">
+              <option value="12" selected>12</option>
+              <option value="24">24</option>
+              <option value="48">48</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+
+          <div
+            class="collection-view-control"
+            role="group"
+            aria-label="Collection layout"
+          >
+            <span class="collection-view-label">View</span>
+
+            <div class="collection-view-buttons">
+              <button
+                type="button"
+                class="collection-view-button active"
+                data-collection-view="grid"
+                aria-label="Grid view"
+                aria-pressed="true"
+                title="Grid view"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="4" y="4" width="6" height="6"></rect>
+                  <rect x="14" y="4" width="6" height="6"></rect>
+                  <rect x="4" y="14" width="6" height="6"></rect>
+                  <rect x="14" y="14" width="6" height="6"></rect>
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                class="collection-view-button"
+                data-collection-view="list"
+                aria-label="List view"
+                aria-pressed="false"
+                title="List view"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 6h11"></path>
+                  <path d="M9 12h11"></path>
+                  <path d="M9 18h11"></path>
+
+                  <rect x="4" y="4" width="2" height="2"></rect>
+                  <rect x="4" y="10" width="2" height="2"></rect>
+                  <rect x="4" y="16" width="2" height="2"></rect>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
            Loading / Error State
       ================================= -->
 
@@ -177,6 +243,35 @@
       ================================= -->
 
       <section class="collection-grid" id="collection-grid"></section>
+
+      <!-- ================================
+     Pagination
+================================= -->
+
+      <nav
+        class="collection-pagination"
+        id="collection-pagination"
+        aria-label="Collection pages"
+        hidden
+      >
+        <button
+          type="button"
+          class="pagination-navigation"
+          id="pagination-previous"
+        >
+          Previous
+        </button>
+
+        <div class="pagination-pages" id="pagination-pages"></div>
+
+        <button
+          type="button"
+          class="pagination-navigation"
+          id="pagination-next"
+        >
+          Next
+        </button>
+      </nav>
 
       <!-- ================================
            Empty State

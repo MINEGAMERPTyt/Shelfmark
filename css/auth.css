@@ -456,3 +456,44 @@
 
   border-color: #c34d4d;
 }
+
+/* =========================================================
+   SETTINGS VERSION
+========================================================= */
+
+.settings-version {
+  width: min(100%, 520px);
+
+  min-height: 58px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 16px 18px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+}
+
+.settings-version span {
+  color: var(--text-muted);
+
+  font-size: 0.62rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.settings-version strong {
+  color: var(--accent);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+}
