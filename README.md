@@ -497,7 +497,7 @@ Contributions and forks are welcome.
 
 ## Author
 
-Developed by **MINEGAMERPTyt**.
+Developed by **MINEGAMERPT**.
 
 GitHub: [@MINEGAMERPTyt](https://github.com/MINEGAMERPTyt)
 
