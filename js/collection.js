@@ -6,6 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const supabaseClient = window.shelfmarkSupabase;
 
+  const formatLibrary = window.ShelfmarkFormats;
+
+  if (!formatLibrary) {
+    throw new Error(
+      "Shelfmark format library is missing. Make sure js/formats.js loads before collection.js.",
+    );
+  }
+
   const searchInput = document.getElementById("game-search");
 
   const platformFilter = document.getElementById("platform-filter");
@@ -387,40 +395,35 @@ document.addEventListener("DOMContentLoaded", () => {
   ======================================== */
 
   function getCaseRatio(game) {
-    const ratios = {
-      dvd: 135 / 190,
-
-      "blu-ray": 135 / 171.5,
-
-      ps1: 125 / 142,
-
-      gamecube: 107 / 149,
-
-      psp: 99 / 168,
-
-      vita: 105 / 135,
-
-      ds: 122 / 135,
-
-      switch: 104 / 170,
-    };
-
-    if (game?.case_format === "custom") {
-      const width = Number(game.custom_case_width);
-
-      const height = Number(game.custom_case_height);
-
-      if (
-        Number.isFinite(width) &&
-        Number.isFinite(height) &&
-        width > 0 &&
-        height > 0
-      ) {
-        return width / height;
-      }
+    if (!game) {
+      return 0.76;
     }
 
-    return ratios[game?.case_format] || 0.76;
+    return formatLibrary.getCaseRatio({
+      caseFormat: game.case_format,
+
+      role: "cover",
+
+      customWidth: game.custom_case_width,
+
+      customHeight: game.custom_case_height,
+    });
+  }
+
+  function getMediaDefinition(record) {
+    const game = record?.game;
+
+    if (!game) {
+      return null;
+    }
+
+    return formatLibrary.getMediaDefinition({
+      mediaFormat: game.media_format || "",
+
+      platform: game.platform || "",
+
+      mediaType: game.media_type || "",
+    });
   }
 
   function formatCurrency(value) {
@@ -708,7 +711,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function createDiscVisual(record, mediaImage) {
     const disc = document.createElement("div");
 
+    const mediaDefinition = getMediaDefinition(record);
+
     disc.className = "game-disc";
+
+    disc.classList.add(`media-shape-${mediaDefinition?.shape || "disc"}`);
+
+    disc.style.aspectRatio = String(mediaDefinition?.ratio || 1);
+
+    disc.dataset.rotates = mediaDefinition?.rotates ? "true" : "false";
 
     /* ====================================
        REAL DISC PHOTO
@@ -716,6 +727,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (mediaImage?.signedUrl) {
       const image = document.createElement("img");
+
+      disc.classList.add("has-real-media");
 
       image.src = mediaImage.signedUrl;
 
@@ -752,7 +765,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function createCartridgeVisual(record, mediaImage) {
     const cartridge = document.createElement("div");
 
+    const mediaDefinition = getMediaDefinition(record);
+
     cartridge.className = "game-cartridge";
+
+    cartridge.classList.add(
+      `media-shape-${mediaDefinition?.shape || "rounded"}`,
+    );
+
+    cartridge.style.aspectRatio = String(mediaDefinition?.ratio || 0.78);
 
     /* ====================================
        REAL CARTRIDGE PHOTO
@@ -760,6 +781,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (mediaImage?.signedUrl) {
       const image = document.createElement("img");
+
+      cartridge.classList.add("has-real-media");
 
       image.src = mediaImage.signedUrl;
 
@@ -1394,7 +1417,7 @@ document.addEventListener("DOMContentLoaded", () => {
           still slides out with CSS,
           but only real disc photos spin.
         */
-      if (!disc || !discImage) {
+      if (!disc || !discImage || disc.dataset.rotates === "false") {
         return;
       }
 
@@ -1593,6 +1616,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 developer,
                 publisher,
                 media_type,
+                media_format,
                 case_format,
                 custom_case_width,
                 custom_case_height,

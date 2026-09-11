@@ -1415,3 +1415,41 @@
     width: 100%;
   }
 }
+
+/* ========================================
+   Physical Media Shapes
+======================================== */
+
+/*
+  Cropped physical-media PNGs already have
+  transparency around their silhouettes.
+*/
+
+.game-disc.has-real-media,
+.game-cartridge.has-real-media {
+  background: transparent;
+
+  border: 0;
+
+  box-shadow: none;
+}
+
+/* PSP UMD is not a circular naked disc. */
+
+.game-disc.media-shape-umd {
+  border-radius: 0;
+}
+
+/*
+  Standard and GameCube optical discs retain
+  the circular presentation.
+*/
+
+.game-disc.media-shape-disc {
+  border-radius: 50%;
+}
+
+.game-disc.has-real-media img,
+.game-cartridge.has-real-media img {
+  object-fit: contain;
+}

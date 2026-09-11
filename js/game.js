@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const supabaseClient = window.shelfmarkSupabase;
 
+  const formatLibrary = window.ShelfmarkFormats;
+
   const gameState = document.getElementById("game-state");
 
   const gameStateTitle = document.getElementById("game-state-title");
@@ -186,85 +188,77 @@ document.addEventListener("DOMContentLoaded", () => {
       return "N/D";
     }
 
+    const definition = formatLibrary.getMediaDefinition({
+      mediaFormat: game.media_format || "",
+
+      platform: game.platform || "",
+
+      mediaType: game.media_type || "",
+
+      region: currentItem?.region || "",
+    });
+
+    const label =
+      definition?.shortLabel ||
+      (game.media_type === "disc"
+        ? "Disc"
+        : game.media_type === "cartridge"
+          ? "Cartridge"
+          : "N/D");
+
     if (game.media_type === "disc") {
       const count = Number(game.disc_count);
 
-      if (Number.isInteger(count) && count > 0) {
-        return `Disc · ${count} ${count === 1 ? "disc" : "discs"}`;
+      if (Number.isInteger(count) && count > 1) {
+        return `${label} · ${count} discs`;
       }
-
-      return "Disc";
     }
 
-    if (game.media_type === "cartridge") {
-      return "Cartridge";
-    }
-
-    return "N/D";
+    return label;
   }
 
-  function getCoverRatio(game) {
+  function getCaseRatio(game, role = "cover") {
     if (!game) {
       return 135 / 190;
     }
 
-    const ratios = {
-      dvd: 135 / 190,
-      "blu-ray": 135 / 171.5,
-      ps1: 125 / 142,
-      gamecube: 107 / 149,
-      psp: 99 / 168,
-      vita: 105 / 135,
-      ds: 122 / 135,
-      switch: 104 / 170,
-    };
+    return formatLibrary.getCaseRatio({
+      caseFormat: game.case_format,
 
-    if (game.case_format === "custom") {
-      const width = Number(game.custom_case_width);
+      role,
 
-      const height = Number(game.custom_case_height);
+      customWidth: game.custom_case_width,
 
-      if (
-        Number.isFinite(width) &&
-        Number.isFinite(height) &&
-        width > 0 &&
-        height > 0
-      ) {
-        return width / height;
-      }
-    }
+      customHeight: game.custom_case_height,
+    });
+  }
 
-    return ratios[game.case_format] || 135 / 190;
+  function getCoverRatio(game) {
+    return getCaseRatio(game, "cover");
   }
 
   function getSideRatio(game) {
-    if (!game) {
-      return 14 / 190;
+    return getCaseRatio(game, "side");
+  }
+
+  function getManualRatio(game) {
+    return getCaseRatio(game, "manual");
+  }
+
+  function getCurrentMediaDefinition() {
+    if (!currentGame) {
+      return null;
     }
 
-    const ratios = {
-      dvd: 14 / 190,
-      "blu-ray": 13 / 171.5,
-      ps1: 10 / 142,
-      gamecube: 17 / 149,
-      psp: 14 / 168,
-      vita: 12 / 135,
-      ds: 15 / 135,
-      switch: 10 / 170,
-    };
+    return formatLibrary.getMediaDefinition({
+      mediaFormat: currentGame.media_format || "",
 
-    if (game.case_format === "custom") {
-      const coverRatio = getCoverRatio(game);
+      platform: currentGame.platform || "",
 
-      /*
-      Approximate a normal game-case
-      spine relative to the custom cover.
-    */
+      mediaType: currentGame.media_type || "",
 
-      return coverRatio * (14 / 135);
-    }
-
-    return ratios[game.case_format] || 14 / 190;
+      region: currentItem?.region || "",
+    });
   }
 
   function getImageByRole(role) {
@@ -487,7 +481,7 @@ document.addEventListener("DOMContentLoaded", () => {
      GALLERY BUILDERS
   ======================================== */
 
-  function createGalleryCard({ image, label, alt, kind = "" }) {
+  function createGalleryCard({ image, label, alt, kind = "", ratio = null }) {
     const classNames = ["gallery-image"];
 
     if (kind) {
@@ -531,6 +525,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       placeholder.append(empty, caption);
 
+      if (ratio && Number.isFinite(ratio)) {
+        placeholder.style.aspectRatio = String(ratio);
+      }
+
       return placeholder;
     }
 
@@ -570,6 +568,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     button.append(visual, caption);
 
+    if (ratio && Number.isFinite(ratio)) {
+      button.style.aspectRatio = String(ratio);
+    }
+
     return button;
   }
 
@@ -598,6 +600,11 @@ document.addEventListener("DOMContentLoaded", () => {
     packagingGallery.style.setProperty(
       "--side-ratio",
       String(getSideRatio(currentGame)),
+    );
+
+    packagingGallery.style.setProperty(
+      "--manual-ratio",
+      String(getManualRatio(currentGame)),
     );
 
     const definitions = [
@@ -649,9 +656,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const mediaType = currentGame.media_type;
 
+    const mediaDefinition = getCurrentMediaDefinition();
+
+    const mediaRatio = mediaDefinition?.ratio || 1;
+
     /* ====================================
-       DISC
-    ==================================== */
+     DISC
+  ==================================== */
 
     if (mediaType === "disc") {
       const storedDiscNumbers = currentImages
@@ -670,9 +681,9 @@ document.addEventListener("DOMContentLoaded", () => {
           : Math.max(storedMax, 1);
 
       if (mediaGalleryStatus) {
-        mediaGalleryStatus.textContent = `${discCount} ${
-          discCount === 1 ? "disc" : "discs"
-        }`;
+        mediaGalleryStatus.textContent =
+          mediaDefinition?.shortLabel ||
+          `${discCount} ${discCount === 1 ? "disc" : "discs"}`;
       }
 
       for (let discNumber = 1; discNumber <= discCount; discNumber += 1) {
@@ -680,11 +691,21 @@ document.addEventListener("DOMContentLoaded", () => {
           createGalleryCard({
             image: getDiscImage(discNumber),
 
-            label: `Disc ${discNumber}`,
+            label:
+              mediaDefinition?.shortLabel === "UMD"
+                ? discCount > 1
+                  ? `UMD ${discNumber}`
+                  : "UMD"
+                : `Disc ${discNumber}`,
 
-            alt: `${title} disc ${discNumber}`,
+            alt:
+              mediaDefinition?.shortLabel === "UMD"
+                ? `${title} UMD ${discNumber}`
+                : `${title} disc ${discNumber}`,
 
             kind: "disc",
+
+            ratio: mediaRatio,
           }),
         );
       }
@@ -693,23 +714,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ====================================
-       CARTRIDGE
-    ==================================== */
+     CARTRIDGE
+  ==================================== */
 
     if (mediaType === "cartridge") {
       if (mediaGalleryStatus) {
-        mediaGalleryStatus.textContent = "Cartridge";
+        mediaGalleryStatus.textContent =
+          mediaDefinition?.shortLabel || "Cartridge";
       }
 
       mediaGallery.appendChild(
         createGalleryCard({
           image: getImageByRole("cartridge"),
 
-          label: "Cartridge",
+          label: mediaDefinition?.shortLabel || "Cartridge",
 
-          alt: `${title} cartridge`,
+          alt: `${title} ${(
+            mediaDefinition?.shortLabel || "cartridge"
+          ).toLowerCase()}`,
 
           kind: "cartridge",
+
+          ratio: mediaRatio,
         }),
       );
 
@@ -717,8 +743,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ====================================
-       UNKNOWN
-    ==================================== */
+     UNKNOWN
+  ==================================== */
 
     if (mediaGalleryStatus) {
       mediaGalleryStatus.textContent = "Unknown";
@@ -1015,6 +1041,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 developer,
                 publisher,
                 media_type,
+                media_format,
                 case_format,
                 custom_case_width,
                 custom_case_height,

@@ -531,10 +531,15 @@
 .gallery-image-front,
 .gallery-placeholder-front,
 .gallery-image-back,
-.gallery-placeholder-back,
+.gallery-placeholder-back {
+  aspect-ratio: var(--case-ratio, 0.7105);
+
+  max-width: 100%;
+}
+
 .gallery-image-manual,
 .gallery-placeholder-manual {
-  aspect-ratio: var(--case-ratio, 0.7105);
+  aspect-ratio: var(--manual-ratio, 0.7105);
 
   max-width: 100%;
 }

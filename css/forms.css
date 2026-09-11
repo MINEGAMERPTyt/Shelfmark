@@ -322,6 +322,28 @@
 }
 
 /* =========================================================
+   MEDIA FORMAT DETAIL
+========================================================= */
+
+.media-format-settings {
+  margin-top: 18px;
+
+  padding: 22px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+}
+
+.media-format-settings[hidden] {
+  display: none;
+}
+
+.media-format-settings .form-field {
+  max-width: 520px;
+}
+
+/* =========================================================
    CASE FORMAT
 ========================================================= */
 
@@ -753,6 +775,17 @@
 }
 
 /* =========================================================
+   MANUAL PREVIEW
+========================================================= */
+
+.image-upload[data-image-role="manual"] .image-upload-preview {
+  width: var(--manual-preview-width, 100%);
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* =========================================================
    SIDE IMAGE
 ========================================================= */
 
@@ -836,26 +869,43 @@
   flex-direction: column;
 }
 
-.image-upload-preview.preview-disc {
+.image-upload-preview.preview-media {
   width: min(calc(100% - 24px), 190px);
 
-  aspect-ratio: 1;
+  aspect-ratio: var(--media-preview-ratio, 1);
 
   margin: 12px auto;
+}
 
+/* Standard optical discs */
+
+.image-upload-preview.preview-disc {
   border-radius: 50%;
 }
 
-/* =========================================================
-   CARTRIDGE
-========================================================= */
+/* PSP UMD */
+
+.image-upload-preview.preview-umd {
+  border-radius: 0;
+}
+
+/* Cartridges */
 
 .cartridge-upload {
   width: min(100%, 220px);
 }
 
 .image-upload-preview.preview-cartridge {
-  aspect-ratio: 0.78;
+  border-radius: 0;
+}
+
+/*
+  Media crops may contain transparent
+  pixels outside the physical silhouette.
+*/
+
+.image-upload.has-image .image-upload-preview.preview-media img {
+  object-fit: contain;
 }
 
 /* =========================================================
@@ -1107,40 +1157,22 @@ body.cropper-open {
 
   box-sizing: border-box;
 
-  border: 1px solid var(--accent);
+  /*
+    forms.js now draws the actual crop
+    silhouette directly onto the canvas.
+  */
 
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.58);
+  border: 0;
+
+  box-shadow: none;
+
+  background: transparent;
 
   pointer-events: none;
 
   transition:
     width 0.2s ease,
     height 0.2s ease;
-}
-
-.cropper-mask.disc {
-  border-radius: 50%;
-}
-
-.cropper-mask.disc::after {
-  content: "";
-
-  position: absolute;
-
-  left: 50%;
-  top: 50%;
-
-  width: 13%;
-
-  aspect-ratio: 1;
-
-  transform: translate(-50%, -50%);
-
-  border-radius: 50%;
-
-  background: #0d0d0d;
-
-  border: 1px solid var(--accent);
 }
 
 /* =========================================================

@@ -7,6 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveGameButton = document.getElementById("save-game");
   const supabaseClient = window.shelfmarkSupabase;
 
+  const formatLibrary = window.ShelfmarkFormats;
+
+  if (!formatLibrary) {
+    throw new Error(
+      "Shelfmark format library is missing. Make sure js/formats.js loads before forms.js.",
+    );
+  }
+
+  const { CASE_FORMATS, MEDIA_FORMATS, PLATFORM_DEFAULTS } = formatLibrary;
+
   const formHeading = document.querySelector(".form-header h1");
 
   const formIntro = document.querySelector(".form-intro");
@@ -38,6 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const mediaTypeInputs = document.querySelectorAll('input[name="mediaType"]');
   const mediaSelector = document.querySelector(".format-selector");
+
+  const mediaFormatSettings = document.getElementById("media-format-settings");
+
+  const mediaFormatInput = document.getElementById("media-format");
 
   const caseFormatInputs = document.querySelectorAll(
     'input[name="caseFormat"]',
@@ -101,90 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =====================================================
      CASE FORMAT DEFINITIONS
   ===================================================== */
-
-  const CASE_FORMATS = {
-    dvd: {
-      cover: 135 / 190,
-      side: 14 / 190,
-      manual: 135 / 190,
-    },
-    "blu-ray": {
-      cover: 135 / 171.5,
-      side: 13 / 171.5,
-      manual: 135 / 171.5,
-    },
-    ps1: {
-      cover: 125 / 142,
-      side: 10 / 142,
-      manual: 125 / 142,
-    },
-    gamecube: {
-      cover: 107 / 149,
-      side: 17 / 149,
-      manual: 107 / 149,
-    },
-    psp: {
-      cover: 99 / 168,
-      side: 14 / 168,
-      manual: 99 / 168,
-    },
-    vita: {
-      cover: 105 / 135,
-      side: 12 / 135,
-      manual: 105 / 135,
-    },
-    ds: {
-      cover: 122 / 135,
-      side: 15 / 135,
-      manual: 122 / 135,
-    },
-    switch: {
-      cover: 104 / 170,
-      side: 10 / 170,
-      manual: 104 / 170,
-    },
-    custom: {
-      cover: 1 / 1.4,
-      side: (1 / 1.4) * (14 / 135),
-      manual: 1 / 1.4,
-    },
-  };
-
-  const PLATFORM_DEFAULTS = {
-    PlayStation: { mediaType: "disc", caseFormat: "ps1" },
-    "PlayStation 2": { mediaType: "disc", caseFormat: "dvd" },
-    "PlayStation 3": { mediaType: "disc", caseFormat: "blu-ray" },
-    "PlayStation 4": { mediaType: "disc", caseFormat: "blu-ray" },
-    "PlayStation 5": { mediaType: "disc", caseFormat: "blu-ray" },
-
-    Xbox: { mediaType: "disc", caseFormat: "dvd" },
-    "Xbox 360": { mediaType: "disc", caseFormat: "dvd" },
-    "Xbox One": { mediaType: "disc", caseFormat: "blu-ray" },
-    "Xbox Series X/S": { mediaType: "disc", caseFormat: "blu-ray" },
-
-    "Nintendo Entertainment System": {
-      mediaType: "cartridge",
-      caseFormat: "",
-    },
-    "Super Nintendo": { mediaType: "cartridge", caseFormat: "" },
-    "Nintendo 64": { mediaType: "cartridge", caseFormat: "" },
-    GameCube: { mediaType: "disc", caseFormat: "gamecube" },
-    Wii: { mediaType: "disc", caseFormat: "dvd" },
-    "Wii U": { mediaType: "disc", caseFormat: "dvd" },
-    Switch: { mediaType: "cartridge", caseFormat: "switch" },
-
-    "Game Boy": { mediaType: "cartridge", caseFormat: "" },
-    "Game Boy Color": { mediaType: "cartridge", caseFormat: "" },
-    "Game Boy Advance": { mediaType: "cartridge", caseFormat: "" },
-    "Nintendo DS": { mediaType: "cartridge", caseFormat: "ds" },
-    "Nintendo 3DS": { mediaType: "cartridge", caseFormat: "ds" },
-
-    PSP: { mediaType: "disc", caseFormat: "psp" },
-    "PS Vita": { mediaType: "cartridge", caseFormat: "vita" },
-
-    PC: { mediaType: "disc", caseFormat: "" },
-    Other: { mediaType: "", caseFormat: "" },
-  };
 
   const COMMON_COMPLETENESS_OPTIONS = [
     "Complete",
@@ -295,19 +225,15 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  function getSelectedMediaFormat() {
+    return mediaFormatInput?.value || "";
+  }
+
   function getSelectedCaseFormat() {
     const value =
       document.querySelector('input[name="caseFormat"]:checked')?.value || "";
 
-    const aliases = {
-      standard: "dvd",
-      "ps3-ps4-ps5": "blu-ray",
-      "ps1-jewel": "ps1",
-      "nintendo-ds": "ds",
-      "3ds": "ds",
-    };
-
-    return aliases[value] || value;
+    return formatLibrary.normalizeCaseFormat(value);
   }
 
   function setRadioGroupValue(name, value) {
@@ -469,11 +395,94 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* =====================================================
+   MEDIA FORMAT
+===================================================== */
+
+  function getAvailableMediaFormats(mediaType) {
+    return Object.entries(MEDIA_FORMATS).filter(
+      ([, definition]) => definition.mediaType === mediaType,
+    );
+  }
+
+  function populateMediaFormatOptions(preferredValue = "") {
+    if (!mediaFormatInput || !mediaFormatSettings) {
+      return;
+    }
+
+    const mediaType = getSelectedMediaType();
+
+    const previousValue = mediaFormatInput.value;
+
+    mediaFormatInput.innerHTML = "";
+
+    if (!mediaType) {
+      mediaFormatSettings.hidden = true;
+
+      const option = document.createElement("option");
+
+      option.value = "";
+      option.textContent = "Select media type first";
+
+      mediaFormatInput.appendChild(option);
+
+      return;
+    }
+
+    mediaFormatSettings.hidden = false;
+
+    const formats = getAvailableMediaFormats(mediaType);
+
+    formats.forEach(([value, definition]) => {
+      const option = document.createElement("option");
+
+      option.value = value;
+      option.textContent = definition.label;
+
+      mediaFormatInput.appendChild(option);
+    });
+
+    const inferredValue = formatLibrary.inferMediaFormat({
+      platform: platformInput?.value || "",
+      mediaType,
+      region: regionInput?.value || "",
+    });
+
+    const availableValues = new Set(formats.map(([value]) => value));
+
+    const selectedValue =
+      [preferredValue, previousValue, inferredValue].find(
+        (value) => value && availableValues.has(value),
+      ) ||
+      formats[0]?.[0] ||
+      "";
+
+    mediaFormatInput.value = selectedValue;
+  }
+
+  function updateMediaFormat() {
+    updateUploadPreviewGeometry();
+
+    if (cropperModal?.classList.contains("visible")) {
+      updateCropperMask();
+      clampOffsets();
+      drawCropper();
+    }
+  }
+
+  mediaFormatInput?.addEventListener("change", () => {
+    mediaFormatInput.classList.remove("is-invalid");
+    mediaFormatInput.removeAttribute("aria-invalid");
+
+    updateMediaFormat();
+  });
+
+  /* =====================================================
      PLATFORM DEFAULTS
   ===================================================== */
 
   function applyPlatformDefaults() {
     const platform = platformInput?.value || "";
+
     const preset = PLATFORM_DEFAULTS[platform];
 
     if (!preset) {
@@ -483,6 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const previousMedia = getSelectedMediaType();
 
     setRadioGroupValue("mediaType", preset.mediaType);
+
     setRadioGroupValue("caseFormat", preset.caseFormat);
 
     if (
@@ -493,7 +503,14 @@ document.addEventListener("DOMContentLoaded", () => {
       discCountInput.value = "1";
     }
 
-    updateMediaType();
+    const mediaFormat = formatLibrary.inferMediaFormat({
+      platform,
+      mediaType: preset.mediaType,
+      region: regionInput?.value || "",
+    });
+
+    updateMediaType(mediaFormat);
+
     updateCaseFormat();
   }
 
@@ -585,33 +602,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getCaseGeometry(role) {
-    const format = getSelectedCaseFormat() || "dvd";
+    const caseFormat = getSelectedCaseFormat() || "dvd";
 
-    if (format === "custom") {
-      const coverRatio = getCustomRatio();
+    let geometryRole = role;
 
-      if (role === "side") {
-        return {
-          ratio: coverRatio * (14 / 135),
-        };
-      }
-
-      return {
-        ratio: coverRatio,
-      };
+    if (role === "front" || role === "back") {
+      geometryRole = "cover";
     }
 
-    const definition = CASE_FORMATS[format] || CASE_FORMATS.dvd;
+    const ratio = formatLibrary.getCaseRatio({
+      caseFormat,
+      role: geometryRole,
 
-    if (role === "side") {
-      return { ratio: definition.side };
-    }
+      customWidth: customWidth?.value,
 
-    if (role === "manual") {
-      return { ratio: definition.manual };
-    }
+      customHeight: customHeight?.value,
+    });
 
-    return { ratio: definition.cover };
+    return {
+      ratio,
+    };
   }
 
   function updateUploadPreviewGeometry() {
@@ -648,18 +658,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
       preview.classList.remove(
         "preview-side",
+        "preview-media",
         "preview-disc",
+        "preview-umd",
         "preview-cartridge",
       );
       preview.style.removeProperty("aspect-ratio");
+      preview.style.removeProperty("width");
+      preview.style.removeProperty("max-width");
+      preview.style.removeProperty("margin-left");
+      preview.style.removeProperty("margin-right");
 
-      if (role === "disc") {
-        preview.classList.add("preview-disc");
-        return;
-      }
+      if (role === "disc" || role === "cartridge") {
+        const mediaDefinition = formatLibrary.getMediaDefinition({
+          mediaFormat: getSelectedMediaFormat(),
 
-      if (role === "cartridge") {
-        preview.classList.add("preview-cartridge");
+          platform: platformInput?.value || "",
+
+          mediaType: getSelectedMediaType(),
+
+          region: regionInput?.value || "",
+        });
+
+        const ratio = mediaDefinition?.ratio || 1;
+
+        preview.classList.add("preview-media");
+
+        preview.style.setProperty("--media-preview-ratio", String(ratio));
+
+        preview.style.aspectRatio = String(ratio);
+
+        if (mediaDefinition?.shape === "disc") {
+          preview.classList.add("preview-disc");
+        } else if (
+          mediaDefinition?.shape === "umd" ||
+          mediaDefinition?.shape === "umd-mask"
+        ) {
+          preview.classList.add("preview-umd");
+        } else {
+          preview.classList.add("preview-cartridge");
+        }
+
         return;
       }
 
@@ -670,6 +709,24 @@ document.addEventListener("DOMContentLoaded", () => {
         preview.classList.add("preview-side");
         preview.style.setProperty("--side-preview-height", `${coverHeight}px`);
         preview.style.setProperty("--side-preview-width", `${sideWidth}px`);
+        return;
+      }
+
+      if (role === "manual") {
+        const manualRatio = getCaseGeometry("manual").ratio;
+
+        const manualWidth = coverHeight * manualRatio;
+
+        preview.style.aspectRatio = String(manualRatio);
+
+        preview.style.width = `${manualWidth}px`;
+
+        preview.style.maxWidth = "100%";
+
+        preview.style.marginLeft = "auto";
+
+        preview.style.marginRight = "auto";
+
         return;
       }
 
@@ -902,8 +959,10 @@ document.addEventListener("DOMContentLoaded", () => {
      MEDIA TYPE
   ===================================================== */
 
-  function updateMediaType() {
+  function updateMediaType(preferredMediaFormat = "") {
     const selected = getSelectedMediaType();
+
+    populateMediaFormatOptions(preferredMediaFormat);
 
     discUploadGroup?.classList.toggle("is-hidden", selected !== "disc");
 
@@ -960,7 +1019,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     updateCompletenessOptions();
-
+    updateMediaFormat();
     updateUploadPreviewGeometry();
   }
 
@@ -1027,19 +1086,685 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* =====================================================
+     PHYSICAL MEDIA SHAPES
+  ===================================================== */
+
+  function createRoundedRectPath(x, y, width, height, radiusRatio = 0.04) {
+    const path = new Path2D();
+
+    const radius = Math.min(width, height) * radiusRatio;
+
+    path.moveTo(x + radius, y);
+
+    path.lineTo(x + width - radius, y);
+
+    path.quadraticCurveTo(x + width, y, x + width, y + radius);
+
+    path.lineTo(x + width, y + height - radius);
+
+    path.quadraticCurveTo(
+      x + width,
+      y + height,
+      x + width - radius,
+      y + height,
+    );
+
+    path.lineTo(x + radius, y + height);
+
+    path.quadraticCurveTo(x, y + height, x, y + height - radius);
+
+    path.lineTo(x, y + radius);
+
+    path.quadraticCurveTo(x, y, x + radius, y);
+
+    path.closePath();
+
+    return path;
+  }
+
+  function createPolygonPath(x, y, width, height, points) {
+    const path = new Path2D();
+
+    points.forEach(([pointX, pointY], index) => {
+      const px = x + pointX * width;
+
+      const py = y + pointY * height;
+
+      if (index === 0) {
+        path.moveTo(px, py);
+      } else {
+        path.lineTo(px, py);
+      }
+    });
+
+    path.closePath();
+
+    return path;
+  }
+
+  function createCropShapePath(x, y, width, height, definition) {
+    const shape = definition?.shape || "rectangle";
+
+    /* ---------- Rectangle ---------- */
+
+    if (shape === "rectangle") {
+      const path = new Path2D();
+
+      path.rect(x, y, width, height);
+
+      return path;
+    }
+
+    /* ---------- Optical disc ---------- */
+
+    if (shape === "disc") {
+      const path = new Path2D();
+
+      path.arc(
+        x + width / 2,
+        y + height / 2,
+        Math.min(width, height) / 2,
+        0,
+        Math.PI * 2,
+      );
+
+      path.closePath();
+
+      return path;
+    }
+
+    /*
+      PSP UMD is intentionally NOT
+      generated here.
+
+      Shelfmark uses the hand-made
+      assets/images/cropper/umd-outline.png
+      asset instead.
+    */
+
+    /* ---------- GBA ---------- */
+
+    if (shape === "gba") {
+      return createPolygonPath(x, y, width, height, [
+        [0.08, 0.05],
+        [0.92, 0.05],
+        [0.97, 0.18],
+        [0.97, 0.92],
+        [0.03, 0.92],
+        [0.03, 0.18],
+      ]);
+    }
+
+    /* ---------- 3DS ---------- */
+
+    if (shape === "3ds-card") {
+      return createPolygonPath(x, y, width, height, [
+        [0.04, 0.04],
+        [0.87, 0.04],
+        [0.87, 0.17],
+        [1, 0.17],
+        [1, 0.32],
+        [0.94, 0.32],
+        [0.94, 0.96],
+        [0.04, 0.96],
+        [0, 0.91],
+        [0, 0.09],
+      ]);
+    }
+
+    /* ---------- Switch ---------- */
+
+    if (shape === "switch-card") {
+      return createPolygonPath(x, y, width, height, [
+        [0.1, 0.02],
+        [0.9, 0.02],
+        [0.98, 0.09],
+        [0.98, 0.88],
+        [0.89, 0.98],
+        [0.11, 0.98],
+        [0.02, 0.88],
+        [0.02, 0.09],
+      ]);
+    }
+
+    /* ---------- Vita ---------- */
+
+    if (shape === "vita-card") {
+      return createPolygonPath(x, y, width, height, [
+        [0.13, 0.02],
+        [0.87, 0.02],
+        [0.98, 0.12],
+        [0.98, 0.88],
+        [0.86, 0.98],
+        [0.14, 0.98],
+        [0.02, 0.88],
+        [0.02, 0.12],
+      ]);
+    }
+
+    /* ---------- Nintendo 64 ---------- */
+
+    if (shape === "n64") {
+      const path = new Path2D();
+
+      path.moveTo(x + width * 0.08, y + height * 0.22);
+
+      path.quadraticCurveTo(
+        x + width * 0.2,
+        y + height * 0.04,
+        x + width * 0.42,
+        y + height * 0.04,
+      );
+
+      path.lineTo(x + width * 0.58, y + height * 0.04);
+
+      path.quadraticCurveTo(
+        x + width * 0.8,
+        y + height * 0.04,
+        x + width * 0.92,
+        y + height * 0.22,
+      );
+
+      path.lineTo(x + width * 0.98, y + height * 0.92);
+
+      path.lineTo(x + width * 0.02, y + height * 0.92);
+
+      path.closePath();
+
+      return path;
+    }
+
+    /* ---------- SNES ---------- */
+
+    if (shape === "snes-pal" || shape === "snes-us") {
+      return createRoundedRectPath(x, y, width, height, 0.09);
+    }
+
+    /* ---------- NES ---------- */
+
+    if (shape === "nes") {
+      return createRoundedRectPath(x, y, width, height, 0.025);
+    }
+
+    /* ---------- GB / GBC / DS / Generic ---------- */
+
+    return createRoundedRectPath(x, y, width, height, 0.04);
+  }
+
+  function getCropDefinition() {
+    if (cropperRole === "disc" || cropperRole === "cartridge") {
+      return (
+        formatLibrary.getMediaDefinition({
+          mediaFormat: getSelectedMediaFormat(),
+
+          platform: platformInput?.value || "",
+
+          mediaType: getSelectedMediaType(),
+
+          region: regionInput?.value || "",
+        }) || {
+          ratio: 1,
+          shape: "rectangle",
+          holeRatio: 0,
+        }
+      );
+    }
+
+    return {
+      ratio: getCaseGeometry(cropperRole).ratio,
+
+      shape: "rectangle",
+
+      holeRatio: 0,
+    };
+  }
+
+  /* =====================================================
+   CUSTOM SHAPE MASKS
+===================================================== */
+
+  const OUTLINE_ASSET_PATHS = {
+    umd: "assets/images/cropper/umd-outline.png",
+    "switch-card": "assets/images/cropper/switch-outline.png",
+    "3ds-card": "assets/images/cropper/3ds-outline.png",
+    "ds-card": "assets/images/cropper/ds-outline.png",
+    gba: "assets/images/cropper/gba-outline.png",
+    "game-boy-color": "assets/images/cropper/gbc-outline.png",
+    "game-boy": "assets/images/cropper/gb-outline.png",
+    n64: "assets/images/cropper/n64-outline.png",
+    nes: "assets/images/cropper/nes-outline.png",
+    "vita-card": "assets/images/cropper/psvita-outline.png",
+    "snes-us": "assets/images/cropper/snes-ntsc-outline.png",
+    "snes-pal": "assets/images/cropper/snes-pal-outline.png",
+  };
+
+  const shapeAssetCache = new Map();
+  const shapeAssetPromises = new Map();
+
+  function getOutlineAssetPath(shape) {
+    return OUTLINE_ASSET_PATHS[shape] || "";
+  }
+
+  function usesOutlineAsset(shape) {
+    return Boolean(getOutlineAssetPath(shape));
+  }
+
+  function getActiveOutlineShape() {
+    const shape = getCropDefinition()?.shape || "";
+    return usesOutlineAsset(shape) ? shape : "";
+  }
+
+  function ensureShapeAsset(shape) {
+    const assetPath = getOutlineAssetPath(shape);
+
+    if (!assetPath) {
+      return Promise.resolve(null);
+    }
+
+    if (shapeAssetCache.has(shape)) {
+      return Promise.resolve(shapeAssetCache.get(shape));
+    }
+
+    if (shapeAssetPromises.has(shape)) {
+      return shapeAssetPromises.get(shape);
+    }
+
+    const promise = new Promise((resolve, reject) => {
+      const image = new Image();
+
+      image.onload = () => {
+        const sourceCanvas = document.createElement("canvas");
+        sourceCanvas.width = image.naturalWidth;
+        sourceCanvas.height = image.naturalHeight;
+
+        const sourceCtx = sourceCanvas.getContext("2d", {
+          willReadFrequently: true,
+        });
+
+        if (!sourceCtx) {
+          reject(new Error(`Could not create source canvas for "${shape}".`));
+          return;
+        }
+
+        sourceCtx.drawImage(image, 0, 0);
+
+        const sourceData = sourceCtx.getImageData(
+          0,
+          0,
+          sourceCanvas.width,
+          sourceCanvas.height,
+        );
+
+        const pixels = sourceData.data;
+        const alphaThreshold = 8;
+
+        let minX = sourceCanvas.width;
+        let minY = sourceCanvas.height;
+        let maxX = -1;
+        let maxY = -1;
+
+        for (let y = 0; y < sourceCanvas.height; y += 1) {
+          for (let x = 0; x < sourceCanvas.width; x += 1) {
+            const index = (y * sourceCanvas.width + x) * 4;
+            const alpha = pixels[index + 3];
+
+            if (alpha <= alphaThreshold) {
+              continue;
+            }
+
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+          }
+        }
+
+        if (maxX < minX || maxY < minY) {
+          reject(new Error(`The outline image for "${shape}" is empty.`));
+          return;
+        }
+
+        const width = maxX - minX + 1;
+        const height = maxY - minY + 1;
+
+        const outlineCanvas = document.createElement("canvas");
+        outlineCanvas.width = width;
+        outlineCanvas.height = height;
+
+        const outlineCtx = outlineCanvas.getContext("2d");
+
+        if (!outlineCtx) {
+          reject(new Error(`Could not create outline canvas for "${shape}".`));
+          return;
+        }
+
+        outlineCtx.drawImage(
+          sourceCanvas,
+          minX,
+          minY,
+          width,
+          height,
+          0,
+          0,
+          width,
+          height,
+        );
+
+        const outlineData = outlineCtx.getImageData(0, 0, width, height);
+        const outlinePixels = outlineData.data;
+        const pixelCount = width * height;
+
+        const blocked = new Uint8Array(pixelCount);
+
+        for (let i = 0; i < pixelCount; i += 1) {
+          blocked[i] = outlinePixels[i * 4 + 3] > alphaThreshold ? 1 : 0;
+        }
+
+        const outside = new Uint8Array(pixelCount);
+        const queue = new Int32Array(pixelCount);
+
+        let queueStart = 0;
+        let queueEnd = 0;
+
+        function addOutside(x, y) {
+          if (x < 0 || y < 0 || x >= width || y >= height) {
+            return;
+          }
+
+          const index = y * width + x;
+
+          if (blocked[index] || outside[index]) {
+            return;
+          }
+
+          outside[index] = 1;
+          queue[queueEnd] = index;
+          queueEnd += 1;
+        }
+
+        for (let x = 0; x < width; x += 1) {
+          addOutside(x, 0);
+          addOutside(x, height - 1);
+        }
+
+        for (let y = 0; y < height; y += 1) {
+          addOutside(0, y);
+          addOutside(width - 1, y);
+        }
+
+        while (queueStart < queueEnd) {
+          const index = queue[queueStart];
+          queueStart += 1;
+
+          const x = index % width;
+          const y = Math.floor(index / width);
+
+          addOutside(x - 1, y);
+          addOutside(x + 1, y);
+          addOutside(x, y - 1);
+          addOutside(x, y + 1);
+        }
+
+        const maskCanvas = document.createElement("canvas");
+        maskCanvas.width = width;
+        maskCanvas.height = height;
+
+        const maskCtx = maskCanvas.getContext("2d");
+
+        if (!maskCtx) {
+          reject(new Error(`Could not create mask canvas for "${shape}".`));
+          return;
+        }
+
+        const maskData = maskCtx.createImageData(width, height);
+
+        for (let i = 0; i < pixelCount; i += 1) {
+          const isInside = blocked[i] || !outside[i];
+          const index = i * 4;
+
+          maskData.data[index] = 255;
+          maskData.data[index + 1] = 255;
+          maskData.data[index + 2] = 255;
+          maskData.data[index + 3] = isInside ? 255 : 0;
+        }
+
+        maskCtx.putImageData(maskData, 0, 0);
+
+        const asset = {
+          outline: outlineCanvas,
+          mask: maskCanvas,
+          ratio: width / height,
+        };
+
+        shapeAssetCache.set(shape, asset);
+        resolve(asset);
+      };
+
+      image.onerror = () => {
+        reject(new Error(`Could not load outline asset: ${assetPath}`));
+      };
+
+      image.src = assetPath;
+    }).finally(() => {
+      shapeAssetPromises.delete(shape);
+    });
+
+    shapeAssetPromises.set(shape, promise);
+
+    return promise;
+  }
+
+  function createThinShapeOutline(asset, width, height) {
+    if (!asset?.mask) {
+      return null;
+    }
+
+    const outlineWidth = Math.max(1, Math.round(width));
+
+    const outlineHeight = Math.max(1, Math.round(height));
+
+    /* ====================================
+     RESIZE MASK TO DISPLAY SIZE
+  ==================================== */
+
+    const resizedMask = document.createElement("canvas");
+
+    resizedMask.width = outlineWidth;
+    resizedMask.height = outlineHeight;
+
+    const resizedCtx = resizedMask.getContext("2d", {
+      willReadFrequently: true,
+    });
+
+    if (!resizedCtx) {
+      return null;
+    }
+
+    resizedCtx.imageSmoothingEnabled = true;
+
+    resizedCtx.drawImage(asset.mask, 0, 0, outlineWidth, outlineHeight);
+
+    const maskData = resizedCtx.getImageData(0, 0, outlineWidth, outlineHeight);
+
+    const maskPixels = maskData.data;
+
+    /* ====================================
+     OUTPUT OUTLINE
+  ==================================== */
+
+    const outlineCanvas = document.createElement("canvas");
+
+    outlineCanvas.width = outlineWidth;
+    outlineCanvas.height = outlineHeight;
+
+    const outlineCtx = outlineCanvas.getContext("2d");
+
+    if (!outlineCtx) {
+      return null;
+    }
+
+    const outlineData = outlineCtx.createImageData(outlineWidth, outlineHeight);
+
+    const outlinePixels = outlineData.data;
+
+    const accent =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--accent")
+        .trim() || "#d6ff4b";
+
+    let red = 214;
+    let green = 255;
+    let blue = 75;
+
+    if (/^#[0-9a-f]{6}$/i.test(accent)) {
+      red = parseInt(accent.slice(1, 3), 16);
+      green = parseInt(accent.slice(3, 5), 16);
+      blue = parseInt(accent.slice(5, 7), 16);
+    }
+
+    function isInside(x, y) {
+      if (x < 0 || y < 0 || x >= outlineWidth || y >= outlineHeight) {
+        return false;
+      }
+
+      const index = (y * outlineWidth + x) * 4;
+
+      return maskPixels[index + 3] > 127;
+    }
+
+    /*
+    Any inside pixel touching an outside
+    pixel becomes part of the 1px outline.
+
+    This follows the generated mask,
+    NOT the thick source PNG stroke.
+  */
+
+    for (let y = 0; y < outlineHeight; y += 1) {
+      for (let x = 0; x < outlineWidth; x += 1) {
+        if (!isInside(x, y)) {
+          continue;
+        }
+
+        const boundary =
+          !isInside(x - 1, y) ||
+          !isInside(x + 1, y) ||
+          !isInside(x, y - 1) ||
+          !isInside(x, y + 1);
+
+        if (!boundary) {
+          continue;
+        }
+
+        const index = (y * outlineWidth + x) * 4;
+
+        outlinePixels[index] = red;
+        outlinePixels[index + 1] = green;
+        outlinePixels[index + 2] = blue;
+        outlinePixels[index + 3] = 255;
+      }
+    }
+
+    outlineCtx.putImageData(outlineData, 0, 0);
+
+    return outlineCanvas;
+  }
+
+  function drawOutlineAssetOverlay(cropX, cropY, cropWidth, cropHeight, shape) {
+    if (!ctx || !cropperStage) {
+      return false;
+    }
+
+    const asset = shapeAssetCache.get(shape);
+
+    if (!asset?.mask) {
+      return false;
+    }
+
+    const stage = getStageRect();
+
+    /* ====================================
+     DARK AREA OUTSIDE SHAPE
+  ==================================== */
+
+    const overlayCanvas = document.createElement("canvas");
+
+    overlayCanvas.width = Math.max(1, Math.ceil(stage.width));
+
+    overlayCanvas.height = Math.max(1, Math.ceil(stage.height));
+
+    const overlayCtx = overlayCanvas.getContext("2d");
+
+    if (!overlayCtx) {
+      return false;
+    }
+
+    overlayCtx.fillStyle = "rgba(0, 0, 0, 0.58)";
+
+    overlayCtx.fillRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+    /*
+    Cut the exact hand-drawn physical
+    media silhouette out of the overlay.
+  */
+
+    overlayCtx.globalCompositeOperation = "destination-out";
+
+    overlayCtx.drawImage(
+      asset.mask,
+
+      cropX,
+      cropY,
+
+      cropWidth,
+      cropHeight,
+    );
+
+    overlayCtx.globalCompositeOperation = "source-over";
+
+    ctx.drawImage(overlayCanvas, 0, 0);
+
+    /* ====================================
+     GENERATED THIN GREEN BORDER
+  ==================================== */
+
+    const thinOutline = createThinShapeOutline(asset, cropWidth, cropHeight);
+
+    if (!thinOutline) {
+      return true;
+    }
+
+    ctx.drawImage(
+      thinOutline,
+
+      cropX,
+      cropY,
+
+      cropWidth,
+      cropHeight,
+    );
+
+    return true;
+  }
+
+  /* =====================================================
      CROPPER GEOMETRY
   ===================================================== */
 
   function getCropRatio() {
-    if (cropperRole === "disc") {
-      return 1;
+    const definition = getCropDefinition();
+
+    const shape = definition?.shape || "";
+
+    if (usesOutlineAsset(shape)) {
+      const asset = shapeAssetCache.get(shape);
+
+      if (asset?.ratio) {
+        return asset.ratio;
+      }
     }
 
-    if (cropperRole === "cartridge") {
-      return 0.78;
-    }
-
-    return getCaseGeometry(cropperRole).ratio;
+    return definition?.ratio || 1;
   }
 
   function updateCropperMask() {
@@ -1048,44 +1773,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const stageWidth = cropperStage.clientWidth;
+
     const stageHeight = cropperStage.clientHeight;
+
     const ratio = getCropRatio();
 
-    cropperMask.classList.remove(
-      "rectangle",
-      "side",
-      "manual",
-      "disc",
-      "cartridge",
-    );
-
     const maxWidth = stageWidth * 0.72;
+
     const maxHeight = stageHeight * 0.82;
 
-    let cropWidth;
-    let cropHeight;
+    let cropWidth = Math.min(maxWidth, maxHeight * ratio);
 
-    if (cropperRole === "disc") {
-      const size = Math.min(maxWidth, maxHeight, 440);
-      cropWidth = size;
-      cropHeight = size;
-      cropperMask.classList.add("disc");
-    } else {
-      cropWidth = Math.min(maxWidth, maxHeight * ratio);
+    let cropHeight = cropWidth / ratio;
+
+    /*
+      Keep optical media from becoming
+      enormous on desktop.
+    */
+
+    if (cropperRole === "disc" && cropWidth > 440) {
+      cropWidth = 440;
+
       cropHeight = cropWidth / ratio;
-
-      if (cropperRole === "side") {
-        cropperMask.classList.add("side");
-      } else if (cropperRole === "manual") {
-        cropperMask.classList.add("manual");
-      } else if (cropperRole === "cartridge") {
-        cropperMask.classList.add("cartridge");
-      } else {
-        cropperMask.classList.add("rectangle");
-      }
     }
 
     cropperMask.style.width = `${cropWidth}px`;
+
     cropperMask.style.height = `${cropHeight}px`;
   }
 
@@ -1103,11 +1816,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const rect = cropperStage.getBoundingClientRect();
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     cropperCanvas.width = Math.round(rect.width * dpr);
+
     cropperCanvas.height = Math.round(rect.height * dpr);
+
     cropperCanvas.style.width = `${rect.width}px`;
+
     cropperCanvas.style.height = `${rect.height}px`;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1119,7 +1836,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const mask = getMaskRect();
+
     const widthScale = mask.width / cropperImage.naturalWidth;
+
     const heightScale = mask.height / cropperImage.naturalHeight;
 
     return Math.max(widthScale, heightScale) * 1.015;
@@ -1127,15 +1846,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getImageGeometry() {
     const stage = getStageRect();
+
     const scale = getBaseScale() * cropperZoomValue;
+
     const width = cropperImage.naturalWidth * scale;
+
     const height = cropperImage.naturalHeight * scale;
 
     return {
       scale,
+
       width,
+
       height,
+
       x: stage.width / 2 - width / 2 + cropperOffsetX,
+
       y: stage.height / 2 - height / 2 + cropperOffsetY,
     };
   }
@@ -1146,36 +1872,134 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const stage = getStageRect();
+
     const mask = getMaskRect();
+
     const cropLeft = mask.left - stage.left;
+
     const cropTop = mask.top - stage.top;
+
     const cropRight = cropLeft + mask.width;
+
     const cropBottom = cropTop + mask.height;
+
     const scale = getBaseScale() * cropperZoomValue;
+
     const imageWidth = cropperImage.naturalWidth * scale;
+
     const imageHeight = cropperImage.naturalHeight * scale;
+
     const baseX = stage.width / 2 - imageWidth / 2;
+
     const baseY = stage.height / 2 - imageHeight / 2;
 
     let minOffsetX = cropRight - (baseX + imageWidth);
+
     let maxOffsetX = cropLeft - baseX;
+
     let minOffsetY = cropBottom - (baseY + imageHeight);
+
     let maxOffsetY = cropTop - baseY;
 
     if (minOffsetX > maxOffsetX) {
       const middle = (minOffsetX + maxOffsetX) / 2;
+
       minOffsetX = middle;
+
       maxOffsetX = middle;
     }
 
     if (minOffsetY > maxOffsetY) {
       const middle = (minOffsetY + maxOffsetY) / 2;
+
       minOffsetY = middle;
+
       maxOffsetY = middle;
     }
 
     cropperOffsetX = Math.max(minOffsetX, Math.min(maxOffsetX, cropperOffsetX));
+
     cropperOffsetY = Math.max(minOffsetY, Math.min(maxOffsetY, cropperOffsetY));
+  }
+
+  /* =====================================================
+     CROPPER OVERLAY
+  ===================================================== */
+
+  function drawCropOverlay() {
+    if (!ctx || !cropperStage || !cropperMask) {
+      return;
+    }
+
+    const stage = getStageRect();
+    const mask = getMaskRect();
+    const cropX = mask.left - stage.left;
+    const cropY = mask.top - stage.top;
+
+    const activeOutlineShape = getActiveOutlineShape();
+
+    if (
+      activeOutlineShape &&
+      drawOutlineAssetOverlay(
+        cropX,
+        cropY,
+        mask.width,
+        mask.height,
+        activeOutlineShape,
+      )
+    ) {
+      return;
+    }
+
+    const definition = getCropDefinition();
+
+    const shapePath = createCropShapePath(
+      cropX,
+      cropY,
+      mask.width,
+      mask.height,
+      definition,
+    );
+
+    const overlay = new Path2D();
+    overlay.rect(0, 0, stage.width, stage.height);
+    overlay.addPath(shapePath);
+
+    ctx.save();
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.58)";
+    ctx.fill(overlay, "evenodd");
+
+    const accent =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--accent")
+        .trim() || "#d6ff4b";
+
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1;
+    ctx.stroke(shapePath);
+
+    if (definition.holeRatio > 0) {
+      const holeDiameter =
+        Math.min(mask.width, mask.height) * definition.holeRatio;
+
+      ctx.beginPath();
+      ctx.arc(
+        cropX + mask.width / 2,
+        cropY + mask.height / 2,
+        holeDiameter / 2,
+        0,
+        Math.PI * 2,
+      );
+
+      ctx.fillStyle = "#0d0d0d";
+      ctx.fill();
+
+      ctx.strokeStyle = accent;
+      ctx.stroke();
+    }
+
+    ctx.restore();
   }
 
   function drawCropper() {
@@ -1186,29 +2010,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const stage = getStageRect();
 
     ctx.clearRect(0, 0, stage.width, stage.height);
+
     clampOffsets();
 
     const geometry = getImageGeometry();
 
     ctx.drawImage(
       cropperImage,
+
       geometry.x,
       geometry.y,
+
       geometry.width,
       geometry.height,
     );
+
+    drawCropOverlay();
   }
 
   /* =====================================================
      CROPPER OPEN / CLOSE / APPLY
   ===================================================== */
 
-  function openCropper(file, input, uploadBox) {
+  async function openCropper(file, input, uploadBox) {
     if (!cropperModal || !cropperStage || !cropperCanvas) {
       return;
     }
 
     cropperInput = input;
+
     cropperUploadBox = uploadBox;
 
     const previousState = imageState.get(uploadBox);
@@ -1220,23 +2050,65 @@ document.addEventListener("DOMContentLoaded", () => {
     cropperRole = uploadBox.dataset.imageRole || "front";
 
     const discNumber = uploadBox.dataset.discNumber;
+
+    const definition = getCropDefinition();
+
+    /*
+  Load any hand-drawn physical-media
+  outline before opening the cropper.
+
+  This applies to UMD, NES, N64,
+  Game Boy, Switch, Vita, etc.
+*/
+
+    const outlineShape = usesOutlineAsset(definition?.shape)
+      ? definition.shape
+      : "";
+
+    if (outlineShape) {
+      try {
+        await ensureShapeAsset(outlineShape);
+      } catch (error) {
+        console.error("Shelfmark crop outline error:", error);
+
+        restoreCommittedFileToInput(input, uploadBox);
+
+        cropperInput = null;
+        cropperUploadBox = null;
+
+        return;
+      }
+    }
+
     const titleMap = {
       front: "Crop front",
+
       back: "Crop back",
+
       side: "Crop side",
+
       manual: "Crop manual",
+
       cartridge: "Crop cartridge",
     };
 
     if (cropperTitle) {
-      cropperTitle.textContent =
-        cropperRole === "disc"
-          ? `Crop disc ${discNumber || ""}`.trim()
-          : titleMap[cropperRole] || "Crop image";
+      if (cropperRole === "disc") {
+        if (definition?.shape === "umd") {
+          cropperTitle.textContent =
+            Number(discNumber) > 1 ? `Crop UMD ${discNumber}` : "Crop UMD";
+        } else {
+          cropperTitle.textContent = `Crop disc ${discNumber || ""}`.trim();
+        }
+      } else {
+        cropperTitle.textContent = titleMap[cropperRole] || "Crop image";
+      }
     }
 
     cropperZoomValue = 0.75;
+
     cropperOffsetX = 0;
+
     cropperOffsetY = 0;
 
     if (cropperZoom) {
@@ -1244,6 +2116,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const image = new Image();
+
     const newObjectUrl = URL.createObjectURL(file);
 
     objectUrl = newObjectUrl;
@@ -1252,23 +2125,33 @@ document.addEventListener("DOMContentLoaded", () => {
       cropperImage = image;
 
       cropperModal.classList.add("visible");
+
       cropperModal.setAttribute("aria-hidden", "false");
+
       document.body.classList.add("cropper-open");
 
       requestAnimationFrame(() => {
         updateCropperMask();
+
         setupCropperCanvas();
+
         clampOffsets();
+
         drawCropper();
       });
     };
 
     image.onerror = () => {
       URL.revokeObjectURL(newObjectUrl);
+
       restoreCommittedFileToInput(input, uploadBox);
+
       objectUrl = null;
+
       cropperImage = null;
+
       cropperInput = null;
+
       cropperUploadBox = null;
     };
 
@@ -1283,6 +2166,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!commit && cropperInput && cropperUploadBox) {
       try {
         const previousFiles = cropperInput._shelfmarkPreviousFiles || [];
+
         const dataTransfer = new DataTransfer();
 
         previousFiles.forEach((file) => {
@@ -1298,7 +2182,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     cropperModal.classList.remove("visible");
+
     cropperModal.setAttribute("aria-hidden", "true");
+
     document.body.classList.remove("cropper-open");
 
     if (objectUrl?.startsWith("blob:")) {
@@ -1310,16 +2196,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     objectUrl = null;
+
     cropperImage = null;
+
     cropperInput = null;
+
     cropperUploadBox = null;
+
     cropperOffsetX = 0;
+
     cropperOffsetY = 0;
+
     isDragging = false;
+
     cropperStage?.classList.remove("dragging");
   }
 
-  function applyCrop() {
+  async function applyCrop() {
     if (!cropperImage || !cropperInput || !cropperUploadBox || !cropperMask) {
       return;
     }
@@ -1327,16 +2220,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const stage = getStageRect();
     const mask = getMaskRect();
     const geometry = getImageGeometry();
+
     const cropX = mask.left - stage.left;
     const cropY = mask.top - stage.top;
     const cropWidth = mask.width;
     const cropHeight = mask.height;
+
     const sourceX = (cropX - geometry.x) / geometry.scale;
     const sourceY = (cropY - geometry.y) / geometry.scale;
     const sourceWidth = cropWidth / geometry.scale;
     const sourceHeight = cropHeight / geometry.scale;
+
     const ratio = getCropRatio();
+    const cropDefinition = getCropDefinition();
     const MAX_OUTPUT = 1200;
+
+    const activeOutlineShape = getActiveOutlineShape();
+
+    let shapeAsset = null;
+
+    if (activeOutlineShape) {
+      try {
+        shapeAsset = await ensureShapeAsset(activeOutlineShape);
+      } catch (error) {
+        console.warn("Shelfmark outline asset error:", error);
+      }
+    }
 
     let outputWidth;
     let outputHeight;
@@ -1349,11 +2258,6 @@ document.addEventListener("DOMContentLoaded", () => {
       outputWidth = Math.round(MAX_OUTPUT * ratio);
     }
 
-    if (cropperRole === "disc") {
-      outputWidth = MAX_OUTPUT;
-      outputHeight = MAX_OUTPUT;
-    }
-
     const outputCanvas = document.createElement("canvas");
     outputCanvas.width = outputWidth;
     outputCanvas.height = outputHeight;
@@ -1364,51 +2268,55 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (cropperRole === "disc") {
+    outputCtx.drawImage(
+      cropperImage,
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+      0,
+      0,
+      outputWidth,
+      outputHeight,
+    );
+
+    if (shapeAsset?.mask) {
       outputCtx.save();
-      outputCtx.beginPath();
-      outputCtx.arc(
-        outputWidth / 2,
-        outputHeight / 2,
-        outputWidth / 2,
-        0,
-        Math.PI * 2,
-      );
-      outputCtx.clip();
-      outputCtx.drawImage(
-        cropperImage,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
+      outputCtx.globalCompositeOperation = "destination-in";
+      outputCtx.drawImage(shapeAsset.mask, 0, 0, outputWidth, outputHeight);
+      outputCtx.restore();
+    } else {
+      const outputShape = createCropShapePath(
         0,
         0,
         outputWidth,
         outputHeight,
+        cropDefinition,
       );
+
+      outputCtx.save();
+      outputCtx.globalCompositeOperation = "destination-in";
+      outputCtx.fillStyle = "#ffffff";
+      outputCtx.fill(outputShape);
+      outputCtx.restore();
+    }
+
+    if (!shapeAsset && cropDefinition.holeRatio > 0) {
+      const holeDiameter =
+        Math.min(outputWidth, outputHeight) * cropDefinition.holeRatio;
+
+      outputCtx.save();
       outputCtx.globalCompositeOperation = "destination-out";
       outputCtx.beginPath();
       outputCtx.arc(
         outputWidth / 2,
         outputHeight / 2,
-        outputWidth * 0.065,
+        holeDiameter / 2,
         0,
         Math.PI * 2,
       );
       outputCtx.fill();
       outputCtx.restore();
-    } else {
-      outputCtx.drawImage(
-        cropperImage,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        0,
-        0,
-        outputWidth,
-        outputHeight,
-      );
     }
 
     outputCanvas.toBlob((blob) => {
@@ -1436,13 +2344,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const previewUrl = URL.createObjectURL(blob);
       const discNumber = Number(cropperUploadBox.dataset.discNumber) || null;
+
       const fileName =
         cropperRole === "disc" && discNumber
           ? `disc-${discNumber}.png`
           : `${cropperRole}.png`;
+
       const croppedFile = new File([blob], fileName, {
         type: "image/png",
       });
+
       const image = document.createElement("img");
 
       image.className = "cropped-preview-image";
@@ -1488,13 +2399,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   cropperZoom?.addEventListener("input", () => {
     cropperZoomValue = parseFloat(cropperZoom.value) || 0.75;
+
     clampOffsets();
+
     drawCropper();
   });
 
   cropperZoomOut?.addEventListener("click", () => {
     cropperZoomValue = Math.max(
       parseFloat(cropperZoom?.min) || 0.35,
+
       cropperZoomValue - 0.1,
     );
 
@@ -1503,12 +2417,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     clampOffsets();
+
     drawCropper();
   });
 
   cropperZoomIn?.addEventListener("click", () => {
     cropperZoomValue = Math.min(
       parseFloat(cropperZoom?.max) || 3,
+
       cropperZoomValue + 0.1,
     );
 
@@ -1517,6 +2433,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     clampOffsets();
+
     drawCropper();
   });
 
@@ -1526,11 +2443,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     isDragging = true;
+
     cropperStage.classList.add("dragging");
+
     dragStartX = event.clientX;
+
     dragStartY = event.clientY;
+
     dragOriginX = cropperOffsetX;
+
     dragOriginY = cropperOffsetY;
+
     cropperStage.setPointerCapture(event.pointerId);
   });
 
@@ -1540,8 +2463,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     cropperOffsetX = dragOriginX + (event.clientX - dragStartX);
+
     cropperOffsetY = dragOriginY + (event.clientY - dragStartY);
+
     clampOffsets();
+
     drawCropper();
   });
 
@@ -1551,6 +2477,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     isDragging = false;
+
     cropperStage.classList.remove("dragging");
 
     try {
@@ -1561,10 +2488,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   cropperStage?.addEventListener("pointerup", stopDragging);
+
   cropperStage?.addEventListener("pointercancel", stopDragging);
 
   cropperClose?.addEventListener("click", () => closeCropper());
+
   cropperCancel?.addEventListener("click", () => closeCropper());
+
   cropperApply?.addEventListener("click", applyCrop);
 
   cropperModal?.addEventListener("click", (event) => {
@@ -1587,8 +2517,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     updateCropperMask();
+
     setupCropperCanvas();
+
     clampOffsets();
+
     drawCropper();
   });
 
@@ -1646,7 +2579,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  regionInput?.addEventListener("change", updateCountryOptions);
+  regionInput?.addEventListener("change", () => {
+    updateCountryOptions();
+
+    if (platformInput?.value === "Super Nintendo") {
+      const mediaFormat = formatLibrary.inferMediaFormat({
+        platform: platformInput.value,
+
+        mediaType: getSelectedMediaType(),
+
+        region: regionInput.value,
+      });
+
+      populateMediaFormatOptions(mediaFormat);
+
+      updateMediaFormat();
+    }
+  });
 
   /* =====================================================
    MARKET RESEARCH
@@ -1933,6 +2882,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!mediaType) {
       setFormSaveMessage("Select the physical media type.", "error");
       focusInvalidGroup(mediaSelector);
+      return false;
+    }
+
+    const mediaFormat = getSelectedMediaFormat();
+
+    const mediaDefinition = MEDIA_FORMATS[mediaFormat];
+
+    if (
+      !mediaFormat ||
+      !mediaDefinition ||
+      mediaDefinition.mediaType !== mediaType
+    ) {
+      setFormSaveMessage("Select the physical media format.", "error");
+
+      focusInvalidField(mediaFormatInput);
+
       return false;
     }
 
@@ -2285,6 +3250,7 @@ document.addEventListener("DOMContentLoaded", () => {
               developer,
               publisher,
               media_type,
+              media_format,
               case_format,
               custom_case_width,
               custom_case_height,
@@ -2384,7 +3350,20 @@ document.addEventListener("DOMContentLoaded", () => {
       upload slots.
     */
 
-      updateMediaType();
+      const resolvedMediaFormat = formatLibrary.resolveMediaFormat({
+        mediaFormat: game.media_format || "",
+
+        platform: game.platform || "",
+
+        mediaType: game.media_type || "",
+
+        region: item.region || "",
+      });
+
+      updateMediaType(resolvedMediaFormat);
+
+      updateMediaFormat();
+
       updateCaseFormat();
 
       /* =================================================
@@ -2500,6 +3479,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const caseFormat = getSelectedCaseFormat();
 
+    const mediaFormat = getSelectedMediaFormat();
+
     const estimatedValueRaw = estimatedValueInput?.value.trim() || "";
 
     const estimatedValue = estimatedValueRaw
@@ -2554,6 +3535,9 @@ document.addEventListener("DOMContentLoaded", () => {
           caseFormat === "custom" ? optionalNumber(customHeight?.value) : null,
         disc_count:
           mediaType === "disc" ? optionalInteger(discCountInput?.value) : null,
+        media_type: mediaType,
+        media_format: mediaFormat,
+        case_format: caseFormat,
       },
 
       mediaType,
@@ -2794,6 +3778,8 @@ document.addEventListener("DOMContentLoaded", () => {
       publisher: editOriginalGame.publisher,
 
       media_type: editOriginalGame.media_type,
+
+      media_format: editOriginalGame.media_format,
 
       case_format: editOriginalGame.case_format,
 
