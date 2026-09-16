@@ -1181,9 +1181,9 @@ body.cropper-open {
 
 .cropper-controls {
   display: flex;
-  align-items: center;
+  flex-direction: column;
 
-  gap: 12px;
+  gap: 14px;
 
   padding: 16px 24px;
 
@@ -1191,9 +1191,54 @@ body.cropper-open {
   border-bottom: 1px solid var(--border);
 }
 
-.cropper-zoom-button {
+.cropper-control-row {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.cropper-control-label {
+  width: 58px;
+
+  flex: 0 0 58px;
+
+  color: var(--text-muted);
+
+  font-size: 0.59rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.07em;
+}
+
+.cropper-control-value {
+  width: 58px;
+
+  flex: 0 0 58px;
+
+  color: var(--text-muted);
+
+  font-family: inherit;
+
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+
+  text-align: right;
+}
+
+/* =========================================================
+   CROPPER CONTROL BUTTONS
+========================================================= */
+
+.cropper-control-button {
   width: 34px;
   height: 34px;
+
+  flex: 0 0 34px;
 
   padding: 0;
 
@@ -1202,6 +1247,7 @@ body.cropper-open {
 
   border: 1px solid var(--border);
 
+  font-family: inherit;
   font-size: 1rem;
 
   cursor: pointer;
@@ -1212,19 +1258,66 @@ body.cropper-open {
     color 0.2s ease;
 }
 
-.cropper-zoom-button:hover {
+.cropper-control-button:hover {
   background: var(--accent);
   color: var(--background);
+
   border-color: var(--accent);
 }
 
-#cropper-zoom {
+.cropper-reset-button {
+  min-width: 58px;
+  height: 34px;
+
+  flex: 0 0 auto;
+
+  padding: 0 10px;
+
+  background: transparent;
+  color: var(--text-muted);
+
+  border: 1px solid var(--border);
+
+  font-family: inherit;
+
+  font-size: 0.55rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.cropper-reset-button:hover {
+  color: var(--text);
+
+  background: var(--surface-light);
+
+  border-color: #444;
+}
+
+/* =========================================================
+   CROPPER RANGE INPUTS
+========================================================= */
+
+.cropper-range {
   appearance: none;
   -webkit-appearance: none;
 
   flex: 1;
 
+  min-width: 0;
+
   height: 16px !important;
+
+  padding: 0 !important;
 
   background: transparent !important;
 
@@ -1235,7 +1328,7 @@ body.cropper-open {
   cursor: pointer;
 }
 
-#cropper-zoom::-webkit-slider-runnable-track {
+.cropper-range::-webkit-slider-runnable-track {
   height: 3px;
 
   background: var(--border);
@@ -1243,7 +1336,7 @@ body.cropper-open {
   border-radius: 0;
 }
 
-#cropper-zoom::-webkit-slider-thumb {
+.cropper-range::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
 
@@ -1252,25 +1345,25 @@ body.cropper-open {
 
   margin-top: -6.5px;
 
+  border: 0;
+
   border-radius: 50%;
 
   background: var(--accent);
-
-  border: 0;
 
   box-shadow: none;
 
   cursor: pointer;
 }
 
-#cropper-zoom:hover::-webkit-slider-thumb,
-#cropper-zoom:active::-webkit-slider-thumb {
+.cropper-range:hover::-webkit-slider-thumb,
+.cropper-range:active::-webkit-slider-thumb {
   background: var(--accent);
 
   box-shadow: 0 0 0 4px rgba(214, 255, 75, 0.12);
 }
 
-#cropper-zoom::-moz-range-track {
+.cropper-range::-moz-range-track {
   height: 3px;
 
   background: var(--border);
@@ -1278,36 +1371,37 @@ body.cropper-open {
   border-radius: 0;
 }
 
-#cropper-zoom::-moz-range-progress {
+.cropper-range::-moz-range-progress {
   height: 3px;
 
   background: var(--accent);
 }
 
-#cropper-zoom::-moz-range-thumb {
+.cropper-range::-moz-range-thumb {
   width: 16px;
   height: 16px;
+
+  border: 0;
 
   border-radius: 50%;
 
   background: var(--accent);
-
-  border: 0;
 
   box-shadow: none;
 
   cursor: pointer;
 }
 
-#cropper-zoom:hover::-moz-range-thumb,
-#cropper-zoom:active::-moz-range-thumb {
+.cropper-range:hover::-moz-range-thumb,
+.cropper-range:active::-moz-range-thumb {
   background: var(--accent);
 
   box-shadow: 0 0 0 4px rgba(214, 255, 75, 0.12);
 }
 
-#cropper-zoom:focus-visible {
+.cropper-range:focus-visible {
   outline: 1px solid var(--accent) !important;
+
   outline-offset: 3px;
 }
 
@@ -1581,6 +1675,31 @@ body.cropper-open {
 
   .custom-case-separator {
     display: none;
+  }
+
+  .cropper-control-row {
+    gap: 7px;
+  }
+
+  .cropper-control-label {
+    width: 48px;
+    flex-basis: 48px;
+
+    font-size: 0.54rem;
+  }
+
+  .cropper-control-value {
+    width: 48px;
+    flex-basis: 48px;
+
+    font-size: 0.56rem;
+  }
+
+  .cropper-reset-button {
+    min-width: 52px;
+
+    padding-left: 7px;
+    padding-right: 7px;
   }
 
   /* =====================================================

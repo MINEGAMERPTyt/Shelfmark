@@ -107,6 +107,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const cropperZoom = document.getElementById("cropper-zoom");
   const cropperZoomOut = document.getElementById("cropper-zoom-out");
   const cropperZoomIn = document.getElementById("cropper-zoom-in");
+  const cropperZoomValueDisplay = document.getElementById("cropper-zoom-value");
+
+  const cropperRotation = document.getElementById("cropper-rotation");
+
+  const cropperRotationValueDisplay = document.getElementById(
+    "cropper-rotation-value",
+  );
+
+  const cropperRotationReset = document.getElementById(
+    "cropper-rotation-reset",
+  );
   const cropperClose = document.getElementById("cropper-close");
   const cropperCancel = document.getElementById("cropper-cancel");
   const cropperApply = document.getElementById("cropper-apply");
@@ -181,6 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let cropperImage = null;
   let cropperRole = "front";
   let cropperZoomValue = 0.75;
+  let cropperRotationValue = 0;
   let cropperOffsetX = 0;
   let cropperOffsetY = 0;
   let dragStartX = 0;
@@ -1747,6 +1759,25 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
+  function getCropperRotationRadians() {
+    return cropperRotationValue * (Math.PI / 180);
+  }
+
+  function updateCropperControlDisplays() {
+    if (cropperZoomValueDisplay) {
+      cropperZoomValueDisplay.textContent = `${Math.round(
+        cropperZoomValue * 100,
+      )}%`;
+    }
+
+    if (cropperRotationValueDisplay) {
+      const angle =
+        Math.abs(cropperRotationValue) < 0.05 ? 0 : cropperRotationValue;
+
+      cropperRotationValueDisplay.textContent = `${angle.toFixed(1)}°`;
+    }
+  }
+
   /* =====================================================
      CROPPER GEOMETRY
   ===================================================== */
@@ -1837,9 +1868,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const mask = getMaskRect();
 
-    const widthScale = mask.width / cropperImage.naturalWidth;
+    const angle = getCropperRotationRadians();
 
-    const heightScale = mask.height / cropperImage.naturalHeight;
+    const cos = Math.abs(Math.cos(angle));
+
+    const sin = Math.abs(Math.sin(angle));
+
+    /*
+    Work out how large the image must
+    be so the entire rectangular crop
+    area remains covered after rotation.
+
+    Since all custom media silhouettes
+    fit inside that rectangle, covering
+    the rectangle guarantees that UMDs,
+    cartridges, discs, etc. also remain
+    fully covered.
+  */
+
+    const requiredWidth = mask.width * cos + mask.height * sin;
+
+    const requiredHeight = mask.width * sin + mask.height * cos;
+
+    const widthScale = requiredWidth / cropperImage.naturalWidth;
+
+    const heightScale = requiredHeight / cropperImage.naturalHeight;
 
     return Math.max(widthScale, heightScale) * 1.015;
   }
@@ -1853,6 +1906,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const height = cropperImage.naturalHeight * scale;
 
+    const centerX = stage.width / 2 + cropperOffsetX;
+
+    const centerY = stage.height / 2 + cropperOffsetY;
+
     return {
       scale,
 
@@ -1860,9 +1917,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       height,
 
-      x: stage.width / 2 - width / 2 + cropperOffsetX,
+      centerX,
 
-      y: stage.height / 2 - height / 2 + cropperOffsetY,
+      centerY,
+
+      angle: getCropperRotationRadians(),
     };
   }
 
@@ -1875,51 +1934,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const mask = getMaskRect();
 
-    const cropLeft = mask.left - stage.left;
+    const geometry = getImageGeometry();
 
-    const cropTop = mask.top - stage.top;
+    const angle = geometry.angle;
 
-    const cropRight = cropLeft + mask.width;
+    const cos = Math.cos(angle);
 
-    const cropBottom = cropTop + mask.height;
+    const sin = Math.sin(angle);
 
-    const scale = getBaseScale() * cropperZoomValue;
+    const absCos = Math.abs(cos);
 
-    const imageWidth = cropperImage.naturalWidth * scale;
+    const absSin = Math.abs(sin);
 
-    const imageHeight = cropperImage.naturalHeight * scale;
+    /*
+    Crop rectangle centre in
+    cropper-stage coordinates.
+  */
 
-    const baseX = stage.width / 2 - imageWidth / 2;
+    const cropCenterX = mask.left - stage.left + mask.width / 2;
 
-    const baseY = stage.height / 2 - imageHeight / 2;
+    const cropCenterY = mask.top - stage.top + mask.height / 2;
 
-    let minOffsetX = cropRight - (baseX + imageWidth);
+    /*
+    How much room the crop rectangle
+    consumes when projected into the
+    rotated image's own coordinate
+    system.
+  */
 
-    let maxOffsetX = cropLeft - baseX;
+    const cropHalfWidthLocal = (mask.width * absCos + mask.height * absSin) / 2;
 
-    let minOffsetY = cropBottom - (baseY + imageHeight);
+    const cropHalfHeightLocal =
+      (mask.width * absSin + mask.height * absCos) / 2;
 
-    let maxOffsetY = cropTop - baseY;
+    const imageHalfWidth = geometry.width / 2;
 
-    if (minOffsetX > maxOffsetX) {
-      const middle = (minOffsetX + maxOffsetX) / 2;
+    const imageHalfHeight = geometry.height / 2;
 
-      minOffsetX = middle;
+    const maxLocalX = Math.max(0, imageHalfWidth - cropHalfWidthLocal);
 
-      maxOffsetX = middle;
-    }
+    const maxLocalY = Math.max(0, imageHalfHeight - cropHalfHeightLocal);
 
-    if (minOffsetY > maxOffsetY) {
-      const middle = (minOffsetY + maxOffsetY) / 2;
+    /*
+    Difference between crop centre
+    and current image centre.
+  */
 
-      minOffsetY = middle;
+    const deltaX = cropCenterX - geometry.centerX;
 
-      maxOffsetY = middle;
-    }
+    const deltaY = cropCenterY - geometry.centerY;
 
-    cropperOffsetX = Math.max(minOffsetX, Math.min(maxOffsetX, cropperOffsetX));
+    /*
+    Rotate that difference into the
+    image's local coordinate system.
+  */
 
-    cropperOffsetY = Math.max(minOffsetY, Math.min(maxOffsetY, cropperOffsetY));
+    let localX = cos * deltaX + sin * deltaY;
+
+    let localY = -sin * deltaX + cos * deltaY;
+
+    localX = Math.max(-maxLocalX, Math.min(maxLocalX, localX));
+
+    localY = Math.max(-maxLocalY, Math.min(maxLocalY, localY));
+
+    /*
+    Convert the clamped local offset
+    back into screen coordinates.
+  */
+
+    const clampedDeltaX = cos * localX - sin * localY;
+
+    const clampedDeltaY = sin * localX + cos * localY;
+
+    const imageCenterX = cropCenterX - clampedDeltaX;
+
+    const imageCenterY = cropCenterY - clampedDeltaY;
+
+    cropperOffsetX = imageCenterX - stage.width / 2;
+
+    cropperOffsetY = imageCenterY - stage.height / 2;
   }
 
   /* =====================================================
@@ -2015,15 +2108,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const geometry = getImageGeometry();
 
+    ctx.save();
+
+    /*
+    Rotate around the centre of
+    the photograph.
+  */
+
+    ctx.translate(geometry.centerX, geometry.centerY);
+
+    ctx.rotate(geometry.angle);
+
     ctx.drawImage(
       cropperImage,
 
-      geometry.x,
-      geometry.y,
+      -geometry.width / 2,
+      -geometry.height / 2,
 
       geometry.width,
       geometry.height,
     );
+
+    ctx.restore();
+
+    /*
+    Crop outline itself does NOT rotate.
+    Only the photograph underneath it does.
+  */
 
     drawCropOverlay();
   }
@@ -2107,6 +2218,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cropperZoomValue = 0.75;
 
+    cropperRotationValue = 0;
+
     cropperOffsetX = 0;
 
     cropperOffsetY = 0;
@@ -2114,6 +2227,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cropperZoom) {
       cropperZoom.value = "0.75";
     }
+
+    if (cropperRotation) {
+      cropperRotation.value = "0";
+    }
+
+    updateCropperControlDisplays();
 
     const image = new Image();
 
@@ -2217,22 +2336,31 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    /*
+    Make sure the final position is
+    valid before exporting.
+  */
+
+    clampOffsets();
+
     const stage = getStageRect();
+
     const mask = getMaskRect();
+
     const geometry = getImageGeometry();
 
     const cropX = mask.left - stage.left;
+
     const cropY = mask.top - stage.top;
+
     const cropWidth = mask.width;
+
     const cropHeight = mask.height;
 
-    const sourceX = (cropX - geometry.x) / geometry.scale;
-    const sourceY = (cropY - geometry.y) / geometry.scale;
-    const sourceWidth = cropWidth / geometry.scale;
-    const sourceHeight = cropHeight / geometry.scale;
-
     const ratio = getCropRatio();
+
     const cropDefinition = getCropDefinition();
+
     const MAX_OUTPUT = 1200;
 
     const activeOutlineShape = getActiveOutlineShape();
@@ -2247,19 +2375,39 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    /*
+    Keep one uniform scale between
+    cropper coordinates and exported
+    image coordinates.
+
+    This is important when rotation
+    is involved.
+  */
+
     let outputWidth;
+
     let outputHeight;
+
+    let outputScale;
 
     if (ratio >= 1) {
       outputWidth = MAX_OUTPUT;
-      outputHeight = Math.round(MAX_OUTPUT / ratio);
+
+      outputScale = outputWidth / cropWidth;
+
+      outputHeight = Math.round(cropHeight * outputScale);
     } else {
       outputHeight = MAX_OUTPUT;
-      outputWidth = Math.round(MAX_OUTPUT * ratio);
+
+      outputScale = outputHeight / cropHeight;
+
+      outputWidth = Math.round(cropWidth * outputScale);
     }
 
     const outputCanvas = document.createElement("canvas");
+
     outputCanvas.width = outputWidth;
+
     outputCanvas.height = outputHeight;
 
     const outputCtx = outputCanvas.getContext("2d");
@@ -2268,22 +2416,65 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    outputCtx.imageSmoothingEnabled = true;
+
+    outputCtx.imageSmoothingQuality = "high";
+
+    /*
+    Convert the photograph's centre
+    from cropper-stage coordinates
+    into exported-crop coordinates.
+  */
+
+    const outputImageCenterX = (geometry.centerX - cropX) * outputScale;
+
+    const outputImageCenterY = (geometry.centerY - cropY) * outputScale;
+
+    const outputImageWidth = geometry.width * outputScale;
+
+    const outputImageHeight = geometry.height * outputScale;
+
+    /* ====================================
+     DRAW ROTATED SOURCE IMAGE
+  ==================================== */
+
+    outputCtx.save();
+
+    outputCtx.translate(outputImageCenterX, outputImageCenterY);
+
+    outputCtx.rotate(geometry.angle);
+
     outputCtx.drawImage(
       cropperImage,
-      sourceX,
-      sourceY,
-      sourceWidth,
-      sourceHeight,
-      0,
-      0,
-      outputWidth,
-      outputHeight,
+
+      -outputImageWidth / 2,
+      -outputImageHeight / 2,
+
+      outputImageWidth,
+      outputImageHeight,
     );
+
+    outputCtx.restore();
+
+    /* ====================================
+     PHYSICAL MEDIA MASK
+  ==================================== */
 
     if (shapeAsset?.mask) {
       outputCtx.save();
+
       outputCtx.globalCompositeOperation = "destination-in";
-      outputCtx.drawImage(shapeAsset.mask, 0, 0, outputWidth, outputHeight);
+
+      outputCtx.drawImage(
+        shapeAsset.mask,
+
+        0,
+        0,
+
+        outputWidth,
+        outputHeight,
+      );
+
       outputCtx.restore();
     } else {
       const outputShape = createCropShapePath(
@@ -2295,19 +2486,30 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       outputCtx.save();
+
       outputCtx.globalCompositeOperation = "destination-in";
+
       outputCtx.fillStyle = "#ffffff";
+
       outputCtx.fill(outputShape);
+
       outputCtx.restore();
     }
+
+    /* ====================================
+     DISC CENTRE HOLE
+  ==================================== */
 
     if (!shapeAsset && cropDefinition.holeRatio > 0) {
       const holeDiameter =
         Math.min(outputWidth, outputHeight) * cropDefinition.holeRatio;
 
       outputCtx.save();
+
       outputCtx.globalCompositeOperation = "destination-out";
+
       outputCtx.beginPath();
+
       outputCtx.arc(
         outputWidth / 2,
         outputHeight / 2,
@@ -2315,9 +2517,15 @@ document.addEventListener("DOMContentLoaded", () => {
         0,
         Math.PI * 2,
       );
+
       outputCtx.fill();
+
       outputCtx.restore();
     }
+
+    /* ====================================
+     CREATE FILE
+  ==================================== */
 
     outputCanvas.toBlob((blob) => {
       if (!blob || !cropperUploadBox || !cropperInput) {
@@ -2343,6 +2551,7 @@ document.addEventListener("DOMContentLoaded", () => {
       preview.querySelector(".cropped-preview-image")?.remove();
 
       const previewUrl = URL.createObjectURL(blob);
+
       const discNumber = Number(cropperUploadBox.dataset.discNumber) || null;
 
       const fileName =
@@ -2357,14 +2566,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const image = document.createElement("img");
 
       image.className = "cropped-preview-image";
+
       image.src = previewUrl;
+
       image.alt =
         cropperRole === "disc" && discNumber
           ? `Disc ${discNumber} image`
           : `${cropperRole} image`;
+
       image.dataset.objectUrl = previewUrl;
 
       preview.appendChild(image);
+
       cropperUploadBox.classList.add("has-image");
 
       const placeholder = preview.querySelector(".image-upload-placeholder");
@@ -2375,21 +2588,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
       imageState.set(cropperUploadBox, {
         hasImage: true,
+
         objectUrl: previewUrl,
+
         file: croppedFile,
+
         existingImage: oldState?.existingImage || null,
       });
 
       try {
         const dataTransfer = new DataTransfer();
+
         dataTransfer.items.add(croppedFile);
+
         cropperInput.files = dataTransfer.files;
       } catch (error) {
         console.warn("Could not replace input file:", error);
       }
 
       updateRemoveButton(cropperUploadBox);
-      closeCropper({ commit: true });
+
+      closeCropper({
+        commit: true,
+      });
     }, "image/png");
   }
 
@@ -2399,6 +2620,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   cropperZoom?.addEventListener("input", () => {
     cropperZoomValue = parseFloat(cropperZoom.value) || 0.75;
+
+    updateCropperControlDisplays();
 
     clampOffsets();
 
@@ -2416,6 +2639,8 @@ document.addEventListener("DOMContentLoaded", () => {
       cropperZoom.value = String(cropperZoomValue);
     }
 
+    updateCropperControlDisplays();
+
     clampOffsets();
 
     drawCropper();
@@ -2431,6 +2656,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cropperZoom) {
       cropperZoom.value = String(cropperZoomValue);
     }
+
+    updateCropperControlDisplays();
+
+    clampOffsets();
+
+    drawCropper();
+  });
+
+  cropperRotation?.addEventListener("input", () => {
+    cropperRotationValue = parseFloat(cropperRotation.value) || 0;
+
+    updateCropperControlDisplays();
+
+    clampOffsets();
+
+    drawCropper();
+  });
+
+  cropperRotationReset?.addEventListener("click", () => {
+    cropperRotationValue = 0;
+
+    if (cropperRotation) {
+      cropperRotation.value = "0";
+    }
+
+    updateCropperControlDisplays();
 
     clampOffsets();
 
