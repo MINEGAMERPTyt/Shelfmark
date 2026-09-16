@@ -44,7 +44,10 @@ Shelfmark uses a lightweight frontend built with vanilla HTML, CSS and JavaScrip
 * Search the collection by title
 * Filter by platform and genre
 * Sort collection entries
-* Responsive collection grid
+* Grid and list collection views
+* Collection insights for total spent, estimated value and tracked profit / loss
+* Platform, genre and media breakdowns
+* Responsive collection layout
 * Individual detail page for every game
 
 ### Game metadata
@@ -206,6 +209,11 @@ Shelfmark/
 ├── register.html
 ├── profile.html
 ├── settings.html
+├── forgot-password.html
+├── reset-password.html
+├── delete-account.html
+├── privacy.html
+├── 404.html
 │
 ├── assets/
 │   └── images/
@@ -236,6 +244,7 @@ Shelfmark/
 │   ├── game.css
 │   ├── forms.css
 │   ├── auth.css
+│   ├── legal.css
 │   └── responsive.css
 │
 ├── js/
@@ -245,6 +254,8 @@ Shelfmark/
 │   ├── forms.js
 │   ├── formats.js
 │   ├── auth.js
+│   ├── password-recovery.js
+│   ├── delete-account.js
 │   └── supabase.js
 │
 └── README.md
@@ -503,7 +514,7 @@ Save changes
 Delete game
 ```
 
-Game collection management, image storage, edit handling and manual valuation tracking are functional.
+Game collection management, image storage, edit handling, manual valuation tracking, image rotation and collection insights are functional. The navigation also adapts to a compact hamburger menu on smaller screens.
 
 ---
 
@@ -511,11 +522,6 @@ Game collection management, image storage, edit handling and manual valuation tr
 
 Possible future development includes:
 
-* Collection statistics dashboard
-* Total collection value
-* Total amount spent
-* Overall profit / loss
-* Platform breakdowns
 * Collection value history
 * Wishlist support
 * Additional collection categories

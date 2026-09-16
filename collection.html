@@ -47,9 +47,7 @@
           <a href="collection.html" class="active" data-auth="user" hidden>
             Collection
           </a>
-
-          <a href="add-game.html" data-auth="user" hidden> Add Game </a>
-        </div>
+</div>
 
         <div class="nav-account">
           <div class="nav-guest" data-auth="guest" hidden>
@@ -91,7 +89,117 @@
           </p>
         </div>
 
-        <a href="add-game.html" class="button button-primary"> + Add game </a>
+        <a
+          href="add-game.html"
+          class="button button-primary"
+          id="collection-add-game"
+          hidden
+        >
+          + Add game
+        </a>
+      </section>
+
+      <!-- ================================
+           Collection Insights
+      ================================= -->
+
+      <section
+        class="collection-insights"
+        id="collection-insights"
+        aria-labelledby="collection-insights-title"
+        hidden
+      >
+        <div class="collection-insights-bar">
+          <div class="collection-insights-heading">
+            <p class="eyebrow">COLLECTION INSIGHTS</p>
+            <h2 id="collection-insights-title">Archive summary</h2>
+          </div>
+
+          <dl class="collection-insights-summary">
+            <div>
+              <dt>Total spent</dt>
+              <dd id="insight-total-spent">€0.00</dd>
+            </div>
+
+            <div>
+              <dt>Estimated value</dt>
+              <dd id="insight-estimated-value">€0.00</dd>
+            </div>
+
+            <div>
+              <dt>Value difference</dt>
+              <dd id="insight-profit-loss">€0.00</dd>
+            </div>
+          </dl>
+
+          <button
+            type="button"
+            class="collection-insights-toggle"
+            id="collection-insights-toggle"
+            aria-expanded="false"
+            aria-controls="collection-insights-details"
+          >
+            <span>View details</span>
+
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M5 7.5l5 5 5-5"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div
+          class="collection-insights-details"
+          id="collection-insights-details"
+          hidden
+        >
+          <p class="collection-insights-note" id="collection-insights-note">
+            A summary of the information recorded across your collection.
+          </p>
+
+          <div class="collection-value-notes">
+            <p id="insight-total-spent-note">No purchase prices yet</p>
+            <p id="insight-estimated-value-note">No estimates yet</p>
+            <p id="insight-profit-loss-note">No comparable values yet</p>
+          </div>
+
+          <div class="collection-breakdown-grid">
+            <article class="collection-breakdown">
+              <div class="collection-breakdown-heading">
+                <h3>Platforms</h3>
+                <span>Most represented</span>
+              </div>
+
+              <div
+                class="collection-breakdown-list"
+                id="insight-platforms"
+              ></div>
+            </article>
+
+            <article class="collection-breakdown">
+              <div class="collection-breakdown-heading">
+                <h3>Genres</h3>
+                <span>Most represented</span>
+              </div>
+
+              <div
+                class="collection-breakdown-list"
+                id="insight-genres"
+              ></div>
+            </article>
+
+            <article class="collection-breakdown">
+              <div class="collection-breakdown-heading">
+                <h3>Media</h3>
+                <span>Physical format</span>
+              </div>
+
+              <div
+                class="collection-breakdown-list"
+                id="insight-media"
+              ></div>
+            </article>
+          </div>
+        </div>
       </section>
 
       <!-- ================================

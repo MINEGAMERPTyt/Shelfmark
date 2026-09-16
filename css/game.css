@@ -120,43 +120,6 @@
   color: #ff7777;
 }
 
-.game-state-link {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  min-height: 42px;
-
-  margin-top: 28px;
-
-  padding: 0 17px;
-
-  border: 1px solid var(--border);
-
-  color: var(--text-muted);
-
-  font-size: 0.62rem;
-  font-weight: 700;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.06em;
-
-  transition:
-    color 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease;
-}
-
-.game-state-link:hover {
-  color: var(--text);
-
-  border-color: #444;
-
-  background: var(--surface);
-}
-
 /* ========================================
    Main
 ======================================== */

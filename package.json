@@ -1,6 +1,6 @@
 {
   "name": "shelfmark",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "<div align=\"center\">",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/MINEGAMERPTyt/Shelfmark/issues"

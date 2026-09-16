@@ -62,6 +62,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const emptyAddButton = document.getElementById("collection-empty-add");
 
+  const collectionAddButton = document.getElementById("collection-add-game");
+
+  const collectionInsights = document.getElementById("collection-insights");
+
+  const collectionInsightsNote = document.getElementById(
+    "collection-insights-note",
+  );
+
+  const collectionInsightsToggle = document.getElementById(
+    "collection-insights-toggle",
+  );
+
+  const collectionInsightsDetails = document.getElementById(
+    "collection-insights-details",
+  );
+
+  const insightTotalSpent = document.getElementById("insight-total-spent");
+
+  const insightTotalSpentNote = document.getElementById(
+    "insight-total-spent-note",
+  );
+
+  const insightEstimatedValue = document.getElementById(
+    "insight-estimated-value",
+  );
+
+  const insightEstimatedValueNote = document.getElementById(
+    "insight-estimated-value-note",
+  );
+
+  const insightProfitLoss = document.getElementById("insight-profit-loss");
+
+  const insightProfitLossNote = document.getElementById(
+    "insight-profit-loss-note",
+  );
+
+  const insightPlatforms = document.getElementById("insight-platforms");
+
+  const insightGenres = document.getElementById("insight-genres");
+
+  const insightMedia = document.getElementById("insight-media");
+
   let collectionRecords = [];
   let gameCards = [];
 
@@ -336,12 +378,220 @@ document.addEventListener("DOMContentLoaded", () => {
     } in your collection`;
   }
 
+  function toFiniteNumber(value) {
+    if (value === null || value === undefined || value === "") {
+      return null;
+    }
+
+    const number = Number(value);
+
+    return Number.isFinite(number) ? number : null;
+  }
+
+  function getBreakdownEntries(values) {
+    const counts = new Map();
+
+    values.filter(Boolean).forEach((value) => {
+      counts.set(value, (counts.get(value) || 0) + 1);
+    });
+
+    return [...counts.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  }
+
+  function renderBreakdown(container, entries, emptyMessage, limit = 6) {
+    if (!container) {
+      return;
+    }
+
+    container.innerHTML = "";
+
+    if (!entries.length) {
+      const empty = document.createElement("p");
+
+      empty.className = "collection-breakdown-empty";
+      empty.textContent = emptyMessage;
+
+      container.appendChild(empty);
+
+      return;
+    }
+
+    entries.slice(0, limit).forEach((entry) => {
+      const row = document.createElement("div");
+      const label = document.createElement("span");
+      const count = document.createElement("span");
+
+      row.className = "collection-breakdown-row";
+      label.className = "collection-breakdown-label";
+      count.className = "collection-breakdown-count";
+
+      label.textContent = entry.label;
+      label.title = entry.label;
+
+      count.textContent = String(entry.count);
+
+      row.append(label, count);
+      container.appendChild(row);
+    });
+  }
+
+  function setCollectionInsightsExpanded(expanded) {
+    if (!collectionInsightsToggle || !collectionInsightsDetails) {
+      return;
+    }
+
+    collectionInsightsToggle.setAttribute(
+      "aria-expanded",
+      expanded ? "true" : "false",
+    );
+
+    collectionInsightsDetails.hidden = !expanded;
+
+    const label = collectionInsightsToggle.querySelector("span");
+
+    if (label) {
+      label.textContent = expanded ? "Hide details" : "View details";
+    }
+  }
+
+  function renderCollectionInsights() {
+    if (!collectionInsights) {
+      return;
+    }
+
+    const totalGames = collectionRecords.length;
+
+    collectionInsights.hidden = totalGames === 0;
+
+    if (totalGames === 0) {
+      return;
+    }
+
+    setCollectionInsightsExpanded(false);
+
+    let totalSpent = 0;
+    let spentCount = 0;
+
+    let totalEstimatedValue = 0;
+    let estimatedCount = 0;
+
+    let trackedProfitLoss = 0;
+    let trackedProfitLossCount = 0;
+
+    collectionRecords.forEach((record) => {
+      const purchasePrice = toFiniteNumber(record.item?.purchase_price);
+      const estimatedValue = toFiniteNumber(record.item?.estimated_value);
+
+      if (purchasePrice !== null) {
+        totalSpent += purchasePrice;
+        spentCount += 1;
+      }
+
+      if (estimatedValue !== null) {
+        totalEstimatedValue += estimatedValue;
+        estimatedCount += 1;
+      }
+
+      if (purchasePrice !== null && estimatedValue !== null) {
+        trackedProfitLoss += estimatedValue - purchasePrice;
+        trackedProfitLossCount += 1;
+      }
+    });
+
+    if (insightTotalSpent) {
+      insightTotalSpent.textContent = formatCurrency(totalSpent);
+    }
+
+    if (insightTotalSpentNote) {
+      insightTotalSpentNote.textContent = spentCount
+        ? `${spentCount} ${spentCount === 1 ? "game has" : "games have"} a purchase price`
+        : "No purchase prices yet";
+    }
+
+    if (insightEstimatedValue) {
+      insightEstimatedValue.textContent = formatCurrency(totalEstimatedValue);
+    }
+
+    if (insightEstimatedValueNote) {
+      insightEstimatedValueNote.textContent = estimatedCount
+        ? `${estimatedCount} of ${totalGames} ${totalGames === 1 ? "game" : "games"} valued`
+        : "No estimates yet";
+    }
+
+    if (insightProfitLoss) {
+      insightProfitLoss.textContent = formatCurrency(trackedProfitLoss);
+
+      insightProfitLoss.classList.remove("positive", "negative");
+
+      if (trackedProfitLossCount > 0 && trackedProfitLoss > 0) {
+        insightProfitLoss.classList.add("positive");
+      } else if (trackedProfitLossCount > 0 && trackedProfitLoss < 0) {
+        insightProfitLoss.classList.add("negative");
+      }
+    }
+
+    if (insightProfitLossNote) {
+      insightProfitLossNote.textContent = trackedProfitLossCount
+        ? `${trackedProfitLossCount} ${trackedProfitLossCount === 1 ? "game" : "games"} with both values`
+        : "No comparable values yet";
+    }
+
+    if (collectionInsightsNote) {
+      collectionInsightsNote.textContent =
+        estimatedCount === totalGames
+          ? "Estimated value covers every catalogued game. Profit / loss compares games that also have a purchase price."
+          : `Estimated value currently covers ${estimatedCount} of ${totalGames} ${totalGames === 1 ? "game" : "games"}. Profit / loss compares only entries with both values.`;
+    }
+
+    renderBreakdown(
+      insightPlatforms,
+      getBreakdownEntries(
+        collectionRecords.map((record) => record.game?.platform || ""),
+      ),
+      "No platform information recorded yet.",
+    );
+
+    renderBreakdown(
+      insightGenres,
+      getBreakdownEntries(
+        collectionRecords.map((record) => record.game?.genre || ""),
+      ),
+      "No genre information recorded yet.",
+    );
+
+    const mediaLabels = {
+      disc: "Disc",
+      cartridge: "Cartridge",
+    };
+
+    renderBreakdown(
+      insightMedia,
+      getBreakdownEntries(
+        collectionRecords.map((record) => {
+          const mediaType = record.game?.media_type || "";
+          return mediaLabels[mediaType] || mediaType;
+        }),
+      ),
+      "No media information recorded yet.",
+    );
+  }
+
   function updateEmptyState(visibleCount) {
     if (!emptyState) {
       return;
     }
 
     const total = collectionRecords.length;
+
+    if (collectionAddButton) {
+      collectionAddButton.hidden = total === 0;
+    }
+
+    if (emptyAddButton && total > 0) {
+      emptyAddButton.hidden = true;
+    }
 
     const shouldShow = visibleCount === 0;
 
@@ -408,6 +658,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
       customHeight: game.custom_case_height,
     });
+  }
+
+  function getCaseDisplayScale(game) {
+    const REFERENCE_WIDTH = 142;
+    const REFERENCE_HEIGHT = 190;
+
+    const caseFormat =
+      formatLibrary.normalizeCaseFormat(game?.case_format) || "dvd";
+
+    const definition =
+      formatLibrary.CASE_FORMATS?.[caseFormat] ||
+      formatLibrary.CASE_FORMATS?.dvd ||
+      null;
+
+    const physicalWidth = Number(definition?.coverWidthMm);
+    const physicalHeight = Number(definition?.coverHeightMm);
+
+    if (
+      Number.isFinite(physicalWidth) &&
+      Number.isFinite(physicalHeight) &&
+      physicalWidth > 0 &&
+      physicalHeight > 0
+    ) {
+      return {
+        width: Math.min(1, physicalWidth / REFERENCE_WIDTH),
+        height: Math.min(1, physicalHeight / REFERENCE_HEIGHT),
+      };
+    }
+
+    /*
+      Custom cases do not have a reliable real-world
+      size, only a ratio. Fit them inside the same visual
+      stage without distorting their proportions.
+    */
+
+    const ratio = getCaseRatio(game);
+    const referenceRatio = REFERENCE_WIDTH / REFERENCE_HEIGHT;
+
+    if (!Number.isFinite(ratio) || ratio <= 0) {
+      return { width: 135 / REFERENCE_WIDTH, height: 1 };
+    }
+
+    if (ratio >= referenceRatio) {
+      return {
+        width: 1,
+        height: Math.min(1, referenceRatio / ratio),
+      };
+    }
+
+    return {
+      width: Math.min(1, ratio / referenceRatio),
+      height: 1,
+    };
   }
 
   function getMediaDefinition(record) {
@@ -872,7 +1175,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     visual.className = "game-card-visual";
 
-    visual.style.setProperty("--case-ratio", String(getCaseRatio(game)));
+    const caseDisplayScale = getCaseDisplayScale(game);
+
+    visual.style.setProperty(
+      "--case-width-scale",
+      String(caseDisplayScale.width),
+    );
+
+    visual.style.setProperty(
+      "--case-height-scale",
+      String(caseDisplayScale.height),
+    );
 
     /* ====================================
        CASE
@@ -1508,6 +1821,14 @@ document.addEventListener("DOMContentLoaded", () => {
       collectionCount.textContent = "Loading collection…";
     }
 
+    if (collectionAddButton) {
+      collectionAddButton.hidden = true;
+    }
+
+    if (collectionInsights) {
+      collectionInsights.hidden = true;
+    }
+
     showCollectionState(
       "Loading collection…",
       "Retrieving the games in your Shelfmark archive.",
@@ -1548,6 +1869,7 @@ document.addEventListener("DOMContentLoaded", () => {
               condition,
               completeness,
               purchase_price,
+              estimated_value,
               created_at,
               updated_at
             `,
@@ -1582,6 +1904,8 @@ document.addEventListener("DOMContentLoaded", () => {
         setControlsDisabled(false);
 
         setCollectionCount(0);
+
+        renderCollectionInsights();
 
         updateEmptyState(0);
 
@@ -1690,6 +2014,8 @@ document.addEventListener("DOMContentLoaded", () => {
          RENDER
       ================================== */
 
+      renderCollectionInsights();
+
       populateFilters();
 
       restoreCollectionPreferences();
@@ -1718,6 +2044,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (collectionCount) {
         collectionCount.textContent = "Collection unavailable";
+      }
+
+      if (collectionAddButton) {
+        collectionAddButton.hidden = true;
+      }
+
+      if (collectionInsights) {
+        collectionInsights.hidden = true;
       }
 
       setControlsDisabled(true);
@@ -1766,6 +2100,13 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPage = 1;
 
     filterCollection();
+  });
+
+  collectionInsightsToggle?.addEventListener("click", () => {
+    const expanded =
+      collectionInsightsToggle.getAttribute("aria-expanded") === "true";
+
+    setCollectionInsightsExpanded(!expanded);
   });
 
   collectionRetry?.addEventListener("click", loadCollection);

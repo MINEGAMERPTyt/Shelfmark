@@ -9,6 +9,8 @@
   const CASE_FORMATS = {
     dvd: {
       label: "DVD-style game case",
+      coverWidthMm: 135,
+      coverHeightMm: 190,
       cover: 135 / 190,
       side: 14 / 190,
       manual: 115 / 179,
@@ -16,6 +18,8 @@
 
     "blu-ray": {
       label: "Blu-ray game case",
+      coverWidthMm: 135,
+      coverHeightMm: 170,
       cover: 135 / 170,
       side: 14 / 170,
       manual: 118 / 145,
@@ -31,6 +35,8 @@
 
     ps1: {
       label: "PS1 / CD jewel case",
+      coverWidthMm: 142,
+      coverHeightMm: 125,
       cover: 142 / 125,
       side: 10 / 125,
       manual: 120 / 120,
@@ -45,6 +51,8 @@
 
     gamecube: {
       label: "Nintendo GameCube",
+      coverWidthMm: 135,
+      coverHeightMm: 190,
       cover: 135 / 190,
       side: 15 / 190,
       manual: 105 / 178,
@@ -52,6 +60,8 @@
 
     psp: {
       label: "PSP",
+      coverWidthMm: 99,
+      coverHeightMm: 168,
       cover: 99 / 168,
       side: 14 / 168,
       manual: 85.725 / 169.875,
@@ -59,6 +69,8 @@
 
     vita: {
       label: "PS Vita",
+      coverWidthMm: 105,
+      coverHeightMm: 135,
       cover: 105 / 135,
       side: 12 / 135,
 
@@ -71,6 +83,8 @@
 
     ds: {
       label: "Nintendo DS",
+      coverWidthMm: 122,
+      coverHeightMm: 135,
       cover: 122 / 135,
 
       /*
@@ -84,6 +98,8 @@
 
     "3ds": {
       label: "Nintendo 3DS",
+      coverWidthMm: 122,
+      coverHeightMm: 135,
       cover: 122 / 135,
       side: 14 / 135,
       manual: 115 / 115,
@@ -91,6 +107,8 @@
 
     switch: {
       label: "Nintendo Switch",
+      coverWidthMm: 104,
+      coverHeightMm: 170,
       cover: 104 / 170,
       side: 10 / 170,
 
