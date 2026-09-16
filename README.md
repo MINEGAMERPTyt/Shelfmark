@@ -62,6 +62,7 @@ Shelfmark can record information including:
 * Developer
 * Publisher
 * Media type
+* Media format
 * Case format
 
 ### Physical copy documentation
@@ -86,7 +87,16 @@ All photographs are optional.
 
 ### Image cropper
 
-Shelfmark includes a custom image cropping interface designed around common physical game packaging formats.
+Shelfmark includes a custom image cropping interface designed around physical game packaging and media formats.
+
+The cropper supports:
+
+* Zoom and image positioning
+* Fine image rotation for correcting tilted photographs
+* Case-specific cover, spine and manual proportions
+* Circular optical disc crops with transparent centre holes
+* Transparent physical-media silhouettes for UMDs and cartridges
+* Custom case dimensions
 
 Supported case presets include:
 
@@ -94,13 +104,31 @@ Supported case presets include:
 * DVD-style game case
 * Blu-ray game case
 * Nintendo GameCube
-* Nintendo DS / 3DS
+* Nintendo DS
+* Nintendo 3DS
 * Nintendo Switch
 * PSP
 * PS Vita
 * Custom dimensions
 
-Disc images use a circular crop with transparency and a transparent centre hole.
+Supported physical media shapes include:
+
+* Standard optical discs
+* GameCube discs
+* PSP UMDs
+* NES cartridges
+* SNES PAL / Japanese cartridges
+* SNES North American cartridges
+* Nintendo 64 cartridges
+* Game Boy cartridges
+* Game Boy Color cartridges
+* Game Boy Advance cartridges
+* Nintendo DS Game Cards
+* Nintendo 3DS Game Cards
+* Nintendo Switch Game Cards
+* PS Vita Game Cards
+
+Media formats are automatically suggested based on the selected platform and region, but can be overridden manually.
 
 ### Purchase and valuation tracking
 
@@ -181,11 +209,25 @@ Shelfmark/
 │
 ├── assets/
 │   └── images/
-│       └── icons/
-│           ├── Shelfmark_logo.png
-│           ├── PriceCharting_logo.png
-│           ├── eBay_logo.png
-│           └── CeX_logo.png
+│       ├── icons/
+│       │   ├── Shelfmark_logo.png
+│       │   ├── PriceCharting_logo.png
+│       │   ├── eBay_logo.png
+│       │   └── CeX_logo.png
+│       │
+│       └── cropper/
+│           ├── umd-outline.png
+│           ├── nes-outline.png
+│           ├── snes-pal-outline.png
+│           ├── snes-ntsc-outline.png
+│           ├── n64-outline.png
+│           ├── gb-outline.png
+│           ├── gbc-outline.png
+│           ├── gba-outline.png
+│           ├── ds-outline.png
+│           ├── 3ds-outline.png
+│           ├── switch-outline.png
+│           └── psvita-outline.png
 │
 ├── css/
 │   ├── style.css
@@ -201,6 +243,7 @@ Shelfmark/
 │   ├── collection.js
 │   ├── game.js
 │   ├── forms.js
+│   ├── formats.js
 │   ├── auth.js
 │   └── supabase.js
 │
@@ -256,6 +299,7 @@ edition
 developer
 publisher
 media_type
+media_format
 case_format
 custom_case_width
 custom_case_height
