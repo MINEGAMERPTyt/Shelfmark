@@ -729,6 +729,61 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function getMediaDisplayScale(record) {
+    const REFERENCE_WIDTH = 142;
+    const REFERENCE_HEIGHT = 190;
+
+    const definition = getMediaDefinition(record);
+    const mediaType = record?.game?.media_type || "";
+
+    let physicalWidth = Number(definition?.widthMm);
+    let physicalHeight = Number(definition?.heightMm);
+
+    /*
+      Generic cartridge formats do not have one universal
+      physical size. Give them a conservative fallback while
+      known formats use their approximate real dimensions.
+    */
+    if (
+      !Number.isFinite(physicalWidth) ||
+      !Number.isFinite(physicalHeight) ||
+      physicalWidth <= 0 ||
+      physicalHeight <= 0
+    ) {
+      if (mediaType === "disc") {
+        physicalWidth = 120;
+        physicalHeight = 120;
+      } else {
+        physicalWidth = 70;
+        physicalHeight = 90;
+      }
+    }
+
+    return {
+      width: Math.min(1, physicalWidth / REFERENCE_WIDTH),
+      height: Math.min(1, physicalHeight / REFERENCE_HEIGHT),
+    };
+  }
+
+  function usesMediaAsPrimaryVisual(item, game) {
+    const mediaType = game?.media_type || "";
+
+    if (mediaType !== "disc" && mediaType !== "cartridge") {
+      return false;
+    }
+
+    const completeness = String(item?.completeness || "")
+      .trim()
+      .toLowerCase();
+
+    return new Set([
+      "disc only",
+      "cartridge only",
+      "missing case",
+      "loose",
+    ]).has(completeness);
+  }
+
   function formatCurrency(value) {
     if (value === null || value === undefined || value === "") {
       return "N/D";
@@ -1122,6 +1177,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const mediaImage = chooseMediaImage(images, game?.media_type);
 
+    const mediaIsPrimary = usesMediaAsPrimaryVisual(item, game);
+
     /* ====================================
        ARTICLE
     ==================================== */
@@ -1129,6 +1186,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const card = document.createElement("article");
 
     card.className = "game-card";
+
+    if (mediaIsPrimary) {
+      card.classList.add("media-primary");
+      card.dataset.primaryVisual = game?.media_type || "media";
+    }
 
     card.dataset.title = item.title || "";
 
@@ -1176,6 +1238,7 @@ document.addEventListener("DOMContentLoaded", () => {
     visual.className = "game-card-visual";
 
     const caseDisplayScale = getCaseDisplayScale(game);
+    const mediaDisplayScale = getMediaDisplayScale(record);
 
     visual.style.setProperty(
       "--case-width-scale",
@@ -1187,31 +1250,43 @@ document.addEventListener("DOMContentLoaded", () => {
       String(caseDisplayScale.height),
     );
 
+    visual.style.setProperty(
+      "--media-width-scale",
+      String(mediaDisplayScale.width),
+    );
+
+    visual.style.setProperty(
+      "--media-height-scale",
+      String(mediaDisplayScale.height),
+    );
+
     /* ====================================
        CASE
     ==================================== */
 
-    const gameCase = document.createElement("div");
+    if (!mediaIsPrimary) {
+      const gameCase = document.createElement("div");
 
-    gameCase.className = "game-case";
+      gameCase.className = "game-case";
 
-    if (frontImage?.signedUrl) {
-      const coverImage = document.createElement("img");
+      if (frontImage?.signedUrl) {
+        const coverImage = document.createElement("img");
 
-      coverImage.src = frontImage.signedUrl;
+        coverImage.src = frontImage.signedUrl;
 
-      coverImage.alt = `${item.title} front cover`;
+        coverImage.alt = `${item.title} front cover`;
 
-      coverImage.loading = "lazy";
+        coverImage.loading = "lazy";
 
-      coverImage.decoding = "async";
+        coverImage.decoding = "async";
 
-      gameCase.appendChild(coverImage);
-    } else {
-      gameCase.appendChild(createCasePlaceholder(item.title));
+        gameCase.appendChild(coverImage);
+      } else {
+        gameCase.appendChild(createCasePlaceholder(item.title));
+      }
+
+      visual.appendChild(gameCase);
     }
-
-    visual.appendChild(gameCase);
 
     /* ====================================
        MEDIA
@@ -1726,11 +1801,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const discImage = disc?.querySelector("img");
 
       /*
-          A generic disc placeholder
-          still slides out with CSS,
-          but only real disc photos spin.
+          A generic disc placeholder can still slide out with CSS,
+          but only real disc photos spin. Media-only copies are
+          presented as the primary object and stay still.
         */
-      if (!disc || !discImage || disc.dataset.rotates === "false") {
+      if (
+        card.classList.contains("media-primary") ||
+        !disc ||
+        !discImage ||
+        disc.dataset.rotates === "false"
+      ) {
         return;
       }
 

@@ -747,7 +747,7 @@
 }
 
 .collection-grid.list-view .game-card:hover .game-case {
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 
   box-shadow: none;
 }
@@ -983,6 +983,8 @@
 .game-card-visual {
   --case-width-scale: 0.9507;
   --case-height-scale: 1;
+  --media-width-scale: 0.8451;
+  --media-height-scale: 0.6316;
 
   position: relative;
 
@@ -1008,14 +1010,15 @@
   position: absolute;
 
   left: 50%;
-  bottom: 0;
+  top: 50%;
+  bottom: auto;
 
   z-index: 3;
 
   width: calc(100% * var(--case-width-scale));
   height: calc(100% * var(--case-height-scale));
 
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 
   background: var(--surface);
 
@@ -1114,9 +1117,8 @@
 
   z-index: 2;
 
-  width: 72%;
-
-  aspect-ratio: 1;
+  width: calc(100% * var(--media-width-scale));
+  height: calc(100% * var(--media-height-scale));
 
   right: -4%;
   top: 50%;
@@ -1227,9 +1229,8 @@
 
   z-index: 2;
 
-  width: 47%;
-
-  aspect-ratio: 0.78;
+  width: calc(100% * var(--media-width-scale));
+  height: calc(100% * var(--media-height-scale));
 
   right: 2%;
   top: 50%;
@@ -1297,7 +1298,7 @@
 ======================================== */
 
 .game-card:hover .game-case {
-  transform: translateX(-50%) translateX(-8px);
+  transform: translate(-50%, -50%) translateX(-8px);
 
   box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.4);
 }
@@ -1809,4 +1810,70 @@
 .game-disc.has-real-media img,
 .game-cartridge.has-real-media img {
   object-fit: contain;
+}
+
+/* ========================================
+   Media-only Collection Copies
+======================================== */
+
+/*
+  Disc Only, Cartridge Only, Missing Case and legacy
+  Loose entries represent the physical media itself.
+  Do not invent a case that is not part of that copy.
+*/
+
+.game-card.media-primary .game-card-visual {
+  perspective: none;
+}
+
+.game-card.media-primary .game-case {
+  display: none;
+}
+
+.game-card.media-primary .game-disc,
+.game-card.media-primary .game-cartridge {
+  left: 50%;
+  right: auto;
+
+  top: 50%;
+  bottom: auto;
+
+  width: calc(100% * var(--media-width-scale));
+  height: calc(100% * var(--media-height-scale));
+
+  aspect-ratio: auto;
+
+  display: flex;
+
+  opacity: 1;
+  z-index: 3;
+
+  transform: translate(-50%, -50%);
+
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease;
+}
+
+.game-card.media-primary:hover .game-disc,
+.game-card.media-primary:hover .game-cartridge {
+  opacity: 1;
+
+  transform: translate(-50%, -50%) translateY(-5px);
+}
+
+.game-card.media-primary:hover .game-disc img,
+.game-card.media-primary:hover .game-cartridge img {
+  filter: brightness(0.94);
+}
+
+/*
+  Normal list rows hide the secondary media reveal.
+  A media-only copy has no case thumbnail to fall back to,
+  so its media remains visible in list view as well.
+*/
+
+.collection-grid.list-view .game-card.media-primary .game-disc,
+.collection-grid.list-view .game-card.media-primary .game-cartridge {
+  display: flex;
 }

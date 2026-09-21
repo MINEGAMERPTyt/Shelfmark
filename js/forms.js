@@ -136,7 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "Missing Case",
     "Box Only",
     "Incomplete",
-    "Loose",
     "Other",
   ];
 
@@ -591,6 +590,33 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       completenessInput.value = "";
     }
+  }
+
+  /*
+    Older Shelfmark versions allowed the broad "Loose" value.
+    New entries use the more precise Disc Only / Cartridge Only
+    options instead, but an existing legacy value must remain
+    editable without being silently erased.
+  */
+  function ensureLegacyCompletenessOption(value) {
+    if (!completenessInput || !value) {
+      return;
+    }
+
+    const alreadyAvailable = Array.from(completenessInput.options).some(
+      (option) => option.value === value,
+    );
+
+    if (alreadyAvailable) {
+      return;
+    }
+
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = `${value} (legacy)`;
+    option.dataset.legacy = "true";
+
+    completenessInput.appendChild(option);
   }
 
   /* =====================================================
@@ -3624,6 +3650,8 @@ document.addEventListener("DOMContentLoaded", () => {
       setInputValue(conditionInput, item.condition);
 
       updateCompletenessOptions();
+
+      ensureLegacyCompletenessOption(item.completeness);
 
       setInputValue(completenessInput, item.completeness);
 

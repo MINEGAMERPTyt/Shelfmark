@@ -138,6 +138,9 @@
       shortLabel: "Disc",
       mediaType: "disc",
 
+      widthMm: 120,
+      heightMm: 120,
+
       ratio: 1,
 
       shape: "disc",
@@ -155,6 +158,9 @@
       label: "GameCube Game Disc (80 mm)",
       shortLabel: "GameCube disc",
       mediaType: "disc",
+
+      widthMm: 80,
+      heightMm: 80,
 
       ratio: 1,
       shape: "disc",
@@ -176,6 +182,9 @@
         Whole UMD shell:
         approximately 65 × 64 mm.
       */
+      widthMm: 65,
+      heightMm: 64,
+
       ratio: 65 / 64,
 
       shape: "umd",
@@ -204,6 +213,8 @@
       label: "NES Game Pak",
       shortLabel: "NES cartridge",
       mediaType: "cartridge",
+      widthMm: 120,
+      heightMm: 134,
       ratio: 120 / 134,
       shape: "nes",
       rotates: false,
@@ -213,6 +224,8 @@
       label: "SNES / Super Famicom (PAL / Japan)",
       shortLabel: "SNES cartridge",
       mediaType: "cartridge",
+      widthMm: 127,
+      heightMm: 86,
       ratio: 127 / 86,
       shape: "snes-pal",
       rotates: false,
@@ -222,6 +235,8 @@
       label: "SNES (North America)",
       shortLabel: "SNES cartridge",
       mediaType: "cartridge",
+      widthMm: 135.85,
+      heightMm: 87.7,
       ratio: 135.85 / 87.7,
       shape: "snes-us",
       rotates: false,
@@ -231,6 +246,8 @@
       label: "Nintendo 64 cartridge",
       shortLabel: "N64 cartridge",
       mediaType: "cartridge",
+      widthMm: 116,
+      heightMm: 76.6,
       ratio: 116 / 76.6,
       shape: "n64",
       rotates: false,
@@ -240,6 +257,8 @@
       label: "Game Boy cartridge",
       shortLabel: "Game Boy cartridge",
       mediaType: "cartridge",
+      widthMm: 57,
+      heightMm: 65,
       ratio: 57 / 65,
       shape: "game-boy",
       rotates: false,
@@ -249,6 +268,8 @@
       label: "Game Boy Color cartridge",
       shortLabel: "Game Boy Color cartridge",
       mediaType: "cartridge",
+      widthMm: 57,
+      heightMm: 65.5,
       ratio: 57 / 65.5,
       shape: "game-boy-color",
       rotates: false,
@@ -258,6 +279,8 @@
       label: "Game Boy Advance cartridge",
       shortLabel: "GBA cartridge",
       mediaType: "cartridge",
+      widthMm: 60,
+      heightMm: 35,
       ratio: 60 / 35,
       shape: "gba",
       rotates: false,
@@ -267,6 +290,8 @@
       label: "Nintendo DS Game Card",
       shortLabel: "DS Game Card",
       mediaType: "cartridge",
+      widthMm: 33,
+      heightMm: 35,
       ratio: 33 / 35,
       shape: "ds-card",
       rotates: false,
@@ -281,6 +306,9 @@
         Body is about 33 mm wide.
         Bounding box allows for the 3DS corner tab.
       */
+      widthMm: 35,
+      heightMm: 35,
+
       ratio: 1,
 
       shape: "3ds-card",
@@ -291,6 +319,8 @@
       label: "Nintendo Switch Game Card",
       shortLabel: "Switch Game Card",
       mediaType: "cartridge",
+      widthMm: 21,
+      heightMm: 31,
       ratio: 21 / 31,
       shape: "switch-card",
       rotates: false,
@@ -300,6 +330,8 @@
       label: "PS Vita Game Card",
       shortLabel: "PS Vita Game Card",
       mediaType: "cartridge",
+      widthMm: 22,
+      heightMm: 30,
       ratio: 22 / 30,
       shape: "vita-card",
       rotates: false,
