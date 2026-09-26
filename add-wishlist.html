@@ -4,10 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Add Game - Shelfmark</title>
+    <meta name="description" content="Add a game to your Shelfmark wishlist." />
+
+    <title>Add Wishlist Item - Shelfmark</title>
 
     <meta name="robots" content="noindex, nofollow" />
-
     <meta name="theme-color" content="#111111" />
 
     <link
@@ -45,12 +46,14 @@
 
           <a href="collection.html" data-auth="user" hidden> Collection </a>
 
-          <a href="wishlist.html" data-auth="user" hidden> Wishlist </a>
+          <a href="wishlist.html" class="active" data-auth="user" hidden>
+            Wishlist
+          </a>
         </div>
 
         <div class="nav-account">
           <div class="nav-guest" data-auth="guest" hidden>
-            <a href="login.html" class="login-link">Log in</a>
+            <a href="login.html" class="login-link"> Log in </a>
 
             <a href="register.html" class="register-button"> Create account </a>
           </div>
@@ -73,19 +76,20 @@
     </header>
 
     <main class="form-page">
-      <form id="add-game-form" novalidate>
+      <form id="wishlist-form" novalidate>
         <!-- ================================
              Header
         ================================= -->
 
         <header class="form-header">
           <div>
-            <p class="form-eyebrow">Collection</p>
+            <p class="form-eyebrow">Wishlist</p>
 
-            <h1>Add game</h1>
+            <h1>Add wishlist item</h1>
 
             <p class="form-intro">
-              Record a physical game and preserve the details of your copy.
+              Save a physical game you want to acquire and record what you are
+              looking for.
             </p>
           </div>
         </header>
@@ -98,33 +102,34 @@
           <div class="form-section-heading">
             <div>
               <h2>Game information</h2>
-              <p>Basic information about the release.</p>
+
+              <p>Record information about the release you want to find.</p>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="form-field form-field-wide">
-              <label for="game-title">
+              <label for="wishlist-title">
                 Title
                 <span class="field-required">Required</span>
               </label>
 
               <input
                 type="text"
-                id="game-title"
+                id="wishlist-title"
                 name="title"
-                placeholder="Resident Evil 4"
+                placeholder="Silent Hill 3"
                 required
               />
             </div>
 
             <div class="form-field">
-              <label for="platform">
+              <label for="wishlist-platform">
                 Platform
                 <span class="field-required">Required</span>
               </label>
 
-              <select id="platform" name="platform" required>
+              <select id="wishlist-platform" name="platform" required>
                 <option value="">Select platform</option>
 
                 <option>PlayStation</option>
@@ -161,22 +166,22 @@
             </div>
 
             <div class="form-field">
-              <label for="release-year">Release year</label>
+              <label for="wishlist-release-year"> Release year </label>
 
               <input
                 type="number"
-                id="release-year"
+                id="wishlist-release-year"
                 name="releaseYear"
                 min="1970"
                 max="2100"
-                placeholder="2005"
+                placeholder="2003"
               />
             </div>
 
             <div class="form-field">
-              <label for="genre">Genre</label>
+              <label for="wishlist-genre"> Genre </label>
 
-              <select id="genre" name="genre">
+              <select id="wishlist-genre" name="genre">
                 <option value="">Select genre</option>
                 <option>Action</option>
                 <option>Adventure</option>
@@ -194,9 +199,9 @@
             </div>
 
             <div class="form-field">
-              <label for="region">Region</label>
+              <label for="wishlist-region"> Region </label>
 
-              <select id="region" name="region">
+              <select id="wishlist-region" name="region">
                 <option value="">Select region</option>
                 <option>Europe</option>
                 <option>North America</option>
@@ -208,20 +213,17 @@
             </div>
 
             <div class="form-field">
-              <label for="country">Country</label>
+              <label for="wishlist-country"> Country </label>
 
-              <select id="country" name="country" disabled>
+              <select id="wishlist-country" name="country" disabled>
                 <option value="">Select region first</option>
               </select>
             </div>
 
             <div class="form-field">
-              <label for="game-type">
-                Type
-                <span class="field-required">Required</span>
-              </label>
+              <label for="wishlist-game-type"> Type </label>
 
-              <select id="game-type" name="type" required>
+              <select id="wishlist-game-type" name="gameType">
                 <option value="">Select type</option>
                 <option>Full Game</option>
                 <option>Demo</option>
@@ -233,9 +235,9 @@
             </div>
 
             <div class="form-field">
-              <label for="edition">Edition</label>
+              <label for="wishlist-edition"> Edition </label>
 
-              <select id="edition" name="edition">
+              <select id="wishlist-edition" name="edition">
                 <option value="">Select edition</option>
                 <option>Standard Edition</option>
                 <option>Collector's Edition</option>
@@ -250,24 +252,24 @@
             </div>
 
             <div class="form-field">
-              <label for="developer">Developer</label>
+              <label for="wishlist-developer"> Developer </label>
 
               <input
                 type="text"
-                id="developer"
+                id="wishlist-developer"
                 name="developer"
-                placeholder="Capcom"
+                placeholder="Konami"
               />
             </div>
 
             <div class="form-field">
-              <label for="publisher">Publisher</label>
+              <label for="wishlist-publisher"> Publisher </label>
 
               <input
                 type="text"
-                id="publisher"
+                id="wishlist-publisher"
                 name="publisher"
-                placeholder="Capcom"
+                placeholder="Konami"
               />
             </div>
           </div>
@@ -281,9 +283,12 @@
           <div class="form-section-heading">
             <div>
               <h2>Physical format</h2>
-              <p>Choose the media type and case format of this release.</p>
+
+              <p>Describe the physical release you are looking for.</p>
             </div>
           </div>
+
+          <!-- Media -->
 
           <div class="format-subsection">
             <div class="format-subsection-heading">
@@ -293,18 +298,22 @@
               </h3>
 
               <p>
-                Choose the physical format used by this release. Shelfmark may
-                select a sensible default after you choose a platform, but you
-                can always change it.
+                Shelfmark can suggest the usual physical format after you select
+                a platform.
               </p>
             </div>
 
-            <div class="format-selector" aria-label="Media type">
+            <div
+              class="format-selector"
+              id="wishlist-media-selector"
+              aria-label="Media type"
+            >
               <label class="format-option">
                 <input type="radio" name="mediaType" value="disc" />
 
                 <span class="format-option-box">
-                  <span class="format-option-title">Disc</span>
+                  <span class="format-option-title"> Disc </span>
+
                   <span class="format-option-description">
                     CD, DVD, Blu-ray, UMD or similar
                   </span>
@@ -315,57 +324,58 @@
                 <input type="radio" name="mediaType" value="cartridge" />
 
                 <span class="format-option-box">
-                  <span class="format-option-title">Cartridge</span>
+                  <span class="format-option-title"> Cartridge </span>
+
                   <span class="format-option-description">
-                    Cartridge or game card based physical release
+                    Cartridge or game-card based physical release
                   </span>
                 </span>
               </label>
             </div>
+
             <div
               class="media-format-settings"
-              id="media-format-settings"
+              id="wishlist-media-format-settings"
               hidden
             >
               <div class="form-field">
-                <label for="media-format">
+                <label for="wishlist-media-format">
                   Media format
                   <span class="field-required">Required</span>
                 </label>
 
-                <select id="media-format" name="mediaFormat">
+                <select id="wishlist-media-format" name="mediaFormat">
                   <option value="">Select media type first</option>
                 </select>
 
                 <p class="form-field-note">
-                  Controls the crop proportions and physical shape of the saved
-                  media image. Shelfmark selects a default based on the
-                  platform, but you can override it.
+                  This controls the physical-media shape used for the optional
+                  reference image.
                 </p>
               </div>
             </div>
           </div>
 
+          <!-- Case -->
+
           <div class="format-subsection">
             <div class="format-subsection-heading">
-              <h3>
-                Case format
-                <span class="field-required">Required</span>
-              </h3>
+              <h3>Case format</h3>
 
-              <p>
-                This controls the crop geometry for front, back, side and manual
-                images. Platform defaults are only suggestions and can be
-                overridden.
-              </p>
+              <p>Record the packaging format you would prefer to acquire.</p>
             </div>
 
-            <div class="case-format-selector" aria-label="Case format">
+            <div
+              class="case-format-selector"
+              id="wishlist-case-format-selector"
+              aria-label="Case format"
+            >
               <label class="case-format-option">
                 <input type="radio" name="caseFormat" value="dvd" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">DVD-style game case</span>
+                  <span class="case-format-title"> DVD-style game case </span>
+
                   <span class="case-format-description">
                     PS2, original Xbox, Xbox 360, Wii, Wii U and similar
                   </span>
@@ -376,7 +386,8 @@
                 <input type="radio" name="caseFormat" value="blu-ray" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">Blu-ray game case</span>
+                  <span class="case-format-title"> Blu-ray game case </span>
+
                   <span class="case-format-description">
                     PS3, PS4, PS5, Xbox One, Xbox Series X/S and similar
                   </span>
@@ -387,7 +398,8 @@
                 <input type="radio" name="caseFormat" value="ps1" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">PS1 / CD jewel case</span>
+                  <span class="case-format-title"> PS1 / CD jewel case </span>
+
                   <span class="case-format-description">
                     PlayStation and standard CD jewel cases
                   </span>
@@ -398,7 +410,8 @@
                 <input type="radio" name="caseFormat" value="gamecube" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">Nintendo GameCube</span>
+                  <span class="case-format-title"> Nintendo GameCube </span>
+
                   <span class="case-format-description">
                     Standard GameCube game cases
                   </span>
@@ -409,7 +422,8 @@
                 <input type="radio" name="caseFormat" value="psp" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">PSP</span>
+                  <span class="case-format-title"> PSP </span>
+
                   <span class="case-format-description">
                     PlayStation Portable game cases
                   </span>
@@ -420,7 +434,8 @@
                 <input type="radio" name="caseFormat" value="vita" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">PS Vita</span>
+                  <span class="case-format-title"> PS Vita </span>
+
                   <span class="case-format-description">
                     PlayStation Vita game cases
                   </span>
@@ -431,7 +446,8 @@
                 <input type="radio" name="caseFormat" value="ds" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">Nintendo DS</span>
+                  <span class="case-format-title"> Nintendo DS </span>
+
                   <span class="case-format-description">
                     Nintendo DS and DSi cases
                   </span>
@@ -442,7 +458,8 @@
                 <input type="radio" name="caseFormat" value="3ds" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">Nintendo 3DS</span>
+                  <span class="case-format-title"> Nintendo 3DS </span>
+
                   <span class="case-format-description">
                     Nintendo 3DS family game cases
                   </span>
@@ -453,7 +470,8 @@
                 <input type="radio" name="caseFormat" value="switch" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">Nintendo Switch</span>
+                  <span class="case-format-title"> Nintendo Switch </span>
+
                   <span class="case-format-description">
                     Standard Nintendo Switch game cases
                   </span>
@@ -464,30 +482,35 @@
                 <input type="radio" name="caseFormat" value="custom" />
 
                 <span class="case-format-box">
-                  <span class="case-format-title">Other / Custom</span>
+                  <span class="case-format-title"> Other / Custom </span>
+
                   <span class="case-format-description">
-                    Define your own cover dimensions for unusual packaging
+                    Unusual packaging or another physical format
                   </span>
                 </span>
               </label>
             </div>
-
-            <div class="custom-case-settings" id="custom-case-settings">
+            <div
+              class="custom-case-settings"
+              id="wishlist-custom-case-settings"
+            >
               <div class="custom-case-heading">
                 <span>Custom cover ratio</span>
-                <p>Enter the approximate width and height of the cover.</p>
+
+                <p>Enter the approximate width and height of the packaging.</p>
               </div>
 
               <div class="custom-case-fields">
                 <div class="form-field">
-                  <label for="custom-width">
+                  <label for="wishlist-custom-width">
                     Width
                     <span class="field-required">Required</span>
                   </label>
 
                   <input
                     type="number"
-                    id="custom-width"
+                    id="wishlist-custom-width"
+                    name="customCaseWidth"
                     min="0.1"
                     step="0.1"
                     value="1"
@@ -497,14 +520,15 @@
                 <div class="custom-case-separator">×</div>
 
                 <div class="form-field">
-                  <label for="custom-height">
+                  <label for="wishlist-custom-height">
                     Height
                     <span class="field-required">Required</span>
                   </label>
 
                   <input
                     type="number"
-                    id="custom-height"
+                    id="wishlist-custom-height"
+                    name="customCaseHeight"
                     min="0.1"
                     step="0.1"
                     value="1.4"
@@ -516,29 +540,64 @@
         </section>
 
         <!-- ================================
-             Condition
+             Wishlist Preferences
         ================================= -->
 
         <section class="form-section">
           <div class="form-section-heading">
             <div>
-              <h2>Condition</h2>
+              <h2>Wishlist preferences</h2>
+
               <p>
-                Record the physical condition and completeness of this specific
-                copy.
+                Describe how important this item is and the type of copy you
+                would like to find.
               </p>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="form-field">
-              <label for="condition">
-                Condition
+              <label for="wishlist-priority">
+                Priority
                 <span class="field-required">Required</span>
               </label>
 
-              <select id="condition" name="condition" required>
-                <option value="">Select condition</option>
+              <select id="wishlist-priority" name="priority" required>
+                <option value="medium" selected>Medium</option>
+
+                <option value="high">High</option>
+
+                <option value="low">Low</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="wishlist-target-price"> Target price </label>
+
+              <div class="input-with-prefix">
+                <span>€</span>
+
+                <input
+                  type="number"
+                  id="wishlist-target-price"
+                  name="targetPrice"
+                  min="0"
+                  step="0.01"
+                  placeholder="35.00"
+                />
+              </div>
+
+              <p class="form-field-note">
+                The amount you would ideally like to pay.
+              </p>
+            </div>
+
+            <div class="form-field">
+              <label for="wishlist-condition"> Desired condition </label>
+
+              <select id="wishlist-condition" name="desiredCondition">
+                <option value="">Any condition</option>
+
                 <option>Mint</option>
                 <option>Like New</option>
                 <option>Very Good</option>
@@ -549,257 +608,67 @@
             </div>
 
             <div class="form-field">
-              <label for="completeness">
-                Completeness
-                <span class="field-required">Required</span>
-              </label>
+              <label for="wishlist-completeness"> Desired completeness </label>
 
-              <select id="completeness" name="completeness" disabled required>
+              <select
+                id="wishlist-completeness"
+                name="desiredCompleteness"
+                disabled
+              >
                 <option value="">Select media first</option>
               </select>
             </div>
-
-            <div class="form-field" id="disc-count-field" hidden>
-              <label for="disc-count">
-                Number of discs
-                <span class="field-required">Required</span>
-              </label>
-
-              <input
-                type="number"
-                id="disc-count"
-                name="discCount"
-                min="1"
-                max="20"
-                value="1"
-              />
-
-              <p class="form-field-note">
-                Shelfmark will create one optional photo slot for each disc.
-              </p>
-            </div>
           </div>
         </section>
 
         <!-- ================================
-     Purchase
-================================= -->
+             Reference Images
+        ================================= -->
 
         <section class="form-section">
           <div class="form-section-heading">
             <div>
-              <h2>Purchase & value</h2>
+              <h2>Reference images</h2>
 
               <p>
-                Record what you paid and, if you want, research the current
-                market and enter your own estimated value.
-              </p>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-field">
-              <label for="purchase-date"> Purchase date </label>
-
-              <input type="date" id="purchase-date" name="purchaseDate" />
-            </div>
-
-            <div class="form-field">
-              <label for="purchase-price"> Purchase price </label>
-
-              <div class="input-with-prefix">
-                <span>€</span>
-
-                <input
-                  type="number"
-                  id="purchase-price"
-                  name="purchasePrice"
-                  min="0"
-                  step="0.01"
-                  placeholder="25.00"
-                />
-              </div>
-            </div>
-
-            <div class="form-field">
-              <label for="estimated-value"> Estimated current value </label>
-
-              <div class="input-with-prefix">
-                <span>€</span>
-
-                <input
-                  type="number"
-                  id="estimated-value"
-                  name="estimatedValue"
-                  min="0"
-                  step="0.01"
-                  placeholder="25.00"
-                />
-              </div>
-
-              <p class="value-status" id="value-status">
-                Research the market below, then enter the value you consider
-                appropriate for this copy.
-              </p>
-            </div>
-
-            <div class="form-field">
-              <label for="value-source"> Value source </label>
-
-              <select id="value-source" name="valueSource">
-                <option value="">Select source</option>
-
-                <option value="PriceCharting">PriceCharting</option>
-
-                <option value="eBay">eBay</option>
-
-                <option value="CeX">CeX</option>
-
-                <option value="Other">Other / Personal estimate</option>
-              </select>
-
-              <p class="form-field-note">
-                Required only when an estimated value is entered.
-              </p>
-            </div>
-
-            <div class="form-field">
-              <label> Last checked </label>
-
-              <div
-                class="form-value-preview value-checked-preview"
-                id="value-checked-preview"
-              >
-                Not checked yet
-              </div>
-            </div>
-
-            <div class="form-field">
-              <label> Profit / loss </label>
-
-              <div class="form-value-preview" id="profit-loss">N/D</div>
-            </div>
-
-            <!-- ================================
-         Market Research
-    ================================= -->
-
-            <div class="market-research form-field-wide">
-              <div class="market-research-heading">
-                <div>
-                  <span>Market research</span>
-
-                  <p>
-                    Shelfmark does not copy pricing data from these services.
-                    Open a search, compare the relevant listings or sales, then
-                    enter your own estimate above.
-                  </p>
-                </div>
-              </div>
-
-              <div class="market-research-links">
-                <a
-                  href="#"
-                  class="market-research-link"
-                  data-market-provider="pricecharting"
-                  data-value-source="PriceCharting"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-disabled="true"
-                >
-                  <img
-                    src="assets/images/icons/PriceCharting_logo.png"
-                    alt=""
-                  />
-
-                  <span> Search PriceCharting </span>
-                </a>
-
-                <a
-                  href="#"
-                  class="market-research-link"
-                  data-market-provider="ebay"
-                  data-value-source="eBay"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-disabled="true"
-                >
-                  <img src="assets/images/icons/eBay_logo.png" alt="" />
-
-                  <span> Search eBay sold </span>
-                </a>
-
-                <a
-                  href="#"
-                  class="market-research-link"
-                  data-market-provider="cex"
-                  data-value-source="CeX"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-disabled="true"
-                >
-                  <img src="assets/images/icons/CeX_logo.png" alt="" />
-
-                  <span> Search CeX </span>
-                </a>
-              </div>
-
-              <p class="market-research-note">
-                Search links become available after entering a title and
-                platform.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ================================
-     Physical Copy
-================================= -->
-
-        <section class="form-section">
-          <div class="form-section-heading">
-            <div>
-              <h2>Physical copy</h2>
-
-              <p>
-                Photograph the parts of this copy you want to preserve. All
-                images are optional.
+                Add optional artwork or media images to make this wishlist item
+                easier to identify.
               </p>
             </div>
           </div>
 
           <div class="photo-groups">
-            <!-- ================================
-         Packaging
-    ================================= -->
+            <!-- Front cover -->
 
             <div class="photo-group">
               <div class="photo-group-heading">
                 <div>
-                  <h3>Packaging</h3>
+                  <h3>Front artwork</h3>
 
                   <p>
-                    Record the case, artwork and printed material that belongs
-                    to this copy.
+                    An optional reference image of the release you are looking
+                    for.
                   </p>
                 </div>
               </div>
 
               <div class="packaging-upload-grid">
-                <!-- Front -->
-
-                <div class="image-upload" data-image-role="front">
+                <div
+                  class="image-upload"
+                  data-image-role="front"
+                  id="wishlist-front-upload"
+                >
                   <div class="image-upload-preview">
                     <span class="image-upload-placeholder"> FRONT </span>
                   </div>
 
-                  <label for="image-front" class="image-upload-button">
+                  <label for="wishlist-image-front" class="image-upload-button">
                     Add image
                   </label>
 
                   <input
                     type="file"
-                    id="image-front"
+                    id="wishlist-image-front"
                     name="imageFront"
                     accept="image/*"
                     hidden
@@ -813,121 +682,63 @@
                     Remove image
                   </button>
                 </div>
-
-                <!-- Back -->
-
-                <div class="image-upload" data-image-role="back">
-                  <div class="image-upload-preview">
-                    <span class="image-upload-placeholder"> BACK </span>
-                  </div>
-
-                  <label for="image-back" class="image-upload-button">
-                    Add image
-                  </label>
-
-                  <input
-                    type="file"
-                    id="image-back"
-                    name="imageBack"
-                    accept="image/*"
-                    hidden
-                  />
-
-                  <button
-                    type="button"
-                    class="image-remove-button"
-                    data-remove-image="back"
-                  >
-                    Remove image
-                  </button>
-                </div>
-
-                <!-- Side -->
-
-                <div class="image-upload" data-image-role="side">
-                  <div class="image-upload-preview">
-                    <span class="image-upload-placeholder"> SIDE </span>
-                  </div>
-
-                  <label for="image-side" class="image-upload-button">
-                    Add image
-                  </label>
-
-                  <input
-                    type="file"
-                    id="image-side"
-                    name="imageSide"
-                    accept="image/*"
-                    hidden
-                  />
-
-                  <button
-                    type="button"
-                    class="image-remove-button"
-                    data-remove-image="side"
-                  >
-                    Remove image
-                  </button>
-                </div>
-
-                <!-- Manual -->
-
-                <div class="image-upload" data-image-role="manual">
-                  <div class="image-upload-preview">
-                    <span class="image-upload-placeholder"> MANUAL </span>
-                  </div>
-
-                  <label for="image-manual" class="image-upload-button">
-                    Add image
-                  </label>
-
-                  <input
-                    type="file"
-                    id="image-manual"
-                    name="imageManual"
-                    accept="image/*"
-                    hidden
-                  />
-
-                  <button
-                    type="button"
-                    class="image-remove-button"
-                    data-remove-image="manual"
-                  >
-                    Remove image
-                  </button>
-                </div>
               </div>
             </div>
 
-            <!-- ================================
-         Media
-    ================================= -->
+            <!-- Media -->
 
             <div class="photo-group">
               <div class="photo-group-heading">
                 <div>
-                  <h3>Media</h3>
+                  <h3>Media reference</h3>
 
                   <p>
-                    Photograph the disc, discs or cartridge included with this
-                    copy.
+                    Optionally add one reference image of the disc, UMD,
+                    cartridge or game card.
                   </p>
                 </div>
 
-                <span class="photo-group-status" id="media-photo-status">
+                <span
+                  class="photo-group-status"
+                  id="wishlist-media-photo-status"
+                >
                   Select media above
                 </span>
               </div>
 
               <div class="media-upload-area">
-                <!-- Disc slots generated by forms.js -->
+                <!-- Disc -->
 
                 <div
-                  class="disc-upload-group media-image is-hidden"
+                  class="image-upload disc-upload-item media-image is-hidden"
                   data-media="disc"
-                  id="disc-upload-group"
-                ></div>
+                  data-image-role="disc"
+                  id="wishlist-disc-upload"
+                >
+                  <div class="image-upload-preview">
+                    <span class="image-upload-placeholder"> DISC </span>
+                  </div>
+
+                  <label for="wishlist-image-disc" class="image-upload-button">
+                    Add image
+                  </label>
+
+                  <input
+                    type="file"
+                    id="wishlist-image-disc"
+                    name="imageDisc"
+                    accept="image/*"
+                    hidden
+                  />
+
+                  <button
+                    type="button"
+                    class="image-remove-button"
+                    data-remove-image="disc"
+                  >
+                    Remove image
+                  </button>
+                </div>
 
                 <!-- Cartridge -->
 
@@ -935,19 +746,22 @@
                   class="image-upload cartridge-upload media-image is-hidden"
                   data-media="cartridge"
                   data-image-role="cartridge"
-                  id="cartridge-upload"
+                  id="wishlist-cartridge-upload"
                 >
                   <div class="image-upload-preview">
                     <span class="image-upload-placeholder"> CARTRIDGE </span>
                   </div>
 
-                  <label for="image-cartridge" class="image-upload-button">
+                  <label
+                    for="wishlist-image-cartridge"
+                    class="image-upload-button"
+                  >
                     Add image
                   </label>
 
                   <input
                     type="file"
-                    id="image-cartridge"
+                    id="wishlist-image-cartridge"
                     name="imageCartridge"
                     accept="image/*"
                     hidden
@@ -962,13 +776,20 @@
                   </button>
                 </div>
 
-                <p class="media-upload-empty" id="media-upload-empty">
-                  Select Disc or Cartridge in Physical format to add media
-                  photographs.
+                <p
+                  class="media-upload-empty visible"
+                  id="wishlist-media-upload-empty"
+                >
+                  Select Disc or Cartridge above to add a media reference image.
                 </p>
               </div>
             </div>
           </div>
+
+          <p class="wishlist-image-notice">
+            Reference images belong only to this Wishlist entry. They will not
+            be copied into your Collection if you later acquire the game.
+          </p>
         </section>
 
         <!-- ================================
@@ -979,17 +800,21 @@
           <div class="form-section-heading">
             <div>
               <h2>Notes</h2>
-              <p>Anything else worth recording about this copy.</p>
+
+              <p>
+                Record anything useful about the copy or release you are looking
+                for.
+              </p>
             </div>
           </div>
 
           <div class="form-field form-field-wide">
-            <label for="notes">Notes</label>
+            <label for="wishlist-notes"> Notes </label>
 
             <textarea
-              id="notes"
+              id="wishlist-notes"
               name="notes"
-              placeholder="Special markings, stickers, purchase details, history..."
+              placeholder="Preferred language, seller notes, specific printing, accessories..."
             ></textarea>
           </div>
         </section>
@@ -1000,19 +825,23 @@
 
         <p
           class="form-save-message"
-          id="form-save-message"
+          id="wishlist-save-message"
           aria-live="polite"
         ></p>
 
         <div class="form-actions">
-          <a href="collection.html" class="form-button-secondary">Cancel</a>
+          <a href="wishlist.html" class="form-button-secondary"> Cancel </a>
 
-          <button type="submit" class="button-primary" id="save-game">
-            Save game
+          <button type="submit" class="button-primary" id="save-wishlist-item">
+            Save to wishlist
           </button>
         </div>
       </form>
     </main>
+
+    <!-- ================================
+         Footer
+    ================================= -->
 
     <footer class="site-footer">
       <div>
@@ -1033,11 +862,15 @@
       </nav>
     </footer>
 
+    <!-- ================================
+         Cropper
+    ================================= -->
+
     <div class="cropper-modal" id="cropper-modal" aria-hidden="true">
       <div class="cropper-dialog">
         <div class="cropper-header">
           <div>
-            <p class="cropper-eyebrow">Image</p>
+            <p class="cropper-eyebrow">Reference image</p>
             <h2 id="cropper-title">Crop image</h2>
           </div>
 
@@ -1056,14 +889,13 @@
 
         <div class="cropper-stage" id="cropper-stage">
           <canvas id="cropper-canvas"></canvas>
+
           <div class="cropper-mask" id="cropper-mask"></div>
         </div>
 
         <div class="cropper-controls">
-          <!-- Zoom -->
-
           <div class="cropper-control-row">
-            <span class="cropper-control-label">Zoom</span>
+            <span class="cropper-control-label"> Zoom </span>
 
             <button
               type="button"
@@ -1102,8 +934,6 @@
               75%
             </output>
           </div>
-
-          <!-- Rotation -->
 
           <div class="cropper-control-row cropper-control-row-rotation">
             <label class="cropper-control-label" for="cropper-rotation">
@@ -1151,12 +981,18 @@
       </div>
     </div>
 
+    <!-- ================================
+         JavaScript
+    ================================= -->
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script src="js/formats.js"></script>
+
+    <!-- These two will be created next -->
     <script src="js/image-cropper.js"></script>
-    <script src="js/forms.js"></script>
+    <script src="js/wishlist-form.js"></script>
   </body>
 </html>

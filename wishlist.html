@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="Browse and manage your Shelfmark wishlist."
+    />
+
+    <title>Wishlist - Shelfmark</title>
+
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#111111" />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="48x48"
+      href="/assets/images/icons/Shelfmark_logo.png?v=2"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/wishlist.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+
+  <body data-require-auth="true">
+    <!-- ================================
+         Navigation
+    ================================= -->
+
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">S</span>
+          <span class="brand-name">Shelfmark</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+
+          <a href="collection.html" data-auth="user" hidden> Collection </a>
+
+          <a href="wishlist.html" class="active" data-auth="user" hidden>
+            Wishlist
+          </a>
+        </div>
+
+        <div class="nav-account">
+          <div class="nav-guest" data-auth="guest" hidden>
+            <a href="login.html" class="login-link"> Log in </a>
+
+            <a href="register.html" class="register-button"> Create account </a>
+          </div>
+
+          <div class="nav-user" data-auth="user" hidden>
+            <a href="profile.html" class="nav-user-link" data-user-name>
+              Account
+            </a>
+
+            <button
+              type="button"
+              class="logout-button"
+              data-auth-action="logout"
+            >
+              Log out
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="wishlist-page">
+      <!-- ================================
+           Header
+      ================================= -->
+
+      <section class="wishlist-header">
+        <div>
+          <p class="wishlist-eyebrow">MY ARCHIVE</p>
+
+          <h1>Wishlist</h1>
+
+          <p class="wishlist-count" id="wishlist-count">Loading wishlist…</p>
+        </div>
+
+        <a
+          href="add-wishlist.html"
+          class="button button-primary"
+          id="wishlist-add-item"
+          hidden
+        >
+          + Add item
+        </a>
+      </section>
+
+      <!-- ================================
+           Controls
+      ================================= -->
+
+      <section class="wishlist-controls" id="wishlist-controls" hidden>
+        <div class="wishlist-search">
+          <label for="wishlist-search" class="visually-hidden">
+            Search wishlist
+          </label>
+
+          <input
+            type="search"
+            id="wishlist-search"
+            placeholder="Search your wishlist..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="wishlist-filters">
+          <label for="wishlist-platform-filter" class="visually-hidden">
+            Platform
+          </label>
+
+          <select id="wishlist-platform-filter">
+            <option value="all">All platforms</option>
+          </select>
+
+          <label for="wishlist-priority-filter" class="visually-hidden">
+            Priority
+          </label>
+
+          <select id="wishlist-priority-filter">
+            <option value="all">All priorities</option>
+            <option value="high">High priority</option>
+            <option value="medium">Medium priority</option>
+            <option value="low">Low priority</option>
+          </select>
+
+          <label for="wishlist-sort" class="visually-hidden">
+            Sort wishlist
+          </label>
+
+          <select id="wishlist-sort">
+            <option value="newest">Recently added</option>
+            <option value="oldest">Oldest added</option>
+            <option value="title">Title A–Z</option>
+            <option value="priority">Priority</option>
+            <option value="target-low">Target price: low</option>
+            <option value="target-high">Target price: high</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- ================================
+           Results Header
+      ================================= -->
+
+      <section class="wishlist-results" id="wishlist-results" hidden>
+        <p class="wishlist-range" id="wishlist-range">Showing wishlist</p>
+
+        <div class="wishlist-page-size">
+          <label for="wishlist-items-per-page"> Items per page </label>
+
+          <select id="wishlist-items-per-page">
+            <option value="12" selected>12</option>
+            <option value="24">24</option>
+            <option value="48">48</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- ================================
+           Loading / Error
+      ================================= -->
+
+      <section class="wishlist-state" id="wishlist-state" aria-live="polite">
+        <div class="wishlist-state-mark">S</div>
+
+        <h2 id="wishlist-state-title">Loading wishlist…</h2>
+
+        <p id="wishlist-state-message">
+          Retrieving the games you want to acquire.
+        </p>
+
+        <button type="button" class="wishlist-retry" id="wishlist-retry" hidden>
+          Try again
+        </button>
+      </section>
+
+      <!-- ================================
+           Dynamic Wishlist
+      ================================= -->
+
+      <section class="wishlist-grid" id="wishlist-grid"></section>
+
+      <!-- ================================
+           Pagination
+      ================================= -->
+
+      <nav
+        class="wishlist-pagination"
+        id="wishlist-pagination"
+        aria-label="Wishlist pages"
+        hidden
+      >
+        <button
+          type="button"
+          class="wishlist-pagination-navigation"
+          id="wishlist-pagination-previous"
+        >
+          Previous
+        </button>
+
+        <div
+          class="wishlist-pagination-pages"
+          id="wishlist-pagination-pages"
+        ></div>
+
+        <button
+          type="button"
+          class="wishlist-pagination-navigation"
+          id="wishlist-pagination-next"
+        >
+          Next
+        </button>
+      </nav>
+
+      <!-- ================================
+           Empty
+      ================================= -->
+
+      <section class="wishlist-empty" id="wishlist-empty" hidden>
+        <div class="wishlist-empty-mark">S</div>
+
+        <h2 id="wishlist-empty-title">Your wishlist is empty.</h2>
+
+        <p id="wishlist-empty-message">
+          Save physical games you would like to add to your collection.
+        </p>
+
+        <a
+          href="add-wishlist.html"
+          class="wishlist-empty-add"
+          id="wishlist-empty-add"
+        >
+          Add your first wishlist item
+        </a>
+      </section>
+    </main>
+
+    <!-- ================================
+         Footer
+    ================================= -->
+
+    <footer class="site-footer">
+      <div>
+        <p>© 2026 Shelfmark</p>
+        <p>A personal collection archive.</p>
+      </div>
+
+      <nav class="site-footer-links" aria-label="Footer">
+        <a href="privacy.html"> Privacy </a>
+
+        <a
+          href="https://github.com/MINEGAMERPTyt/Shelfmark"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>
+      </nav>
+    </footer>
+
+    <!-- ================================
+         JavaScript
+    ================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/formats.js"></script>
+    <script src="js/wishlist.js"></script>
+  </body>
+</html>

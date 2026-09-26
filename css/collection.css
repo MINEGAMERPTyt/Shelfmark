@@ -1877,3 +1877,107 @@
 .collection-grid.list-view .game-card.media-primary .game-cartridge {
   display: flex;
 }
+
+/* ========================================
+   3D Case Viewer Trigger
+======================================== */
+
+.game-case-view-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  z-index: 30;
+
+  width: 38px;
+  height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: rgba(17, 17, 17, 0.88);
+  color: var(--text-muted);
+
+  border: 1px solid var(--border);
+  border-radius: 0;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(8px);
+
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.game-case-view-button svg {
+  width: 18px;
+  height: 18px;
+
+  fill: none;
+  stroke: currentColor;
+
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.game-case-view-button:hover,
+.game-case-view-button:focus-visible {
+  background: var(--accent);
+  color: var(--background);
+
+  border-color: var(--accent);
+}
+
+.game-case-view-button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/*
+  In list view the eye becomes a dedicated action at the
+  far right of the row. The extra link padding prevents
+  the purchase-price column from sitting underneath it.
+*/
+
+/* Grid view: keep the 3D button away from the cover */
+
+.collection-grid:not(.list-view) .game-card-info {
+  padding-right: 52px;
+}
+
+.collection-grid:not(.list-view) .game-case-view-button {
+  top: auto;
+  right: 0;
+  bottom: 0;
+}
+
+.collection-grid.list-view .game-card-link {
+  padding-right: 66px;
+}
+
+.collection-grid.list-view .game-case-view-button {
+  top: 50%;
+  right: 14px;
+
+  transform: translateY(-50%);
+}
+
+@media (max-width: 600px) {
+  .collection-grid.list-view .game-card-link {
+    padding-right: 58px;
+  }
+
+  .collection-grid.list-view .game-case-view-button {
+    right: 10px;
+
+    width: 34px;
+    height: 34px;
+  }
+}
+

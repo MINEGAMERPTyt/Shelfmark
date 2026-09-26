@@ -8,9 +8,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const formatLibrary = window.ShelfmarkFormats;
 
+  const caseViewer = window.ShelfmarkCaseViewer;
+
   if (!formatLibrary) {
     throw new Error(
       "Shelfmark format library is missing. Make sure js/formats.js loads before collection.js.",
+    );
+  }
+
+  if (!caseViewer) {
+    throw new Error(
+      "Shelfmark case viewer is missing. Make sure js/case-viewer.js loads before collection.js.",
     );
   }
 
@@ -895,6 +903,17 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  function canViewCase(record) {
+    const item = record?.item;
+    const game = record?.game;
+
+    if (!item || !game || usesMediaAsPrimaryVisual(item, game)) {
+      return false;
+    }
+
+    return Boolean(formatLibrary.normalizeCaseFormat(game.case_format));
+  }
+
   function chooseMediaImage(images, mediaType) {
     /* ====================================
        CARTRIDGE
@@ -1366,6 +1385,40 @@ document.addEventListener("DOMContentLoaded", () => {
     link.append(visual, info, price);
 
     card.appendChild(link);
+
+    /* ====================================
+       3D CASE VIEWER
+    ==================================== */
+
+    if (canViewCase(record)) {
+      const caseViewButton = document.createElement("button");
+
+      caseViewButton.type = "button";
+      caseViewButton.className = "game-case-view-button";
+      caseViewButton.title = "View 3D case";
+      caseViewButton.setAttribute(
+        "aria-label",
+        `View ${item.title || "game"} case in 3D`,
+      );
+
+      caseViewButton.innerHTML = `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+          <circle cx="12" cy="12" r="2.75"></circle>
+        </svg>
+      `;
+
+      caseViewButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        caseViewer.open(record, {
+          trigger: caseViewButton,
+        });
+      });
+
+      card.appendChild(caseViewButton);
+    }
 
     return card;
   }
@@ -2042,7 +2095,7 @@ document.addEventListener("DOMContentLoaded", () => {
               `,
           )
           .in("item_id", itemIds)
-          .in("image_type", ["front", "disc", "cartridge"])
+          .in("image_type", ["front", "back", "side", "disc", "cartridge"])
           .order("sort_order", {
             ascending: true,
           }),

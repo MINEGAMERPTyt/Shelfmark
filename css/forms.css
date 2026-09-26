@@ -1536,7 +1536,7 @@ body.cropper-open {
 }
 
 .form-button-secondary,
-.form-actions #save-game {
+.form-actions .button-primary {
   min-height: 46px;
 
   display: inline-flex;
@@ -1586,7 +1586,7 @@ body.cropper-open {
   border-color: #444;
 }
 
-.form-actions #save-game {
+.form-actions .button-primary {
   color: var(--background);
 
   background: var(--accent);
@@ -1599,7 +1599,7 @@ body.cropper-open {
     transform 0.2s ease;
 }
 
-.form-actions #save-game:hover {
+.form-actions .button-primary:hover {
   background: var(--accent-dark);
 
   border-color: var(--accent-dark);
@@ -1607,11 +1607,11 @@ body.cropper-open {
   transform: translateY(-1px);
 }
 
-.form-actions #save-game:active {
+.form-actions .button-primary:active {
   transform: translateY(0);
 }
 
-.form-actions #save-game:disabled {
+.form-actions .button-primary:disabled {
   opacity: 0.55;
 
   cursor: wait;
@@ -1813,4 +1813,31 @@ body.cropper-open {
   .cropper-stage {
     height: 50vh;
   }
+}
+
+/* =========================================================
+   WISHLIST REFERENCE IMAGES
+========================================================= */
+
+.wishlist-image-notice {
+  margin-top: 34px;
+
+  padding: 16px 18px;
+
+  background: var(--surface);
+
+  border-left: 2px solid var(--accent);
+
+  color: var(--text-muted);
+
+  font-size: 0.65rem;
+  line-height: 1.6;
+}
+
+#wishlist-front-upload {
+  width: min(100%, 260px);
+}
+
+#wishlist-disc-upload {
+  width: min(100%, 220px);
 }

@@ -13,6 +13,7 @@ A personal collection archive for cataloguing, documenting and tracking physical
 [![GitHub language count](https://img.shields.io/github/languages/count/MINEGAMERPTyt/Shelfmark?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark)
 [![GitHub top language](https://img.shields.io/github/languages/top/MINEGAMERPTyt/Shelfmark?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d6ff4b?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/version-v1.3.0-d6ff4b?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark/releases)
 
 [**Live Demo →**](https://shelfmark-app.netlify.app/)
 
@@ -25,6 +26,8 @@ A personal collection archive for cataloguing, documenting and tracking physical
 Shelfmark is an open-source web application for cataloguing, documenting and tracking personal physical collections.
 
 The project currently focuses on **physical video games**, allowing users to record not only the game itself, but the specific copy they own — including its condition, completeness, physical format, packaging, media, photographs, purchase information and estimated market value.
+
+Shelfmark also includes a separate **Wishlist** for tracking physical games that the user would like to acquire. Wishlist entries remain distinct from owned Collection entries and can later be converted into Collection records once the game is acquired.
 
 Shelfmark is designed to remain simple to use while keeping collection data detailed and organised. In the future, the project is intended to expand beyond games to support other types of physical items and technology.
 
@@ -50,6 +53,53 @@ Shelfmark uses a lightweight frontend built with vanilla HTML, CSS and JavaScrip
 * Responsive collection layout
 * Individual detail page for every game
 
+### Wishlist
+
+Shelfmark includes a separate wishlist for physical games the user would like to acquire.
+
+Wishlist entries can include:
+
+* Title and platform
+* Release year
+* Genre
+* Region and country
+* Game type and edition
+* Developer and publisher
+* Physical media and case format
+* Priority
+* Target price
+* Desired condition
+* Desired completeness
+* Notes
+* Optional front artwork
+* Optional disc, UMD or cartridge reference image
+
+Wishlist entries can be:
+
+* Searched by title and other metadata
+* Filtered by platform
+* Filtered by priority
+* Sorted by date, title, priority or target price
+* Edited
+* Removed
+* Added directly to the Collection once acquired
+
+When a game is acquired, **Add to Collection** carries its general release information into the Collection form while deliberately leaving copy-specific information blank.
+
+The user can then record the actual:
+
+* Condition
+* Completeness
+* Purchase date
+* Purchase price
+* Estimated value
+* Notes
+* Physical copy photographs
+
+Wishlist reference artwork is **never transferred** to the owned Collection entry. The user instead photographs and documents the physical copy they actually acquired.
+
+After the game has been successfully added to the Collection, its original Wishlist entry is removed.
+
 ### Game metadata
 
 Shelfmark can record information including:
@@ -70,7 +120,7 @@ Shelfmark can record information including:
 
 ### Physical copy documentation
 
-Each entry describes the actual copy owned by the user rather than only the game itself.
+Each Collection entry describes the actual copy owned by the user rather than only the game itself.
 
 Supported information includes:
 
@@ -88,9 +138,52 @@ Supported information includes:
 
 All photographs are optional.
 
+### 3D case viewer
+
+Games with a physical case can be inspected through an interactive 3D case viewer directly from the Collection.
+
+The viewer:
+
+* Generates the case dynamically in the browser
+* Uses the physical proportions already defined by Shelfmark
+* Maps uploaded front, back and spine photographs onto the corresponding case surfaces
+* Uses Shelfmark's lime-green accent colour for surfaces without uploaded artwork
+* Supports mouse dragging
+* Supports touch dragging
+* Supports zooming
+* Includes keyboard rotation controls
+* Includes on-screen rotation controls
+* Includes a reset-view control
+* Displays the physical case format and dimensions
+* Requires no stored 3D model files
+* Requires no external 3D engine
+
+Case dimensions vary according to the selected physical format, including:
+
+* DVD-style game cases
+* Blu-ray game cases
+* PlayStation / CD jewel cases
+* Nintendo GameCube cases
+* PSP cases
+* PS Vita cases
+* Nintendo DS cases
+* Nintendo 3DS cases
+* Nintendo Switch cases
+
+The viewer uses the user's real uploaded photographs when available. Missing surfaces remain represented by the Shelfmark case colour rather than requiring every photograph to be present.
+
+The case viewer is not shown for entries recorded without a case, such as:
+
+* **Disc Only**
+* **Cartridge Only**
+* **Missing Case**
+* Legacy **Loose** entries
+
 ### Image cropper
 
-Shelfmark includes a custom image cropping interface designed around physical game packaging and media formats.
+Shelfmark includes a reusable custom image cropping system designed around physical game packaging and media formats.
+
+The same cropper is used for Collection photography and optional Wishlist reference images.
 
 The cropper supports:
 
@@ -158,13 +251,14 @@ Shelfmark does **not** scrape or redistribute pricing data from these services.
 
 * Email and password authentication
 * Email confirmation
-* Protected collection pages
+* Protected Collection and Wishlist pages
 * User-specific collection data
+* User-specific wishlist data
 * User-specific private image storage
 * Row Level Security through Supabase
 * Private Storage bucket with signed image URLs
 
-Each authenticated user can only access their own collection data.
+Each authenticated user can only access their own Collection, Wishlist and associated image data.
 
 ---
 
@@ -175,13 +269,13 @@ Each authenticated user can only access their own collection data.
 * HTML5
 * CSS3
 * Vanilla JavaScript
+* CSS 3D transforms
 
-No frontend framework is required.
+No frontend framework or external 3D engine is required.
 
 ### Backend
 
 * [Supabase](https://supabase.com/)
-
   * Authentication
   * PostgreSQL database
   * Row Level Security
@@ -205,6 +299,8 @@ Shelfmark/
 ├── collection.html
 ├── game.html
 ├── add-game.html
+├── wishlist.html
+├── add-wishlist.html
 ├── login.html
 ├── register.html
 ├── profile.html
@@ -241,6 +337,8 @@ Shelfmark/
 │   ├── style.css
 │   ├── navbar.css
 │   ├── collection.css
+│   ├── case-viewer.css
+│   ├── wishlist.css
 │   ├── game.css
 │   ├── forms.css
 │   ├── auth.css
@@ -250,8 +348,12 @@ Shelfmark/
 ├── js/
 │   ├── main.js
 │   ├── collection.js
+│   ├── case-viewer.js
+│   ├── wishlist.js
+│   ├── wishlist-form.js
 │   ├── game.js
 │   ├── forms.js
+│   ├── image-cropper.js
 │   ├── formats.js
 │   ├── auth.js
 │   ├── password-recovery.js
@@ -273,7 +375,7 @@ Stores profile information associated with authenticated users.
 
 ### `collection_items`
 
-Contains information shared by collection entries.
+Contains information shared by Collection entries.
 
 Important fields include:
 
@@ -298,7 +400,7 @@ updated_at
 
 ### `games`
 
-Contains game-specific information.
+Contains game-specific information for Collection entries.
 
 ```text
 item_id
@@ -319,7 +421,7 @@ disc_count
 
 ### `item_images`
 
-Tracks images stored for each collection item.
+Tracks photographs stored for Collection items.
 
 ```text
 id
@@ -331,21 +433,99 @@ sort_order
 created_at
 ```
 
-Game and image records are associated with their parent collection item.
+Supported Collection image types include:
 
-Deleting a collection item also removes its linked database records.
+```text
+front
+back
+side
+manual
+disc
+cartridge
+```
+
+Game and image records are associated with their parent Collection item.
+
+Deleting a Collection item also removes its linked database records.
+
+### `wishlist_items`
+
+Stores physical games the user would like to acquire.
+
+Important fields include:
+
+```text
+id
+user_id
+title
+platform
+release_year
+genre
+game_type
+edition
+developer
+publisher
+region
+country
+media_type
+media_format
+case_format
+custom_case_width
+custom_case_height
+priority
+target_price
+desired_condition
+desired_completeness
+notes
+created_at
+updated_at
+```
+
+Wishlist priorities are:
+
+```text
+low
+medium
+high
+```
+
+### `wishlist_images`
+
+Tracks optional reference artwork associated with Wishlist entries.
+
+```text
+id
+wishlist_item_id
+image_type
+storage_path
+created_at
+```
+
+Supported Wishlist image types are:
+
+```text
+front
+disc
+cartridge
+```
+
+Wishlist reference images remain separate from photographs belonging to owned Collection items.
+
+Deleting a Wishlist entry also removes its linked Wishlist image records.
 
 ---
 
 ## Image Storage
 
-Game photographs are stored in a private Supabase Storage bucket named:
+Game photographs and Wishlist reference images are stored in a private Supabase Storage bucket named:
 
 ```text
 item-images
 ```
 
-Files are organised by user and collection item:
+### Collection photographs
+
+Collection files are organised by user and Collection item:
 
 ```text
 USER_UUID/
@@ -359,9 +539,28 @@ USER_UUID/
     └── cartridge.png
 ```
 
-Shelfmark uses temporary signed URLs when displaying private images.
-
 Replacement images created while editing use unique filenames to prevent the existing image from being overwritten before an edit has completed successfully.
+
+### Wishlist reference images
+
+Wishlist reference images use a separate path inside the same private bucket:
+
+```text
+USER_UUID/
+└── wishlist/
+    └── WISHLIST_UUID/
+        ├── front-UNIQUE_ID.png
+        ├── disc-UNIQUE_ID.png
+        └── cartridge-UNIQUE_ID.png
+```
+
+A Wishlist entry can contain an optional front artwork reference and one relevant media reference image.
+
+When a Wishlist game is added to the Collection, these reference images are **not transferred** to the owned Collection item.
+
+The Collection entry receives its own independently uploaded photographs of the physical copy that the user actually acquired.
+
+Shelfmark uses temporary signed URLs when displaying private images.
 
 ---
 
@@ -380,6 +579,10 @@ Security measures include:
 * Storage path restrictions based on authenticated user IDs
 * Signed URLs for image access
 * No service-role key exposed to the frontend
+
+Collection and Wishlist tables use Row Level Security so authenticated users can only access records that belong to their own account.
+
+Storage access is similarly restricted to paths beginning with the authenticated user's ID.
 
 > Never place a Supabase service-role key or other private backend credential in the frontend source code.
 
@@ -432,6 +635,8 @@ For example, using the **Live Server** extension in Visual Studio Code:
 1. Open the project folder in VS Code.
 2. Open `index.html`.
 3. Select **Open with Live Server**.
+
+> Some local development servers do not automatically display `404.html` for invalid routes. The deployed Netlify site handles the custom 404 page normally.
 
 ---
 
@@ -491,12 +696,17 @@ The interface deliberately uses:
 * High-contrast metadata
 * Consistent lime-green accent colour
 * Responsive layouts across desktop and mobile devices
+* Physical proportions derived from real game packaging where applicable
+
+The 3D case viewer follows the same visual system, using Shelfmark's accent colour for the physical case body while applying the user's uploaded photographs to available surfaces.
 
 ---
 
 ## Current Status
 
-Shelfmark currently supports the complete game collection workflow:
+Shelfmark currently supports the complete physical-game **Collection and Wishlist workflows**.
+
+### Collection
 
 ```text
 Create account
@@ -505,16 +715,57 @@ Add game
       ↓
 Collection
       ↓
+Browse / search / filter
+      ↓
+View physical copy
+      ↓
+3D case view
+      ↓
 Game details
       ↓
-Edit game
-      ↓
-Save changes
-      ↓
-Delete game
+Edit or remove
 ```
 
-Game collection management, image storage, edit handling, manual valuation tracking, image rotation and collection insights are functional. The navigation also adapts to a compact hamburger menu on smaller screens.
+### Wishlist
+
+```text
+Add wishlist item
+      ↓
+Track desired release
+      ↓
+Search / filter / prioritise
+      ↓
+Acquire game
+      ↓
+Add to Collection
+      ↓
+Record the actual physical copy
+      ↓
+Wishlist entry removed
+```
+
+Current functionality includes:
+
+* Physical game Collection management
+* Individual game detail pages
+* Wishlist management
+* Wishlist-to-Collection workflow
+* Private Collection photography
+* Optional Wishlist reference images
+* Shared physical-media image cropper
+* Fine image rotation and positioning
+* Physical cartridge and UMD silhouettes
+* Interactive 3D case viewer
+* Manual valuation tracking
+* Market-research shortcuts
+* Collection financial insights
+* Platform, genre and media breakdowns
+* Search, filtering, sorting and pagination
+* Responsive desktop and mobile layouts
+* Responsive authenticated navigation
+* User-specific data protected through Supabase Row Level Security
+* Private image storage with signed URLs
+* Custom 404 page on deployment
 
 ---
 
@@ -523,7 +774,7 @@ Game collection management, image storage, edit handling, manual valuation track
 Possible future development includes:
 
 * Collection value history
-* Wishlist support
+* Import and export tools
 * Additional collection categories
 * Consoles
 * Computers
@@ -531,7 +782,8 @@ Possible future development includes:
 * Peripherals
 * Music and physical media
 * Collectibles
-* Import / export tools
+* Expanded physical-object visualisation
+* Additional statistics and collection insights
 
 ---
 
