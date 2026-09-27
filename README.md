@@ -13,7 +13,7 @@ A personal collection archive for cataloguing, documenting and tracking physical
 [![GitHub language count](https://img.shields.io/github/languages/count/MINEGAMERPTyt/Shelfmark?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark)
 [![GitHub top language](https://img.shields.io/github/languages/top/MINEGAMERPTyt/Shelfmark?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d6ff4b?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.4.0-d6ff4b?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark/releases)
+[![Version](https://img.shields.io/badge/version-v1.4.1-d6ff4b?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark/releases)
 
 [**Live Demo →**](https://shelfmark-app.netlify.app/)
 
