@@ -6,7 +6,7 @@
 
     <meta
       name="description"
-      content="View a read-only Shelfmark physical game collection."
+      content="View a shared Shelfmark physical game collection."
     />
 
     <meta name="robots" content="noindex, nofollow" />
@@ -44,9 +44,35 @@
 
         <div class="nav-links">
           <a href="index.html">Home</a>
+
+          <a href="collection.html" data-auth="user" hidden>
+            Collection
+          </a>
+
+          <a href="wishlist.html" data-auth="user" hidden>Wishlist</a>
         </div>
 
-        <div class="nav-account shared-nav-note">Read-only share</div>
+        <div class="nav-account">
+          <div class="nav-guest" data-auth="guest" hidden>
+            <a href="login.html" class="login-link">Log in</a>
+
+            <a href="register.html" class="register-button">Create account</a>
+          </div>
+
+          <div class="nav-user" data-auth="user" hidden>
+            <a href="profile.html" class="nav-user-link" data-user-name>
+              Account
+            </a>
+
+            <button
+              type="button"
+              class="logout-button"
+              data-auth-action="logout"
+            >
+              Log out
+            </button>
+          </div>
+        </div>
       </nav>
     </header>
 
@@ -56,7 +82,7 @@
         <p class="eyebrow">SHARED SHELFMARK</p>
         <h1 id="shared-state-title">Loading collection…</h1>
         <p id="shared-state-message">
-          Retrieving this read-only Shelfmark collection.
+          Retrieving this Shelfmark collection.
         </p>
       </section>
 
@@ -70,7 +96,6 @@
             <p class="shared-count" id="shared-count"></p>
           </div>
 
-          <div class="shared-readonly-badge">Read only</div>
         </section>
 
         <section class="shared-insights" id="shared-insights">
@@ -184,6 +209,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/formats.js"></script>
     <script src="js/shared.js"></script>
   </body>

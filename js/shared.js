@@ -312,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
     element.className = mediaType === "cartridge" ? "game-cartridge" : "game-disc";
     element.classList.add(`media-shape-${definition?.shape || (mediaType === "cartridge" ? "rounded" : "disc")}`);
     element.style.aspectRatio = String(definition?.ratio || (mediaType === "cartridge" ? 0.78 : 1));
-    element.dataset.rotates = "false";
+    element.dataset.rotates = definition?.rotates ? "true" : "false";
 
     if (mediaImage?.signedUrl) {
       const image = document.createElement("img");
@@ -338,6 +338,111 @@ document.addEventListener("DOMContentLoaded", () => {
     element.appendChild(label);
 
     return element;
+  }
+
+  const discStates = new Map();
+  const DISC_SPEED = 144;
+
+  function cleanupDiscStates() {
+    discStates.forEach((state) => {
+      state.spinning = false;
+
+      if (state.frame) {
+        cancelAnimationFrame(state.frame);
+      }
+
+      if (state.stopTimer) {
+        clearTimeout(state.stopTimer);
+      }
+    });
+
+    discStates.clear();
+  }
+
+  function startDiscSpin(card) {
+    const state = discStates.get(card);
+
+    if (!state || state.spinning) {
+      return;
+    }
+
+    state.spinning = true;
+    let lastTime = performance.now();
+
+    function spin(currentTime) {
+      if (!state.spinning) {
+        return;
+      }
+
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
+      state.angle = (state.angle + DISC_SPEED * (deltaTime / 1000)) % 360;
+      state.image.style.transform = `rotate(${state.angle}deg)`;
+      state.frame = requestAnimationFrame(spin);
+    }
+
+    state.frame = requestAnimationFrame(spin);
+  }
+
+  function stopDiscSpin(card) {
+    const state = discStates.get(card);
+
+    if (!state) {
+      return;
+    }
+
+    state.spinning = false;
+
+    if (state.frame) {
+      cancelAnimationFrame(state.frame);
+      state.frame = null;
+    }
+  }
+
+  function setupDiscStates() {
+    grid?.querySelectorAll(".game-card").forEach((card) => {
+      const disc = card.querySelector(".game-disc");
+      const discImage = disc?.querySelector("img");
+
+      if (
+        card.classList.contains("media-primary") ||
+        !disc ||
+        !discImage ||
+        disc.dataset.rotates === "false"
+      ) {
+        return;
+      }
+
+      const state = {
+        image: discImage,
+        angle: 0,
+        spinning: false,
+        frame: null,
+        stopTimer: null,
+      };
+
+      discStates.set(card, state);
+
+      card.addEventListener("mouseenter", () => {
+        if (state.stopTimer) {
+          clearTimeout(state.stopTimer);
+          state.stopTimer = null;
+        }
+
+        startDiscSpin(card);
+      });
+
+      card.addEventListener("mouseleave", () => {
+        if (state.stopTimer) {
+          clearTimeout(state.stopTimer);
+        }
+
+        state.stopTimer = setTimeout(() => {
+          stopDiscSpin(card);
+          state.stopTimer = null;
+        }, 500);
+      });
+    });
   }
 
   async function signImagesForItems() {
@@ -797,11 +902,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    cleanupDiscStates();
     grid.innerHTML = "";
     const fragment = document.createDocumentFragment();
 
     pageItems.forEach((item) => fragment.appendChild(createCard(item)));
     grid.appendChild(fragment);
+    setupDiscStates();
 
     if (resultsText) {
       resultsText.textContent = filtered.length

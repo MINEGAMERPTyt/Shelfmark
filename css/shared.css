@@ -4,13 +4,6 @@
   padding: 80px 0 100px;
 }
 
-.shared-nav-note {
-  color: var(--text-muted);
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
 
 .shared-state {
   min-height: 55vh;
@@ -74,16 +67,6 @@
   font-size: 0.66rem;
 }
 
-.shared-readonly-badge {
-  flex: 0 0 auto;
-  padding: 10px 12px;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  font-size: 0.58rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
 
 .shared-insights {
   padding: 24px 0 30px;
@@ -196,9 +179,6 @@
   padding-right: 0;
 }
 
-.shared-grid .game-card:hover .game-case {
-  transform: none;
-}
 
 .shared-card-details {
   margin-top: 13px;
