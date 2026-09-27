@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="View a read-only Shelfmark physical game collection."
+    />
+
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#111111" />
+
+    <title>Shared Collection - Shelfmark</title>
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="48x48"
+      href="/assets/images/icons/Shelfmark_logo.png?v=2"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      href="assets/images/icons/Shelfmark_logo.png"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/collection.css" />
+    <link rel="stylesheet" href="css/shared.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+
+  <body>
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="brand">
+          <span class="brand-icon">S</span>
+          <span class="brand-name">Shelfmark</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+        </div>
+
+        <div class="nav-account shared-nav-note">Read-only share</div>
+      </nav>
+    </header>
+
+    <main class="shared-page">
+      <section class="shared-state" id="shared-state" aria-live="polite">
+        <div class="collection-state-mark">S</div>
+        <p class="eyebrow">SHARED SHELFMARK</p>
+        <h1 id="shared-state-title">Loading collection…</h1>
+        <p id="shared-state-message">
+          Retrieving this read-only Shelfmark collection.
+        </p>
+      </section>
+
+      <div id="shared-content" hidden>
+        <section class="shared-header">
+          <div>
+            <p class="eyebrow">SHARED SHELFMARK</p>
+            <p class="shared-owner" id="shared-owner"></p>
+            <h1 id="shared-title">Collection</h1>
+            <p class="shared-description" id="shared-description" hidden></p>
+            <p class="shared-count" id="shared-count"></p>
+          </div>
+
+          <div class="shared-readonly-badge">Read only</div>
+        </section>
+
+        <section class="shared-insights" id="shared-insights">
+          <div class="shared-insights-grid" id="shared-insights-grid"></div>
+
+          <div class="shared-breakdowns">
+            <article>
+              <span>Platforms</span>
+              <div id="shared-platforms"></div>
+            </article>
+
+            <article>
+              <span>Genres</span>
+              <div id="shared-genres"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="shared-controls">
+          <label class="visually-hidden" for="shared-search">Search games</label>
+          <input
+            type="search"
+            id="shared-search"
+            placeholder="Search this collection..."
+            autocomplete="off"
+          />
+
+          <label class="visually-hidden" for="shared-platform-filter">
+            Platform
+          </label>
+          <select id="shared-platform-filter">
+            <option value="all">All platforms</option>
+          </select>
+
+          <label class="visually-hidden" for="shared-genre-filter">Genre</label>
+          <select id="shared-genre-filter">
+            <option value="all">All genres</option>
+          </select>
+
+          <label class="visually-hidden" for="shared-sort">Sort</label>
+          <select id="shared-sort">
+            <option value="title">Title A–Z</option>
+            <option value="year-new">Release year: newest</option>
+            <option value="year-old">Release year: oldest</option>
+          </select>
+        </section>
+
+        <p class="shared-results" id="shared-results"></p>
+
+        <section class="collection-grid shared-grid" id="shared-grid"></section>
+
+        <nav
+          class="collection-pagination"
+          id="shared-pagination"
+          aria-label="Shared collection pages"
+          hidden
+        >
+          <button
+            type="button"
+            class="pagination-navigation"
+            id="shared-previous"
+          >
+            Previous
+          </button>
+
+          <div class="pagination-pages" id="shared-pages"></div>
+
+          <button
+            type="button"
+            class="pagination-navigation"
+            id="shared-next"
+          >
+            Next
+          </button>
+        </nav>
+
+        <section class="shared-empty" id="shared-empty" hidden>
+          <h2>No games found.</h2>
+          <p>Try changing the search or filters.</p>
+        </section>
+      </div>
+    </main>
+
+    <div class="shared-lightbox" id="shared-lightbox" aria-hidden="true">
+      <button type="button" id="shared-lightbox-close" aria-label="Close">
+        ×
+      </button>
+      <figure>
+        <img id="shared-lightbox-image" alt="" />
+        <figcaption id="shared-lightbox-caption"></figcaption>
+      </figure>
+    </div>
+
+    <footer class="site-footer">
+      <div>
+        <p>© 2026 Shelfmark</p>
+        <p>Catalog what you keep.</p>
+      </div>
+
+      <nav class="site-footer-links" aria-label="Footer">
+        <a href="privacy.html">Privacy</a>
+        <a
+          href="https://github.com/MINEGAMERPTyt/Shelfmark"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>
+      </nav>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/formats.js"></script>
+    <script src="js/shared.js"></script>
+  </body>
+</html>

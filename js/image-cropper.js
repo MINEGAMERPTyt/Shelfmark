@@ -31,6 +31,18 @@
   const shapeAssetPromises = new Map();
 
   /* =====================================================
+     OUTPUT
+
+     WebP keeps photographs much smaller than PNG while still
+     supporting the transparent silhouettes used by discs, UMDs
+     and cartridges. 1200 px remains the maximum crop size for
+     detail and 3D-viewer quality.
+  ===================================================== */
+
+  const OUTPUT_MIME_TYPE = "image/webp";
+  const OUTPUT_QUALITY = 0.9;
+
+  /* =====================================================
      SHAPE HELPERS
   ===================================================== */
 
@@ -1694,15 +1706,28 @@
           });
         }
 
+        const outputType = blob.type || OUTPUT_MIME_TYPE;
+
+        const extension =
+          outputType === "image/webp"
+            ? "webp"
+            : outputType === "image/jpeg"
+              ? "jpg"
+              : "png";
+
         if (!fileName) {
           fileName =
             cropperRole === "disc" && discNumber
-              ? `disc-${discNumber}.png`
-              : `${cropperRole}.png`;
+              ? `disc-${discNumber}.${extension}`
+              : `${cropperRole}.${extension}`;
+        } else {
+          fileName = /\.(?:png|jpe?g|webp)$/i.test(fileName)
+            ? fileName.replace(/\.(?:png|jpe?g|webp)$/i, `.${extension}`)
+            : `${fileName}.${extension}`;
         }
 
         const croppedFile = new File([blob], fileName, {
-          type: "image/png",
+          type: outputType,
         });
 
         const image = document.createElement("img");
@@ -1759,7 +1784,7 @@
         closeCropper({
           commit: true,
         });
-      }, "image/png");
+      }, OUTPUT_MIME_TYPE, OUTPUT_QUALITY);
     }
 
     /* ===================================================

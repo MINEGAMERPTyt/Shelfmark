@@ -79,7 +79,7 @@
 
         <h1>Privacy</h1>
 
-        <p>Last updated 9 September 2026</p>
+        <p>Last updated 27 September 2026</p>
       </header>
 
       <article class="legal-content">
@@ -107,11 +107,25 @@
             <li>Profile information you choose to provide.</li>
 
             <li>
-              Collection information such as titles, platforms, condition,
-              purchase information, estimated values and notes.
+              Collection and Wishlist information such as titles, platforms,
+              condition, purchase information, estimated values, priorities and
+              notes.
             </li>
 
-            <li>Images you choose to upload for items in your collection.</li>
+            <li>
+              Custom collection information, including collection names,
+              descriptions and game membership.
+            </li>
+
+            <li>
+              Sharing settings and random share tokens when you choose to make
+              an archive or custom collection available through a public link.
+            </li>
+
+            <li>
+              Images you choose to upload for Collection items or Wishlist
+              references.
+            </li>
 
             <li>
               Technical information required by the hosting and backend services
@@ -125,13 +139,45 @@
 
           <p>
             Information stored by Shelfmark is used to provide your account,
-            maintain your personal collection archive, display your saved items
-            and images, and provide the features of the application.
+            maintain your personal collection archive and Wishlist, display your
+            saved items and images, calculate collection insights, and provide
+            the features of the application.
+          </p>
+
+          <p>
+            If you explicitly enable a public share link, Shelfmark also uses
+            the selected collection data to provide that read-only shared view.
           </p>
 
           <p>
             Shelfmark does not sell personal information and does not use
             collection information for advertising.
+          </p>
+        </section>
+
+        <section>
+          <h2>Public collection sharing</h2>
+
+          <p>
+            Sharing is disabled by default. You can choose to create a
+            read-only public link for your full archive or for an individual
+            custom collection. A person with the link does not need a Shelfmark
+            account to view the information you chose to share.
+          </p>
+
+          <p>
+            Purchase price, purchase date, estimated value and value difference
+            are controlled through separate sharing options and are not exposed
+            unless you enable the relevant option. Photographs can also be
+            excluded from a shared view.
+          </p>
+
+          <p>
+            You can disable a share or generate a new share link at any time.
+            Uploaded images remain stored in Shelfmark's private Storage bucket;
+            shared photographs are delivered using temporary signed URLs. A
+            signed image URL that has already been issued may continue to work
+            until that temporary URL expires.
           </p>
         </section>
 
@@ -173,7 +219,10 @@
           <p>
             Shelfmark uses browser storage where necessary to maintain an
             authenticated Supabase session. This allows you to remain signed in
-            between page loads.
+            between page loads. Browser storage is also used for interface
+            preferences and short-lived reuse of temporary signed image URLs so
+            the same private image does not need to be requested repeatedly
+            during a browsing session.
           </p>
         </section>
 
@@ -197,16 +246,17 @@
           <h2>Data retention</h2>
 
           <p>
-            Your active Shelfmark collection data is retained while your account
-            exists or until you remove individual items.
+            Your active Shelfmark Collection, Wishlist, custom collections and
+            sharing settings are retained while your account exists or until you
+            remove the relevant items, collections or shares.
           </p>
 
           <p>
             When you permanently delete your account, Shelfmark removes the
-            account's collection records and uploaded Shelfmark images as part
-            of the deletion process. Infrastructure providers may retain limited
-            backup or operational records according to their own retention
-            policies.
+            account's Collection and Wishlist records, custom collections,
+            sharing records and uploaded Shelfmark images as part of the
+            deletion process. Infrastructure providers may retain limited backup
+            or operational records according to their own retention policies.
           </p>
         </section>
 
@@ -221,7 +271,8 @@
 
           <p>
             Shelfmark also provides an account deletion option for permanently
-            removing your account and associated collection data.
+            removing your account and associated Collection, Wishlist, custom
+            collection and sharing data.
           </p>
 
           <a href="delete-account.html" class="legal-action">

@@ -58,6 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const countryInput = document.getElementById("country");
   const typeInput = document.getElementById("game-type");
   const editionInput = document.getElementById("edition");
+  const customEditionField = document.getElementById("custom-edition-field");
+  const customEditionInput = document.getElementById("custom-edition");
   const developerInput = document.getElementById("developer");
   const publisherInput = document.getElementById("publisher");
 
@@ -175,6 +177,67 @@ document.addEventListener("DOMContentLoaded", () => {
   function optionalString(value) {
     const result = String(value ?? "").trim();
     return result || null;
+  }
+
+  const editionPresetValues = new Set(
+    Array.from(editionInput?.options || [])
+      .map((option) => option.value)
+      .filter((value) => value && value !== "Other"),
+  );
+
+  function getEditionValue() {
+    if (editionInput?.value === "Other") {
+      return optionalString(customEditionInput?.value);
+    }
+
+    return optionalString(editionInput?.value);
+  }
+
+  function updateCustomEditionField() {
+    const isCustomEdition = editionInput?.value === "Other";
+
+    if (customEditionField) {
+      customEditionField.hidden = !isCustomEdition;
+    }
+
+    if (customEditionInput) {
+      customEditionInput.required = isCustomEdition;
+
+      if (!isCustomEdition) {
+        customEditionInput.classList.remove("is-invalid");
+        customEditionInput.removeAttribute("aria-invalid");
+      }
+    }
+  }
+
+  function setEditionValue(value) {
+    if (!editionInput) {
+      return;
+    }
+
+    const savedEdition = optionalString(value) || "";
+
+    if (!savedEdition) {
+      editionInput.value = "";
+
+      if (customEditionInput) {
+        customEditionInput.value = "";
+      }
+    } else if (editionPresetValues.has(savedEdition)) {
+      editionInput.value = savedEdition;
+
+      if (customEditionInput) {
+        customEditionInput.value = "";
+      }
+    } else {
+      editionInput.value = "Other";
+
+      if (customEditionInput) {
+        customEditionInput.value = savedEdition;
+      }
+    }
+
+    updateCustomEditionField();
   }
 
   function optionalNumber(value) {
@@ -1059,9 +1122,9 @@ document.addEventListener("DOMContentLoaded", () => {
 ===================================================== */
 
   function getResearchEdition() {
-    const edition = editionInput?.value || "";
+    const edition = getEditionValue() || "";
 
-    if (!edition || edition === "Standard Edition" || edition === "Other") {
+    if (!edition || edition === "Standard Edition") {
       return "";
     }
 
@@ -1205,13 +1268,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  [gameTitleInput, platformInput, regionInput, editionInput].forEach(
-    (input) => {
-      input?.addEventListener("input", updateMarketResearchLinks);
+  [
+    gameTitleInput,
+    platformInput,
+    regionInput,
+    editionInput,
+    customEditionInput,
+  ].forEach((input) => {
+    input?.addEventListener("input", updateMarketResearchLinks);
 
-      input?.addEventListener("change", updateMarketResearchLinks);
-    },
-  );
+    input?.addEventListener("change", updateMarketResearchLinks);
+  });
+
+  editionInput?.addEventListener("change", () => {
+    updateCustomEditionField();
+
+    if (editionInput.value !== "Other" && customEditionInput) {
+      customEditionInput.value = "";
+    }
+  });
 
   /* =====================================================
      SAVE STATUS / VALIDATION
@@ -1331,6 +1406,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!typeInput?.value) {
       setFormSaveMessage("Select the game type.", "error");
       focusInvalidField(typeInput);
+      return false;
+    }
+
+    if (editionInput?.value === "Other" && !customEditionInput?.value.trim()) {
+      setFormSaveMessage("Enter the custom edition name.", "error");
+      focusInvalidField(customEditionInput);
       return false;
     }
 
@@ -1535,37 +1616,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function addEditSignedUrls(images) {
-    if (!images.length) {
-      return [];
-    }
-
-    const paths = images.map((image) => image.storage_path);
-
-    const { data, error } = await supabaseClient.storage
-      .from("item-images")
-      .createSignedUrls(paths, 3600);
-
-    if (error) {
-      console.warn("Shelfmark edit signed URL error:", error);
-
-      return images.map((image) => ({
-        ...image,
-        signedUrl: null,
-      }));
-    }
-
-    return images.map((image, index) => {
-      const signedEntry =
-        data?.find((entry) => entry.path === image.storage_path) ||
-        data?.[index] ||
-        null;
-
-      return {
-        ...image,
-
-        signedUrl: signedEntry?.signedUrl || signedEntry?.signedURL || null,
-      };
-    });
+    return window.ShelfmarkStorage.addSignedUrls(images);
   }
 
   function getUploadBoxForExistingImage(image) {
@@ -1739,7 +1790,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setInputValue(typeInput, game.game_type);
 
-      setInputValue(editionInput, game.edition);
+      setEditionValue(game.edition);
 
       setInputValue(developerInput, game.developer);
 
@@ -1996,7 +2047,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setInputValue(typeInput, item.game_type);
 
-      setInputValue(editionInput, item.edition);
+      setEditionValue(item.edition);
 
       setInputValue(developerInput, item.developer);
 
@@ -2171,7 +2222,7 @@ document.addEventListener("DOMContentLoaded", () => {
         release_year: optionalInteger(releaseYearInput?.value),
         genre: optionalString(genreInput?.value),
         game_type: optionalString(typeInput?.value),
-        edition: optionalString(editionInput?.value),
+        edition: getEditionValue(),
         developer: optionalString(developerInput?.value),
         publisher: optionalString(publisherInput?.value),
 
@@ -2529,7 +2580,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const { error: uploadError } = await supabaseClient.storage
           .from("item-images")
           .upload(storagePath, image.file, {
-            cacheControl: "3600",
+            cacheControl: window.ShelfmarkStorage.UPLOAD_CACHE_CONTROL,
 
             contentType: image.file.type || "image/png",
 
@@ -2847,7 +2898,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const { error: uploadError } = await supabaseClient.storage
           .from("item-images")
           .upload(storagePath, image.file, {
-            cacheControl: "3600",
+            cacheControl: window.ShelfmarkStorage.UPLOAD_CACHE_CONTROL,
             contentType: image.file.type || "image/png",
             upsert: false,
           });
@@ -3040,6 +3091,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setEstimatedValueField(estimatedValueInput?.value || "");
   updateProfitLoss();
+  updateCustomEditionField();
   updateCountryOptions();
   updateCompletenessOptions();
   updateMediaType();

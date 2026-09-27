@@ -84,23 +84,108 @@
 
       <section class="collection-header">
         <div>
-          <p class="eyebrow">MY ARCHIVE</p>
+          <p class="eyebrow" id="collection-eyebrow">MY ARCHIVE</p>
 
-          <h1>Collection</h1>
+          <h1 id="collection-page-title">Collection</h1>
+
+          <p
+            class="collection-description"
+            id="collection-page-description"
+            hidden
+          ></p>
 
           <p class="collection-count" id="collection-count">
             Loading collection…
           </p>
         </div>
 
-        <a
-          href="add-game.html"
-          class="button button-primary"
-          id="collection-add-game"
-          hidden
-        >
-          + Add game
-        </a>
+        <div class="collection-header-actions">
+          <button
+            type="button"
+            class="button button-secondary"
+            id="collection-share-button"
+            hidden
+          >
+            Share
+          </button>
+
+          <a
+            href="add-game.html"
+            class="button button-primary"
+            id="collection-add-game"
+            hidden
+          >
+            + Add game
+          </a>
+        </div>
+      </section>
+
+      <!-- ================================
+           Custom Collections
+      ================================= -->
+
+      <section
+        class="custom-collections"
+        id="custom-collections"
+        aria-labelledby="custom-collections-title"
+        hidden
+      >
+        <div class="custom-collections-heading-row">
+          <div>
+            <p class="eyebrow">CURATED COLLECTIONS</p>
+            <h2 id="custom-collections-title">Organize your archive</h2>
+            <p class="custom-collections-note">
+              Group existing games without duplicating their catalogue records.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="button button-secondary custom-collection-create"
+            id="collection-create-button"
+          >
+            + New collection
+          </button>
+        </div>
+
+        <div class="custom-collections-toolbar">
+          <div
+            class="collection-scope-list"
+            id="collection-scope-list"
+            role="tablist"
+            aria-label="Choose collection"
+          ></div>
+
+          <div
+            class="collection-scope-actions"
+            id="collection-scope-actions"
+            hidden
+          >
+            <button
+              type="button"
+              class="collection-scope-action"
+              id="collection-manage-button"
+            >
+              Manage games
+            </button>
+
+            <button
+              type="button"
+              class="collection-scope-action"
+              id="collection-edit-button"
+            >
+              Edit
+            </button>
+
+            <button
+              type="button"
+              class="collection-scope-action collection-scope-action-danger"
+              id="collection-delete-button"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       </section>
 
       <!-- ================================
@@ -402,6 +487,342 @@
         </a>
       </section>
     </main>
+
+    <!-- ================================
+         Custom Collection Modals
+    ================================= -->
+
+    <div
+      class="collection-modal"
+      id="collection-editor-modal"
+      aria-hidden="true"
+      hidden
+    >
+      <div
+        class="collection-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="collection-editor-title"
+      >
+        <div class="collection-dialog-header">
+          <div>
+            <p class="eyebrow">CUSTOM COLLECTION</p>
+            <h2 id="collection-editor-title">Create collection</h2>
+          </div>
+
+          <button
+            type="button"
+            class="collection-modal-close"
+            data-collection-modal-close
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <form id="collection-editor-form" novalidate>
+          <div class="collection-dialog-field">
+            <label for="collection-name">Name</label>
+            <input
+              type="text"
+              id="collection-name"
+              maxlength="80"
+              autocomplete="off"
+              required
+              placeholder="e.g. BGamer"
+            />
+          </div>
+
+          <div class="collection-dialog-field">
+            <label for="collection-description">Description</label>
+            <textarea
+              id="collection-description"
+              maxlength="500"
+              rows="4"
+              placeholder="Optional notes about this collection."
+            ></textarea>
+            <p class="collection-dialog-help">Optional · up to 500 characters</p>
+          </div>
+
+          <p
+            class="collection-dialog-status"
+            id="collection-editor-status"
+            aria-live="polite"
+          ></p>
+
+          <div class="collection-dialog-actions">
+            <button
+              type="button"
+              class="button button-secondary"
+              data-collection-modal-close
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="button button-primary"
+              id="collection-editor-save"
+            >
+              Create collection
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      class="collection-modal"
+      id="collection-members-modal"
+      aria-hidden="true"
+      hidden
+    >
+      <div
+        class="collection-dialog collection-members-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="collection-members-title"
+      >
+        <div class="collection-dialog-header">
+          <div>
+            <p class="eyebrow">COLLECTION MEMBERS</p>
+            <h2 id="collection-members-title">Manage games</h2>
+            <p
+              class="collection-dialog-subtitle"
+              id="collection-members-subtitle"
+            ></p>
+          </div>
+
+          <button
+            type="button"
+            class="collection-modal-close"
+            data-collection-modal-close
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="collection-members-tools">
+          <label for="collection-members-search" class="visually-hidden">
+            Search games
+          </label>
+          <input
+            type="search"
+            id="collection-members-search"
+            placeholder="Search games..."
+            autocomplete="off"
+          />
+
+          <p id="collection-members-count">0 selected</p>
+        </div>
+
+        <div
+          class="collection-members-list"
+          id="collection-members-list"
+        ></div>
+
+        <p
+          class="collection-dialog-status"
+          id="collection-members-status"
+          aria-live="polite"
+        ></p>
+
+        <div class="collection-dialog-actions">
+          <button
+            type="button"
+            class="button button-secondary"
+            data-collection-modal-close
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="button button-primary"
+            id="collection-members-save"
+          >
+            Save games
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="collection-modal"
+      id="collection-delete-modal"
+      aria-hidden="true"
+      hidden
+    >
+      <div
+        class="collection-dialog collection-delete-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="collection-delete-title"
+      >
+        <div class="collection-dialog-header">
+          <div>
+            <p class="eyebrow">DELETE COLLECTION</p>
+            <h2 id="collection-delete-title">Delete this collection?</h2>
+          </div>
+
+          <button
+            type="button"
+            class="collection-modal-close"
+            data-collection-modal-close
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <p class="collection-delete-copy" id="collection-delete-copy"></p>
+
+        <p class="collection-delete-note">
+          The games stay in your Shelfmark archive. Only this curated collection
+          and its memberships are removed.
+        </p>
+
+        <p
+          class="collection-dialog-status"
+          id="collection-delete-status"
+          aria-live="polite"
+        ></p>
+
+        <div class="collection-dialog-actions">
+          <button
+            type="button"
+            class="button button-secondary"
+            data-collection-modal-close
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="button collection-delete-confirm"
+            id="collection-delete-confirm"
+          >
+            Delete collection
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <div
+      class="collection-modal"
+      id="collection-share-modal"
+      aria-hidden="true"
+      hidden
+    >
+      <div
+        class="collection-dialog collection-share-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="collection-share-title"
+      >
+        <div class="collection-dialog-header">
+          <div>
+            <p class="eyebrow">PUBLIC SHARING</p>
+            <h2 id="collection-share-title">Share archive</h2>
+            <p class="collection-dialog-subtitle">
+              Anyone with the link can view this read-only Shelfmark share.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="collection-modal-close"
+            data-collection-modal-close
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="collection-share-options">
+          <label class="collection-share-toggle">
+            <input type="checkbox" id="collection-share-enabled" />
+            <span>Enable public link</span>
+          </label>
+
+          <fieldset class="collection-share-fieldset">
+            <legend>Visible information</legend>
+
+            <label>
+              <input type="checkbox" id="share-show-photos" checked />
+              <span>Physical photographs</span>
+            </label>
+
+            <label>
+              <input type="checkbox" id="share-show-estimated-value" />
+              <span>Estimated value</span>
+            </label>
+
+            <label>
+              <input type="checkbox" id="share-show-purchase-price" />
+              <span>Purchase price / total spent</span>
+            </label>
+
+            <label>
+              <input type="checkbox" id="share-show-purchase-date" />
+              <span>Purchase date</span>
+            </label>
+
+            <label>
+              <input type="checkbox" id="share-show-profit-loss" />
+              <span>Value difference</span>
+            </label>
+          </fieldset>
+
+          <div class="collection-share-link" id="collection-share-link-wrap" hidden>
+            <label for="collection-share-url">Public link</label>
+            <div class="collection-share-link-row">
+              <input
+                type="text"
+                id="collection-share-url"
+                readonly
+                spellcheck="false"
+              />
+              <button type="button" id="collection-share-copy">Copy</button>
+            </div>
+
+            <button
+              type="button"
+              class="collection-share-regenerate"
+              id="collection-share-regenerate"
+            >
+              Generate a new link
+            </button>
+          </div>
+        </div>
+
+        <p
+          class="collection-dialog-status"
+          id="collection-share-status"
+          aria-live="polite"
+        ></p>
+
+        <div class="collection-dialog-actions">
+          <button
+            type="button"
+            class="button button-secondary"
+            data-collection-modal-close
+          >
+            Close
+          </button>
+
+          <button
+            type="button"
+            class="button button-primary"
+            id="collection-share-save"
+          >
+            Save sharing
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ================================
          Footer

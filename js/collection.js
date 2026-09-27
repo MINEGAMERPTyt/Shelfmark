@@ -72,7 +72,171 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const collectionAddButton = document.getElementById("collection-add-game");
 
+  const collectionShareButton = document.getElementById(
+    "collection-share-button",
+  );
+
+  const collectionEyebrow = document.getElementById("collection-eyebrow");
+
+  const collectionPageTitle = document.getElementById("collection-page-title");
+
+  const collectionPageDescription = document.getElementById(
+    "collection-page-description",
+  );
+
+  const customCollectionsSection = document.getElementById(
+    "custom-collections",
+  );
+
+  const collectionScopeList = document.getElementById("collection-scope-list");
+
+  const collectionScopeActions = document.getElementById(
+    "collection-scope-actions",
+  );
+
+  const collectionCreateButton = document.getElementById(
+    "collection-create-button",
+  );
+
+  const collectionManageButton = document.getElementById(
+    "collection-manage-button",
+  );
+
+  const collectionEditButton = document.getElementById(
+    "collection-edit-button",
+  );
+
+  const collectionDeleteButton = document.getElementById(
+    "collection-delete-button",
+  );
+
+  const collectionEditorModal = document.getElementById(
+    "collection-editor-modal",
+  );
+
+  const collectionEditorForm = document.getElementById(
+    "collection-editor-form",
+  );
+
+  const collectionEditorTitle = document.getElementById(
+    "collection-editor-title",
+  );
+
+  const collectionNameInput = document.getElementById("collection-name");
+
+  const collectionDescriptionInput = document.getElementById(
+    "collection-description",
+  );
+
+  const collectionEditorStatus = document.getElementById(
+    "collection-editor-status",
+  );
+
+  const collectionEditorSave = document.getElementById(
+    "collection-editor-save",
+  );
+
+  const collectionMembersModal = document.getElementById(
+    "collection-members-modal",
+  );
+
+  const collectionMembersSubtitle = document.getElementById(
+    "collection-members-subtitle",
+  );
+
+  const collectionMembersSearch = document.getElementById(
+    "collection-members-search",
+  );
+
+  const collectionMembersCount = document.getElementById(
+    "collection-members-count",
+  );
+
+  const collectionMembersList = document.getElementById(
+    "collection-members-list",
+  );
+
+  const collectionMembersStatus = document.getElementById(
+    "collection-members-status",
+  );
+
+  const collectionMembersSave = document.getElementById(
+    "collection-members-save",
+  );
+
+  const collectionDeleteModal = document.getElementById(
+    "collection-delete-modal",
+  );
+
+  const collectionDeleteCopy = document.getElementById(
+    "collection-delete-copy",
+  );
+
+  const collectionDeleteStatus = document.getElementById(
+    "collection-delete-status",
+  );
+
+  const collectionDeleteConfirm = document.getElementById(
+    "collection-delete-confirm",
+  );
+
+  const collectionShareModal = document.getElementById(
+    "collection-share-modal",
+  );
+
+  const collectionShareTitle = document.getElementById(
+    "collection-share-title",
+  );
+
+  const collectionShareEnabled = document.getElementById(
+    "collection-share-enabled",
+  );
+
+  const collectionShareLinkWrap = document.getElementById(
+    "collection-share-link-wrap",
+  );
+
+  const collectionShareUrl = document.getElementById("collection-share-url");
+
+  const collectionShareCopy = document.getElementById(
+    "collection-share-copy",
+  );
+
+  const collectionShareRegenerate = document.getElementById(
+    "collection-share-regenerate",
+  );
+
+  const collectionShareSave = document.getElementById(
+    "collection-share-save",
+  );
+
+  const collectionShareStatus = document.getElementById(
+    "collection-share-status",
+  );
+
+  const shareShowPhotos = document.getElementById("share-show-photos");
+
+  const shareShowEstimatedValue = document.getElementById(
+    "share-show-estimated-value",
+  );
+
+  const shareShowPurchasePrice = document.getElementById(
+    "share-show-purchase-price",
+  );
+
+  const shareShowPurchaseDate = document.getElementById(
+    "share-show-purchase-date",
+  );
+
+  const shareShowValueDifference = document.getElementById(
+    "share-show-profit-loss",
+  );
+
   const collectionInsights = document.getElementById("collection-insights");
+
+  const collectionInsightsTitle = document.getElementById(
+    "collection-insights-title",
+  );
 
   const collectionInsightsNote = document.getElementById(
     "collection-insights-note",
@@ -112,8 +276,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const insightMedia = document.getElementById("insight-media");
 
+  let archiveRecords = [];
   let collectionRecords = [];
   let gameCards = [];
+
+  let customCollections = [];
+  let collectionMemberships = new Map();
+  let activeCollectionId = "all";
+  let editingCollectionId = null;
+  let memberDraft = new Set();
+  let lastCollectionModalTrigger = null;
+  let activeShare = null;
 
   let currentPage = 1;
   let currentUserId = null;
@@ -307,6 +480,976 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ========================================
+     Custom Collections
+  ======================================== */
+
+  function getActiveCustomCollection() {
+    if (activeCollectionId === "all") {
+      return null;
+    }
+
+    return (
+      customCollections.find(
+        (collection) => collection.id === activeCollectionId,
+      ) || null
+    );
+  }
+
+  function getCollectionMembers(collectionId) {
+    return collectionMemberships.get(collectionId) || new Set();
+  }
+
+  function getRequestedCollectionId() {
+    const value = new URL(window.location.href).searchParams.get("collection");
+
+    return value || "all";
+  }
+
+  function updateCollectionUrl(collectionId) {
+    const url = new URL(window.location.href);
+
+    if (collectionId && collectionId !== "all") {
+      url.searchParams.set("collection", collectionId);
+    } else {
+      url.searchParams.delete("collection");
+    }
+
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  function buildShareUrl(token) {
+    if (!token) {
+      return "";
+    }
+
+    const url = new URL("shared.html", window.location.href);
+    url.search = "";
+    url.hash = "";
+    url.searchParams.set("t", token);
+
+    return url.toString();
+  }
+
+  function setDialogStatus(element, message = "", type = "") {
+    if (!element) {
+      return;
+    }
+
+    element.textContent = message;
+    element.classList.remove("error", "success");
+
+    if (type) {
+      element.classList.add(type);
+    }
+  }
+
+  function openCollectionModal(modal, trigger, focusTarget) {
+    if (!modal) {
+      return;
+    }
+
+    lastCollectionModalTrigger = trigger || document.activeElement;
+
+    modal.hidden = false;
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("collection-modal-open");
+
+    requestAnimationFrame(() => {
+      focusTarget?.focus();
+    });
+  }
+
+  function closeCollectionModal(modal, { restoreFocus = true } = {}) {
+    if (!modal || modal.hidden) {
+      return;
+    }
+
+    modal.hidden = true;
+    modal.setAttribute("aria-hidden", "true");
+
+    const hasOpenModal = [
+      collectionEditorModal,
+      collectionMembersModal,
+      collectionDeleteModal,
+      collectionShareModal,
+    ].some((candidate) => candidate && !candidate.hidden);
+
+    if (!hasOpenModal) {
+      document.body.classList.remove("collection-modal-open");
+    }
+
+    if (restoreFocus && lastCollectionModalTrigger instanceof HTMLElement) {
+      lastCollectionModalTrigger.focus();
+    }
+  }
+
+  function closeAllCollectionModals() {
+    [
+      collectionEditorModal,
+      collectionMembersModal,
+      collectionDeleteModal,
+      collectionShareModal,
+    ].forEach((modal) =>
+      closeCollectionModal(modal, { restoreFocus: false }),
+    );
+
+    if (lastCollectionModalTrigger instanceof HTMLElement) {
+      lastCollectionModalTrigger.focus();
+    }
+  }
+
+  function updateCollectionHeader() {
+    const activeCollection = getActiveCustomCollection();
+
+    if (collectionEyebrow) {
+      collectionEyebrow.textContent = activeCollection
+        ? "CUSTOM COLLECTION"
+        : "MY ARCHIVE";
+    }
+
+    if (collectionPageTitle) {
+      collectionPageTitle.textContent = activeCollection?.name || "Collection";
+    }
+
+    if (collectionPageDescription) {
+      const description = activeCollection?.description?.trim() || "";
+
+      collectionPageDescription.textContent = description;
+      collectionPageDescription.hidden = !description;
+    }
+
+    if (collectionScopeActions) {
+      collectionScopeActions.hidden = !activeCollection;
+    }
+
+    document.title = activeCollection
+      ? `${activeCollection.name} - Shelfmark`
+      : "Collection - Shelfmark";
+  }
+
+  function createCollectionScopeButton({ id, name, count }) {
+    const button = document.createElement("button");
+    const label = document.createElement("span");
+    const countElement = document.createElement("span");
+
+    button.type = "button";
+    button.className = "collection-scope-button";
+    button.dataset.collectionId = id;
+    button.setAttribute("role", "tab");
+
+    const isActive = activeCollectionId === id;
+
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+
+    label.textContent = name;
+
+    countElement.className = "collection-scope-button-count";
+    countElement.textContent = String(count);
+
+    button.append(label, countElement);
+
+    button.addEventListener("click", () => {
+      if (activeCollectionId === id) {
+        return;
+      }
+
+      applyCollectionScope(id);
+    });
+
+    return button;
+  }
+
+  function renderCollectionScopes() {
+    if (!collectionScopeList || !customCollectionsSection) {
+      return;
+    }
+
+    customCollectionsSection.hidden = false;
+    collectionScopeList.innerHTML = "";
+
+    const fragment = document.createDocumentFragment();
+
+    fragment.appendChild(
+      createCollectionScopeButton({
+        id: "all",
+        name: "All games",
+        count: archiveRecords.length,
+      }),
+    );
+
+    customCollections.forEach((collection) => {
+      fragment.appendChild(
+        createCollectionScopeButton({
+          id: collection.id,
+          name: collection.name,
+          count: getCollectionMembers(collection.id).size,
+        }),
+      );
+    });
+
+    collectionScopeList.appendChild(fragment);
+  }
+
+  function setActiveCollectionRecords(collectionId) {
+    if (collectionId === "all") {
+      collectionRecords = [...archiveRecords];
+      return;
+    }
+
+    const memberIds = getCollectionMembers(collectionId);
+
+    collectionRecords = archiveRecords.filter((record) =>
+      memberIds.has(record.item?.id),
+    );
+  }
+
+  function applyCollectionScope(
+    collectionId,
+    { updateUrl = true, restorePreferences = false } = {},
+  ) {
+    const validCollectionId =
+      collectionId === "all" ||
+      customCollections.some((collection) => collection.id === collectionId)
+        ? collectionId
+        : "all";
+
+    activeCollectionId = validCollectionId;
+    activeShare = null;
+    currentPage = 1;
+
+    setActiveCollectionRecords(activeCollectionId);
+    updateCollectionHeader();
+    renderCollectionScopes();
+    populateFilters();
+
+    if (restorePreferences) {
+      restoreCollectionPreferences();
+    }
+
+    renderCollectionInsights();
+    renderCollectionCards();
+
+    if (updateUrl) {
+      updateCollectionUrl(activeCollectionId);
+    }
+  }
+
+  function applyCustomCollectionData(collections, members) {
+    customCollections = [...(collections || [])].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+
+    collectionMemberships = new Map();
+
+    customCollections.forEach((collection) => {
+      collectionMemberships.set(collection.id, new Set());
+    });
+
+    (members || []).forEach((member) => {
+      if (!collectionMemberships.has(member.collection_id)) {
+        collectionMemberships.set(member.collection_id, new Set());
+      }
+
+      collectionMemberships.get(member.collection_id).add(member.item_id);
+    });
+  }
+
+  async function refreshCustomCollectionData({ activateId = null } = {}) {
+    const [collectionsResult, membersResult] = await Promise.all([
+      supabaseClient
+        .from("collections")
+        .select("id,user_id,name,description,created_at,updated_at")
+        .eq("user_id", currentUserId)
+        .order("name", { ascending: true }),
+
+      supabaseClient
+        .from("collection_members")
+        .select("collection_id,item_id,added_at"),
+    ]);
+
+    if (collectionsResult.error) {
+      throw collectionsResult.error;
+    }
+
+    if (membersResult.error) {
+      throw membersResult.error;
+    }
+
+    applyCustomCollectionData(collectionsResult.data, membersResult.data);
+
+    const nextId = activateId || activeCollectionId;
+
+    applyCollectionScope(nextId, {
+      updateUrl: true,
+      restorePreferences: false,
+    });
+  }
+
+  function openCollectionEditor(collection = null, trigger = null) {
+    editingCollectionId = collection?.id || null;
+
+    if (collectionEditorTitle) {
+      collectionEditorTitle.textContent = collection
+        ? "Edit collection"
+        : "Create collection";
+    }
+
+    if (collectionEditorSave) {
+      collectionEditorSave.textContent = collection
+        ? "Save changes"
+        : "Create collection";
+      collectionEditorSave.disabled = false;
+    }
+
+    if (collectionNameInput) {
+      collectionNameInput.value = collection?.name || "";
+    }
+
+    if (collectionDescriptionInput) {
+      collectionDescriptionInput.value = collection?.description || "";
+    }
+
+    setDialogStatus(collectionEditorStatus);
+
+    openCollectionModal(collectionEditorModal, trigger, collectionNameInput);
+  }
+
+  async function saveCollectionEditor(event) {
+    event.preventDefault();
+
+    const name = collectionNameInput?.value.trim() || "";
+    const description = collectionDescriptionInput?.value.trim() || "";
+
+    if (!name) {
+      setDialogStatus(
+        collectionEditorStatus,
+        "Enter a name for this collection.",
+        "error",
+      );
+      collectionNameInput?.focus();
+      return;
+    }
+
+    if (name.length > 80) {
+      setDialogStatus(
+        collectionEditorStatus,
+        "Collection names can be up to 80 characters.",
+        "error",
+      );
+      collectionNameInput?.focus();
+      return;
+    }
+
+    if (description.length > 500) {
+      setDialogStatus(
+        collectionEditorStatus,
+        "Descriptions can be up to 500 characters.",
+        "error",
+      );
+      collectionDescriptionInput?.focus();
+      return;
+    }
+
+    if (collectionEditorSave) {
+      collectionEditorSave.disabled = true;
+    }
+
+    setDialogStatus(
+      collectionEditorStatus,
+      editingCollectionId ? "Saving changes…" : "Creating collection…",
+    );
+
+    try {
+      let collectionId = editingCollectionId;
+
+      if (editingCollectionId) {
+        const { error } = await supabaseClient
+          .from("collections")
+          .update({
+            name,
+            description: description || null,
+          })
+          .eq("id", editingCollectionId);
+
+        if (error) {
+          throw error;
+        }
+      } else {
+        const { data, error } = await supabaseClient
+          .from("collections")
+          .insert({
+            user_id: currentUserId,
+            name,
+            description: description || null,
+          })
+          .select("id")
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        collectionId = data.id;
+      }
+
+      closeCollectionModal(collectionEditorModal, { restoreFocus: false });
+
+      await refreshCustomCollectionData({ activateId: collectionId });
+    } catch (error) {
+      console.error("Shelfmark collection save error:", error);
+
+      const duplicate = error?.code === "23505";
+
+      setDialogStatus(
+        collectionEditorStatus,
+        duplicate
+          ? "You already have a collection with that name."
+          : "Shelfmark could not save this collection. Try again.",
+        "error",
+      );
+    } finally {
+      if (collectionEditorSave) {
+        collectionEditorSave.disabled = false;
+      }
+    }
+  }
+
+  function updateMemberDraftCount() {
+    if (!collectionMembersCount) {
+      return;
+    }
+
+    const count = memberDraft.size;
+
+    collectionMembersCount.textContent = `${count} ${
+      count === 1 ? "game" : "games"
+    } selected`;
+  }
+
+  function getMemberSearchText(record) {
+    return [
+      record.item?.title,
+      record.game?.platform,
+      record.game?.edition,
+      record.game?.genre,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+  }
+
+  function renderCollectionMemberList() {
+    if (!collectionMembersList) {
+      return;
+    }
+
+    const search = collectionMembersSearch?.value.trim().toLowerCase() || "";
+
+    const records = [...archiveRecords]
+      .filter((record) => getMemberSearchText(record).includes(search))
+      .sort((a, b) =>
+        (a.item?.title || "").localeCompare(b.item?.title || ""),
+      );
+
+    collectionMembersList.innerHTML = "";
+
+    if (records.length === 0) {
+      const empty = document.createElement("p");
+
+      empty.className = "collection-members-empty";
+      empty.textContent = archiveRecords.length
+        ? "No games match that search."
+        : "Your archive does not contain any games yet.";
+
+      collectionMembersList.appendChild(empty);
+      updateMemberDraftCount();
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    records.forEach((record) => {
+      const itemId = record.item?.id;
+
+      if (!itemId) {
+        return;
+      }
+
+      const row = document.createElement("label");
+      const checkbox = document.createElement("input");
+      const copy = document.createElement("span");
+      const title = document.createElement("span");
+      const meta = document.createElement("span");
+
+      row.className = "collection-member-row";
+
+      checkbox.type = "checkbox";
+      checkbox.value = itemId;
+      checkbox.checked = memberDraft.has(itemId);
+
+      copy.className = "collection-member-copy";
+      title.className = "collection-member-title";
+      meta.className = "collection-member-meta";
+
+      title.textContent = record.item?.title || "Untitled game";
+
+      const metaParts = [
+        record.game?.platform,
+        record.game?.edition && record.game.edition !== "Standard Edition"
+          ? record.game.edition
+          : null,
+      ].filter(Boolean);
+
+      meta.textContent = metaParts.join(" · ") || "No additional details";
+
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          memberDraft.add(itemId);
+        } else {
+          memberDraft.delete(itemId);
+        }
+
+        updateMemberDraftCount();
+      });
+
+      copy.append(title, meta);
+      row.append(checkbox, copy);
+      fragment.appendChild(row);
+    });
+
+    collectionMembersList.appendChild(fragment);
+    updateMemberDraftCount();
+  }
+
+  function openCollectionMembersManager(trigger = null) {
+    const collection = getActiveCustomCollection();
+
+    if (!collection) {
+      return;
+    }
+
+    memberDraft = new Set(getCollectionMembers(collection.id));
+
+    if (collectionMembersSubtitle) {
+      collectionMembersSubtitle.textContent = `${collection.name} · choose games already in your archive`;
+    }
+
+    if (collectionMembersSearch) {
+      collectionMembersSearch.value = "";
+    }
+
+    setDialogStatus(collectionMembersStatus);
+    renderCollectionMemberList();
+
+    openCollectionModal(
+      collectionMembersModal,
+      trigger,
+      collectionMembersSearch,
+    );
+  }
+
+  async function saveCollectionMembers() {
+    const collection = getActiveCustomCollection();
+
+    if (!collection) {
+      return;
+    }
+
+    const existing = new Set(getCollectionMembers(collection.id));
+    const toAdd = [...memberDraft].filter((itemId) => !existing.has(itemId));
+    const toRemove = [...existing].filter((itemId) => !memberDraft.has(itemId));
+
+    if (collectionMembersSave) {
+      collectionMembersSave.disabled = true;
+    }
+
+    setDialogStatus(collectionMembersStatus, "Saving collection games…");
+
+    try {
+      if (toAdd.length > 0) {
+        const { error } = await supabaseClient.from("collection_members").insert(
+          toAdd.map((itemId) => ({
+            collection_id: collection.id,
+            item_id: itemId,
+          })),
+        );
+
+        if (error) {
+          throw error;
+        }
+      }
+
+      if (toRemove.length > 0) {
+        const { error } = await supabaseClient
+          .from("collection_members")
+          .delete()
+          .eq("collection_id", collection.id)
+          .in("item_id", toRemove);
+
+        if (error) {
+          throw error;
+        }
+      }
+
+      closeCollectionModal(collectionMembersModal, { restoreFocus: false });
+
+      await refreshCustomCollectionData({ activateId: collection.id });
+    } catch (error) {
+      console.error("Shelfmark membership save error:", error);
+
+      setDialogStatus(
+        collectionMembersStatus,
+        "Shelfmark could not save all membership changes. Reload and try again.",
+        "error",
+      );
+    } finally {
+      if (collectionMembersSave) {
+        collectionMembersSave.disabled = false;
+      }
+    }
+  }
+
+  function openCollectionDeleteConfirmation(trigger = null) {
+    const collection = getActiveCustomCollection();
+
+    if (!collection) {
+      return;
+    }
+
+    if (collectionDeleteCopy) {
+      collectionDeleteCopy.textContent = `Delete “${collection.name}”?`;
+    }
+
+    setDialogStatus(collectionDeleteStatus);
+
+    if (collectionDeleteConfirm) {
+      collectionDeleteConfirm.disabled = false;
+    }
+
+    openCollectionModal(collectionDeleteModal, trigger, collectionDeleteConfirm);
+  }
+
+  async function deleteActiveCollection() {
+    const collection = getActiveCustomCollection();
+
+    if (!collection) {
+      return;
+    }
+
+    if (collectionDeleteConfirm) {
+      collectionDeleteConfirm.disabled = true;
+    }
+
+    setDialogStatus(collectionDeleteStatus, "Deleting collection…");
+
+    try {
+      const { error } = await supabaseClient
+        .from("collections")
+        .delete()
+        .eq("id", collection.id);
+
+      if (error) {
+        throw error;
+      }
+
+      closeCollectionModal(collectionDeleteModal, { restoreFocus: false });
+
+      await refreshCustomCollectionData({ activateId: "all" });
+    } catch (error) {
+      console.error("Shelfmark collection delete error:", error);
+
+      setDialogStatus(
+        collectionDeleteStatus,
+        "Shelfmark could not delete this collection. Try again.",
+        "error",
+      );
+    } finally {
+      if (collectionDeleteConfirm) {
+        collectionDeleteConfirm.disabled = false;
+      }
+    }
+  }
+
+  /* ========================================
+     Public Sharing
+  ======================================== */
+
+  async function loadActiveShare() {
+    if (!supabaseClient || !currentUserId) {
+      activeShare = null;
+      return null;
+    }
+
+    const isArchive = activeCollectionId === "all";
+
+    let query = supabaseClient
+      .from("collection_shares")
+      .select(
+        "id,user_id,scope_type,collection_id,share_token,is_enabled,show_photos,show_estimated_value,show_purchase_price,show_purchase_date,show_value_difference,created_at,updated_at",
+      )
+      .eq("user_id", currentUserId)
+      .eq("scope_type", isArchive ? "archive" : "collection");
+
+    query = isArchive
+      ? query.is("collection_id", null)
+      : query.eq("collection_id", activeCollectionId);
+
+    const { data, error } = await query.maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    activeShare = data || null;
+    return activeShare;
+  }
+
+  function updateShareLinkUi() {
+    const enabled = Boolean(collectionShareEnabled?.checked);
+    const shareUrl = activeShare?.share_token
+      ? buildShareUrl(activeShare.share_token)
+      : "";
+
+    if (collectionShareUrl) {
+      collectionShareUrl.value = shareUrl;
+    }
+
+    if (collectionShareLinkWrap) {
+      collectionShareLinkWrap.hidden = !enabled || !shareUrl;
+    }
+
+    if (collectionShareRegenerate) {
+      collectionShareRegenerate.disabled = !activeShare?.id;
+    }
+  }
+
+  function populateShareForm() {
+    if (collectionShareEnabled) {
+      collectionShareEnabled.checked = Boolean(activeShare?.is_enabled);
+    }
+
+    if (shareShowPhotos) {
+      shareShowPhotos.checked = activeShare?.show_photos ?? true;
+    }
+
+    if (shareShowEstimatedValue) {
+      shareShowEstimatedValue.checked =
+        activeShare?.show_estimated_value ?? false;
+    }
+
+    if (shareShowPurchasePrice) {
+      shareShowPurchasePrice.checked =
+        activeShare?.show_purchase_price ?? false;
+    }
+
+    if (shareShowPurchaseDate) {
+      shareShowPurchaseDate.checked =
+        activeShare?.show_purchase_date ?? false;
+    }
+
+    if (shareShowValueDifference) {
+      shareShowValueDifference.checked =
+        activeShare?.show_value_difference ?? false;
+    }
+
+    updateShareLinkUi();
+  }
+
+  async function openShareManager(trigger = null) {
+    const activeCollection = getActiveCustomCollection();
+
+    if (collectionShareTitle) {
+      collectionShareTitle.textContent = activeCollection
+        ? `Share ${activeCollection.name}`
+        : "Share archive";
+    }
+
+    setDialogStatus(collectionShareStatus, "Loading sharing settings…");
+    openCollectionModal(
+      collectionShareModal,
+      trigger || collectionShareButton,
+      collectionShareEnabled,
+    );
+
+    try {
+      await loadActiveShare();
+      populateShareForm();
+
+      setDialogStatus(
+        collectionShareStatus,
+        activeShare?.is_enabled
+          ? "Public sharing is enabled."
+          : "Sharing is currently disabled.",
+        activeShare?.is_enabled ? "success" : "",
+      );
+    } catch (error) {
+      console.error("Shelfmark share load error:", error);
+      setDialogStatus(
+        collectionShareStatus,
+        "Sharing settings could not be loaded. Make sure the Step 5 Supabase migration has been applied.",
+        "error",
+      );
+    }
+  }
+
+  function getSharePayload() {
+    const isArchive = activeCollectionId === "all";
+
+    return {
+      user_id: currentUserId,
+      scope_type: isArchive ? "archive" : "collection",
+      collection_id: isArchive ? null : activeCollectionId,
+      is_enabled: Boolean(collectionShareEnabled?.checked),
+      show_photos: Boolean(shareShowPhotos?.checked),
+      show_estimated_value: Boolean(shareShowEstimatedValue?.checked),
+      show_purchase_price: Boolean(shareShowPurchasePrice?.checked),
+      show_purchase_date: Boolean(shareShowPurchaseDate?.checked),
+      show_value_difference: Boolean(shareShowValueDifference?.checked),
+    };
+  }
+
+  async function saveShareSettings() {
+    if (!supabaseClient || !currentUserId || !collectionShareSave) {
+      return;
+    }
+
+    const payload = getSharePayload();
+
+    collectionShareSave.disabled = true;
+    setDialogStatus(collectionShareStatus, "Saving sharing settings…");
+
+    try {
+      if (activeShare?.id) {
+        const { data, error } = await supabaseClient
+          .from("collection_shares")
+          .update(payload)
+          .eq("id", activeShare.id)
+          .eq("user_id", currentUserId)
+          .select(
+            "id,user_id,scope_type,collection_id,share_token,is_enabled,show_photos,show_estimated_value,show_purchase_price,show_purchase_date,show_value_difference,created_at,updated_at",
+          )
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        activeShare = data;
+      } else {
+        const { data, error } = await supabaseClient
+          .from("collection_shares")
+          .insert(payload)
+          .select(
+            "id,user_id,scope_type,collection_id,share_token,is_enabled,show_photos,show_estimated_value,show_purchase_price,show_purchase_date,show_value_difference,created_at,updated_at",
+          )
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        activeShare = data;
+      }
+
+      populateShareForm();
+
+      setDialogStatus(
+        collectionShareStatus,
+        payload.is_enabled
+          ? "Sharing settings saved. The public link is ready."
+          : "Sharing is disabled. Anyone opening the link will no longer be able to load the collection.",
+        payload.is_enabled ? "success" : "",
+      );
+    } catch (error) {
+      console.error("Shelfmark share save error:", error);
+      setDialogStatus(
+        collectionShareStatus,
+        "Sharing settings could not be saved. Please try again.",
+        "error",
+      );
+    } finally {
+      collectionShareSave.disabled = false;
+    }
+  }
+
+  async function regenerateShareLink() {
+    if (!activeShare?.id || !supabaseClient || !currentUserId) {
+      return;
+    }
+
+    if (collectionShareRegenerate) {
+      collectionShareRegenerate.disabled = true;
+    }
+
+    setDialogStatus(collectionShareStatus, "Generating a new link…");
+
+    try {
+      const nextToken = crypto.randomUUID();
+
+      const { data, error } = await supabaseClient
+        .from("collection_shares")
+        .update({ share_token: nextToken })
+        .eq("id", activeShare.id)
+        .eq("user_id", currentUserId)
+        .select(
+          "id,user_id,scope_type,collection_id,share_token,is_enabled,show_photos,show_estimated_value,show_purchase_price,show_purchase_date,show_value_difference,created_at,updated_at",
+        )
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      activeShare = data;
+      populateShareForm();
+
+      setDialogStatus(
+        collectionShareStatus,
+        "A new public link was generated. The previous link is no longer valid.",
+        "success",
+      );
+    } catch (error) {
+      console.error("Shelfmark share regenerate error:", error);
+      setDialogStatus(
+        collectionShareStatus,
+        "A new link could not be generated. Please try again.",
+        "error",
+      );
+    } finally {
+      if (collectionShareRegenerate) {
+        collectionShareRegenerate.disabled = false;
+      }
+    }
+  }
+
+  async function copyShareLink() {
+    const value = collectionShareUrl?.value || "";
+
+    if (!value) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(value);
+      setDialogStatus(collectionShareStatus, "Public link copied.", "success");
+    } catch (error) {
+      collectionShareUrl?.select();
+
+      try {
+        document.execCommand?.("copy");
+      } catch (_) {
+        // The selected URL can still be copied manually.
+      }
+
+      setDialogStatus(
+        collectionShareStatus,
+        "The link is selected. Copy it manually if your browser blocked clipboard access.",
+      );
+    }
+  }
+
+  /* ========================================
      Page State
   ======================================== */
 
@@ -326,6 +1469,24 @@ document.addEventListener("DOMContentLoaded", () => {
     viewButtons.forEach((button) => {
       button.disabled = disabled;
     });
+
+    [
+      collectionCreateButton,
+      collectionManageButton,
+      collectionEditButton,
+      collectionDeleteButton,
+      collectionShareButton,
+    ].forEach((button) => {
+      if (button) {
+        button.disabled = disabled;
+      }
+    });
+
+    collectionScopeList
+      ?.querySelectorAll(".collection-scope-button")
+      .forEach((button) => {
+        button.disabled = disabled;
+      });
   }
 
   function showCollectionState(title, message, { error = false } = {}) {
@@ -368,22 +1529,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const total = collectionRecords.length;
-
-    if (total === 0) {
-      collectionCount.textContent = "0 games in your collection";
-
-      return;
-    }
+    const activeCollection = getActiveCustomCollection();
+    const locationLabel = activeCollection
+      ? ` in ${activeCollection.name}`
+      : " in your collection";
 
     if (matchingCount !== total) {
-      collectionCount.textContent = `${matchingCount} of ${total} games`;
-
+      collectionCount.textContent = `${matchingCount} of ${total} ${
+        total === 1 ? "game" : "games"
+      }${locationLabel}`;
       return;
     }
 
     collectionCount.textContent = `${total} ${
       total === 1 ? "game" : "games"
-    } in your collection`;
+    }${locationLabel}`;
   }
 
   function toFiniteNumber(value) {
@@ -469,7 +1629,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const activeCollection = getActiveCustomCollection();
     const totalGames = collectionRecords.length;
+
+    if (collectionInsightsTitle) {
+      collectionInsightsTitle.textContent = activeCollection
+        ? `${activeCollection.name} summary`
+        : "Archive summary";
+    }
 
     collectionInsights.hidden = totalGames === 0;
 
@@ -547,10 +1714,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (collectionInsightsNote) {
+      const scopeLabel = activeCollection
+        ? `this collection`
+        : `your archive`;
+
       collectionInsightsNote.textContent =
         estimatedCount === totalGames
-          ? "Estimated value covers every catalogued game. Profit / loss compares games that also have a purchase price."
-          : `Estimated value currently covers ${estimatedCount} of ${totalGames} ${totalGames === 1 ? "game" : "games"}. Profit / loss compares only entries with both values.`;
+          ? `Estimated value covers every catalogued game in ${scopeLabel}. Profit / loss compares games that also have a purchase price.`
+          : `Estimated value currently covers ${estimatedCount} of ${totalGames} ${totalGames === 1 ? "game" : "games"} in ${scopeLabel}. Profit / loss compares only entries with both values.`;
     }
 
     renderBreakdown(
@@ -592,13 +1763,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const total = collectionRecords.length;
+    const archiveTotal = archiveRecords.length;
+    const activeCollection = getActiveCustomCollection();
 
     if (collectionAddButton) {
-      collectionAddButton.hidden = total === 0;
+      collectionAddButton.hidden = archiveTotal === 0;
     }
 
-    if (emptyAddButton && total > 0) {
-      emptyAddButton.hidden = true;
+    if (collectionShareButton) {
+      collectionShareButton.hidden = archiveTotal === 0;
     }
 
     const shouldShow = visibleCount === 0;
@@ -606,12 +1779,29 @@ document.addEventListener("DOMContentLoaded", () => {
     emptyState.classList.toggle("visible", shouldShow);
 
     if (!shouldShow) {
+      if (emptyAddButton) {
+        emptyAddButton.hidden = true;
+      }
       return;
     }
 
-    /* ====================================
-       COMPLETELY EMPTY COLLECTION
-    ==================================== */
+    if (total === 0 && activeCollection) {
+      if (emptyTitle) {
+        emptyTitle.textContent = `No games in ${activeCollection.name} yet.`;
+      }
+
+      if (emptyMessage) {
+        emptyMessage.textContent = archiveTotal
+          ? "Use Manage games above to add existing games from your archive."
+          : "Add your first physical game to the archive, then add it to this collection.";
+      }
+
+      if (emptyAddButton) {
+        emptyAddButton.hidden = archiveTotal > 0;
+      }
+
+      return;
+    }
 
     if (total === 0) {
       if (emptyTitle) {
@@ -629,10 +1819,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       return;
     }
-
-    /* ====================================
-       FILTERS RETURNED NOTHING
-    ==================================== */
 
     if (emptyTitle) {
       emptyTitle.textContent = "No games found.";
@@ -956,49 +2142,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ======================================== */
 
   async function addSignedUrls(images) {
-    if (!images.length || !supabaseClient) {
-      return images;
-    }
-
-    const paths = [
-      ...new Set(images.map((image) => image.storage_path).filter(Boolean)),
-    ];
-
-    if (!paths.length) {
-      return images;
-    }
-
-    const { data, error } = await supabaseClient.storage
-      .from("item-images")
-      .createSignedUrls(paths, 3600);
-
-    if (error) {
-      console.warn("Shelfmark collection signed URL error:", error);
-
-      return images.map((image) => ({
-        ...image,
-
-        signedUrl: null,
-      }));
-    }
-
-    const signedUrlByPath = new Map();
-
-    (data || []).forEach((entry, index) => {
-      const path = entry?.path || paths[index];
-
-      const signedUrl = entry?.signedUrl || entry?.signedURL || null;
-
-      if (path) {
-        signedUrlByPath.set(path, signedUrl);
-      }
-    });
-
-    return images.map((image) => ({
-      ...image,
-
-      signedUrl: signedUrlByPath.get(image.storage_path) || null,
-    }));
+    return window.ShelfmarkStorage.addSignedUrls(images);
   }
 
   /* ========================================
@@ -1107,7 +2251,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       disc.classList.add("has-real-media");
 
-      image.src = mediaImage.signedUrl;
+      image.dataset.src = mediaImage.signedUrl;
 
       image.alt = "";
 
@@ -1161,7 +2305,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       cartridge.classList.add("has-real-media");
 
-      image.src = mediaImage.signedUrl;
+      image.dataset.src = mediaImage.signedUrl;
 
       image.alt = "";
 
@@ -1291,7 +2435,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (frontImage?.signedUrl) {
         const coverImage = document.createElement("img");
 
-        coverImage.src = frontImage.signedUrl;
+        coverImage.dataset.src = frontImage.signedUrl;
 
         coverImage.alt = `${item.title} front cover`;
 
@@ -1598,6 +2742,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ========================================
+     Deferred Card Images
+
+     Cards are created up front so existing filtering and sorting stay fast,
+     but hidden pagination pages do not receive image src values. This avoids
+     downloading covers and media that the user has not actually viewed.
+  ======================================== */
+
+  function activateCardImages(card) {
+    card.querySelectorAll("img[data-src]").forEach((image) => {
+      const source = image.dataset.src;
+
+      if (!source) {
+        return;
+      }
+
+      image.src = source;
+      image.removeAttribute("data-src");
+    });
+  }
+
+  /* ========================================
      Filter Collection
   ======================================== */
 
@@ -1647,6 +2812,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const visible = visibleCards.has(card);
 
       card.hidden = !visible;
+
+      if (visible) {
+        activateCardImages(card);
+      }
 
       if (!visible) {
         const state = discStates.get(card);
@@ -1922,17 +3091,18 @@ document.addEventListener("DOMContentLoaded", () => {
       showCollectionState(
         "Unable to load collection",
         "Shelfmark could not connect to Supabase.",
-        {
-          error: true,
-        },
+        { error: true },
       );
 
       setControlsDisabled(true);
-
       return;
     }
 
     setControlsDisabled(true);
+
+    if (customCollectionsSection) {
+      customCollectionsSection.hidden = true;
+    }
 
     if (emptyState) {
       emptyState.classList.remove("visible");
@@ -1968,10 +3138,6 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     try {
-      /* ==================================
-         USER
-      ================================== */
-
       const {
         data: { user },
         error: userError,
@@ -1987,14 +3153,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       currentUserId = user.id;
 
-      /* ==================================
-         COLLECTION ITEMS
-      ================================== */
-
-      const { data: items, error: itemsError } = await supabaseClient
-        .from("collection_items")
-        .select(
-          `
+      const [itemsResult, collectionsResult, membersResult] = await Promise.all([
+        supabaseClient
+          .from("collection_items")
+          .select(
+            `
               id,
               user_id,
               category,
@@ -2006,58 +3169,65 @@ document.addEventListener("DOMContentLoaded", () => {
               created_at,
               updated_at
             `,
-        )
-        .eq("user_id", user.id)
-        .eq("category", "game")
-        .order("created_at", {
-          ascending: false,
-        });
+          )
+          .eq("user_id", user.id)
+          .eq("category", "game")
+          .order("created_at", { ascending: false }),
 
-      if (itemsError) {
-        throw itemsError;
+        supabaseClient
+          .from("collections")
+          .select("id,user_id,name,description,created_at,updated_at")
+          .eq("user_id", user.id)
+          .order("name", { ascending: true }),
+
+        supabaseClient
+          .from("collection_members")
+          .select("collection_id,item_id,added_at"),
+      ]);
+
+      if (itemsResult.error) {
+        throw itemsResult.error;
       }
 
-      const safeItems = items || [];
+      if (collectionsResult.error) {
+        throw collectionsResult.error;
+      }
 
-      /* ==================================
-         EMPTY COLLECTION
-      ================================== */
+      if (membersResult.error) {
+        throw membersResult.error;
+      }
+
+      applyCustomCollectionData(collectionsResult.data, membersResult.data);
+
+      const safeItems = itemsResult.data || [];
 
       if (safeItems.length === 0) {
+        archiveRecords = [];
         collectionRecords = [];
-
         gameCards = [];
 
-        populateFilters();
+        const requestedId = getRequestedCollectionId();
+        activeCollectionId =
+          requestedId === "all" ||
+          customCollections.some((collection) => collection.id === requestedId)
+            ? requestedId
+            : "all";
 
+        updateCollectionHeader();
+        renderCollectionScopes();
+        updateCollectionUrl(activeCollectionId);
+        populateFilters();
         restoreCollectionPreferences();
+        renderCollectionInsights();
+        renderCollectionCards();
 
         hideCollectionState();
-
         setControlsDisabled(false);
-
-        setCollectionCount(0);
-
-        renderCollectionInsights();
-
-        updateEmptyState(0);
-
-        if (collectionResults) {
-          collectionResults.hidden = true;
-        }
-
-        if (collectionPagination) {
-          collectionPagination.hidden = true;
-        }
-
+        restoreCollectionPosition();
         return;
       }
 
       const itemIds = safeItems.map((item) => item.id);
-
-      /* ==================================
-         GAME DETAILS + CARD IMAGES
-      ================================== */
 
       const [gamesResult, imagesResult] = await Promise.all([
         supabaseClient
@@ -2096,9 +3266,7 @@ document.addEventListener("DOMContentLoaded", () => {
           )
           .in("item_id", itemIds)
           .in("image_type", ["front", "back", "side", "disc", "cartridge"])
-          .order("sort_order", {
-            ascending: true,
-          }),
+          .order("sort_order", { ascending: true }),
       ]);
 
       if (gamesResult.error) {
@@ -2109,18 +3277,9 @@ document.addEventListener("DOMContentLoaded", () => {
         throw imagesResult.error;
       }
 
-      /* ==================================
-         SIGN PRIVATE IMAGES
-      ================================== */
-
       const signedImages = await addSignedUrls(imagesResult.data || []);
 
-      /* ==================================
-         GROUP DATA BY ITEM
-      ================================== */
-
       const gamesByItemId = new Map();
-
       const imagesByItemId = new Map();
 
       (gamesResult.data || []).forEach((game) => {
@@ -2135,40 +3294,46 @@ document.addEventListener("DOMContentLoaded", () => {
         imagesByItemId.get(image.item_id).push(image);
       });
 
-      collectionRecords = safeItems.map((item) => ({
+      archiveRecords = safeItems.map((item) => ({
         item,
-
         game: gamesByItemId.get(item.id) || null,
-
         images: imagesByItemId.get(item.id) || [],
       }));
 
-      /* ==================================
-         RENDER
-      ================================== */
+      const requestedId = getRequestedCollectionId();
+      activeCollectionId =
+        requestedId === "all" ||
+        customCollections.some((collection) => collection.id === requestedId)
+          ? requestedId
+          : "all";
 
-      renderCollectionInsights();
-
+      setActiveCollectionRecords(activeCollectionId);
+      updateCollectionHeader();
+      renderCollectionScopes();
+      updateCollectionUrl(activeCollectionId);
       populateFilters();
-
       restoreCollectionPreferences();
-
+      renderCollectionInsights();
       renderCollectionCards();
 
       hideCollectionState();
-
       setControlsDisabled(false);
-
       restoreCollectionPosition();
     } catch (error) {
       console.error("Shelfmark collection load error:", error);
 
+      archiveRecords = [];
       collectionRecords = [];
-
+      customCollections = [];
+      collectionMemberships = new Map();
       gameCards = [];
 
       if (collectionGrid) {
         collectionGrid.innerHTML = "";
+      }
+
+      if (customCollectionsSection) {
+        customCollectionsSection.hidden = true;
       }
 
       if (emptyState) {
@@ -2183,6 +3348,10 @@ document.addEventListener("DOMContentLoaded", () => {
         collectionAddButton.hidden = true;
       }
 
+      if (collectionShareButton) {
+        collectionShareButton.hidden = true;
+      }
+
       if (collectionInsights) {
         collectionInsights.hidden = true;
       }
@@ -2192,9 +3361,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showCollectionState(
         "Unable to load collection",
         "Shelfmark could not load your games. Check your connection and try again.",
-        {
-          error: true,
-        },
+        { error: true },
       );
     }
   }
@@ -2278,6 +3445,104 @@ document.addEventListener("DOMContentLoaded", () => {
 
       saveCollectionPreferences();
     });
+  });
+
+  collectionCreateButton?.addEventListener("click", () => {
+    openCollectionEditor(null, collectionCreateButton);
+  });
+
+  collectionEditButton?.addEventListener("click", () => {
+    const collection = getActiveCustomCollection();
+
+    if (collection) {
+      openCollectionEditor(collection, collectionEditButton);
+    }
+  });
+
+  collectionManageButton?.addEventListener("click", () => {
+    openCollectionMembersManager(collectionManageButton);
+  });
+
+  collectionDeleteButton?.addEventListener("click", () => {
+    openCollectionDeleteConfirmation(collectionDeleteButton);
+  });
+
+  collectionShareButton?.addEventListener("click", () => {
+    openShareManager(collectionShareButton);
+  });
+
+  collectionEditorForm?.addEventListener("submit", saveCollectionEditor);
+
+  collectionMembersSearch?.addEventListener("input", renderCollectionMemberList);
+
+  collectionMembersSave?.addEventListener("click", saveCollectionMembers);
+
+  collectionDeleteConfirm?.addEventListener("click", deleteActiveCollection);
+
+  collectionShareEnabled?.addEventListener("change", () => {
+    updateShareLinkUi();
+    setDialogStatus(
+      collectionShareStatus,
+      collectionShareEnabled.checked && !activeShare
+        ? "Save sharing to generate the public link."
+        : "Save sharing to apply this change.",
+    );
+  });
+
+  [
+    shareShowPhotos,
+    shareShowEstimatedValue,
+    shareShowPurchasePrice,
+    shareShowPurchaseDate,
+    shareShowValueDifference,
+  ].forEach((input) => {
+    input?.addEventListener("change", () => {
+      setDialogStatus(
+        collectionShareStatus,
+        "Save sharing to apply this change.",
+      );
+    });
+  });
+
+  collectionShareSave?.addEventListener("click", saveShareSettings);
+  collectionShareRegenerate?.addEventListener("click", regenerateShareLink);
+  collectionShareCopy?.addEventListener("click", copyShareLink);
+
+  document.querySelectorAll("[data-collection-modal-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const modal = button.closest(".collection-modal");
+      closeCollectionModal(modal);
+    });
+  });
+
+  [
+    collectionEditorModal,
+    collectionMembersModal,
+    collectionDeleteModal,
+    collectionShareModal,
+  ].forEach((modal) => {
+    modal?.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        closeCollectionModal(modal);
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    const openModal = [
+      collectionShareModal,
+      collectionDeleteModal,
+      collectionMembersModal,
+      collectionEditorModal,
+    ].find((modal) => modal && !modal.hidden);
+
+    if (openModal) {
+      closeCollectionModal(openModal);
+    }
   });
 
   /* ========================================

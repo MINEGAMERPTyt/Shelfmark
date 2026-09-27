@@ -209,41 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ===================================================== */
 
   async function addSignedUrls(images) {
-    if (!images.length) {
-      return [];
-    }
-
-    const paths = images.map((image) => image.storage_path).filter(Boolean);
-
-    if (!paths.length) {
-      return images;
-    }
-
-    const { data, error } = await supabaseClient.storage
-      .from("item-images")
-      .createSignedUrls(paths, 3600);
-
-    if (error) {
-      console.warn("Shelfmark wishlist image URL error:", error);
-
-      return images.map((image) => ({
-        ...image,
-        signedUrl: null,
-      }));
-    }
-
-    return images.map((image, index) => {
-      const signedEntry =
-        data?.find((entry) => entry.path === image.storage_path) ||
-        data?.[index] ||
-        null;
-
-      return {
-        ...image,
-
-        signedUrl: signedEntry?.signedUrl || signedEntry?.signedURL || null,
-      };
-    });
+    return window.ShelfmarkStorage.addSignedUrls(images);
   }
 
   function getDisplayImage(item) {

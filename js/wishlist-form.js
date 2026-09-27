@@ -71,6 +71,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const editionInput = document.getElementById("wishlist-edition");
 
+  const customEditionField = document.getElementById(
+    "wishlist-custom-edition-field",
+  );
+
+  const customEditionInput = document.getElementById(
+    "wishlist-custom-edition",
+  );
+
   const developerInput = document.getElementById("wishlist-developer");
 
   const publisherInput = document.getElementById("wishlist-publisher");
@@ -213,6 +221,67 @@ document.addEventListener("DOMContentLoaded", () => {
     return result || null;
   }
 
+  const editionPresetValues = new Set(
+    Array.from(editionInput?.options || [])
+      .map((option) => option.value)
+      .filter((value) => value && value !== "Other"),
+  );
+
+  function getEditionValue() {
+    if (editionInput?.value === "Other") {
+      return optionalString(customEditionInput?.value);
+    }
+
+    return optionalString(editionInput?.value);
+  }
+
+  function updateCustomEditionField() {
+    const isCustomEdition = editionInput?.value === "Other";
+
+    if (customEditionField) {
+      customEditionField.hidden = !isCustomEdition;
+    }
+
+    if (customEditionInput) {
+      customEditionInput.required = isCustomEdition;
+
+      if (!isCustomEdition) {
+        customEditionInput.classList.remove("is-invalid");
+        customEditionInput.removeAttribute("aria-invalid");
+      }
+    }
+  }
+
+  function setEditionValue(value) {
+    if (!editionInput) {
+      return;
+    }
+
+    const savedEdition = optionalString(value) || "";
+
+    if (!savedEdition) {
+      editionInput.value = "";
+
+      if (customEditionInput) {
+        customEditionInput.value = "";
+      }
+    } else if (editionPresetValues.has(savedEdition)) {
+      editionInput.value = savedEdition;
+
+      if (customEditionInput) {
+        customEditionInput.value = "";
+      }
+    } else {
+      editionInput.value = "Other";
+
+      if (customEditionInput) {
+        customEditionInput.value = savedEdition;
+      }
+    }
+
+    updateCustomEditionField();
+  }
+
   function optionalNumber(value) {
     if (value === null || value === undefined || value === "") {
       return null;
@@ -269,6 +338,14 @@ document.addEventListener("DOMContentLoaded", () => {
       input.checked = Boolean(value) && input.value === value;
     });
   }
+
+  editionInput?.addEventListener("change", () => {
+    updateCustomEditionField();
+
+    if (editionInput.value !== "Other" && customEditionInput) {
+      customEditionInput.value = "";
+    }
+  });
 
   /* =====================================================
      REGION / COUNTRY
@@ -906,6 +983,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
 
+    if (editionInput?.value === "Other" && !customEditionInput?.value.trim()) {
+      setSaveMessage("Enter the custom edition name.", "error");
+
+      focusInvalidField(customEditionInput);
+
+      return false;
+    }
+
     const mediaType = getSelectedMediaType();
 
     if (!mediaType) {
@@ -1032,7 +1117,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       game_type: optionalString(gameTypeInput?.value),
 
-      edition: optionalString(editionInput?.value),
+      edition: getEditionValue(),
 
       developer: optionalString(developerInput?.value),
 
@@ -1243,7 +1328,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const { error: uploadError } = await supabaseClient.storage
           .from("item-images")
           .upload(storagePath, image.file, {
-            cacheControl: "3600",
+            cacheControl: window.ShelfmarkStorage.UPLOAD_CACHE_CONTROL,
 
             contentType: image.file.type || "image/png",
 
@@ -1292,37 +1377,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ===================================================== */
 
   async function addSignedUrls(images) {
-    if (!images.length) {
-      return [];
-    }
-
-    const paths = images.map((image) => image.storage_path);
-
-    const { data, error } = await supabaseClient.storage
-      .from("item-images")
-      .createSignedUrls(paths, 3600);
-
-    if (error) {
-      console.warn("Shelfmark wishlist signed URL error:", error);
-
-      return images.map((image) => ({
-        ...image,
-        signedUrl: null,
-      }));
-    }
-
-    return images.map((image, index) => {
-      const signedEntry =
-        data?.find((entry) => entry.path === image.storage_path) ||
-        data?.[index] ||
-        null;
-
-      return {
-        ...image,
-
-        signedUrl: signedEntry?.signedUrl || signedEntry?.signedURL || null,
-      };
-    });
+    return window.ShelfmarkStorage.addSignedUrls(images);
   }
 
   function getUploadBoxForImage(image) {
@@ -1479,7 +1534,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setInputValue(gameTypeInput, item.game_type);
 
-      setInputValue(editionInput, item.edition);
+      setEditionValue(item.edition);
 
       setInputValue(developerInput, item.developer);
 
@@ -1735,7 +1790,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const { error: uploadError } = await supabaseClient.storage
           .from("item-images")
           .upload(storagePath, image.file, {
-            cacheControl: "3600",
+            cacheControl: window.ShelfmarkStorage.UPLOAD_CACHE_CONTROL,
 
             contentType: image.file.type || "image/png",
 
@@ -1944,6 +1999,7 @@ document.addEventListener("DOMContentLoaded", () => {
      INITIAL STATE
   ===================================================== */
 
+  updateCustomEditionField();
   updateCountryOptions();
   updateCompletenessOptions();
   updateMediaType();
