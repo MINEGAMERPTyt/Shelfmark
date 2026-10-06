@@ -79,7 +79,7 @@
 
         <h1>Privacy</h1>
 
-        <p>Last updated 27 September 2026</p>
+        <p>Last updated 6 October 2026</p>
       </header>
 
       <article class="legal-content">
@@ -124,7 +124,8 @@
 
             <li>
               Images you choose to upload for Collection items or Wishlist
-              references.
+              references, together with smaller thumbnail copies generated to
+              reduce unnecessary image-transfer usage.
             </li>
 
             <li>
@@ -147,6 +148,12 @@
           <p>
             If you explicitly enable a public share link, Shelfmark also uses
             the selected collection data to provide that read-only shared view.
+          </p>
+
+          <p>
+            Shelfmark may generate smaller thumbnail versions of uploaded
+            images so Collection, Wishlist and shared pages can avoid loading
+            full-resolution files when they are not needed.
           </p>
 
           <p>
@@ -178,6 +185,31 @@
             shared photographs are delivered using temporary signed URLs. A
             signed image URL that has already been issued may continue to work
             until that temporary URL expires.
+          </p>
+        </section>
+
+
+        <section>
+          <h2>Backups and imports</h2>
+
+          <p>
+            Shelfmark can create a portable backup containing Collection,
+            Wishlist and custom Collection data. If you choose to include
+            photographs, those private image files are downloaded so they can
+            be included in the backup archive.
+          </p>
+
+          <p>
+            Backup files are created for you to save locally. Shelfmark does
+            not upload generated backup ZIP files to a separate Shelfmark
+            backup service. Public sharing tokens and account credentials are
+            intentionally excluded from backups.
+          </p>
+
+          <p>
+            When a backup is imported, its selected records and photographs are
+            added to the currently signed-in account. Import does not replace
+            the account's existing Collection or Wishlist by default.
           </p>
         </section>
 
@@ -219,10 +251,17 @@
           <p>
             Shelfmark uses browser storage where necessary to maintain an
             authenticated Supabase session. This allows you to remain signed in
-            between page loads. Browser storage is also used for interface
-            preferences and short-lived reuse of temporary signed image URLs so
-            the same private image does not need to be requested repeatedly
-            during a browsing session.
+            between page loads. Browser storage is also used for interface and
+            performance preferences, including motion, image loading, Collection
+            defaults and physical-viewer behaviour. These preferences are stored
+            locally in the browser rather than being added to your Supabase
+            account data.
+          </p>
+
+          <p>
+            Shelfmark also reuses temporary signed image URLs within a browsing
+            session where possible so the same private image does not need to be
+            requested repeatedly.
           </p>
         </section>
 

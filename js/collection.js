@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const formatLibrary = window.ShelfmarkFormats;
 
   const caseViewer = window.ShelfmarkCaseViewer;
+  const appSettings = window.ShelfmarkSettings;
 
   if (!formatLibrary) {
     throw new Error(
@@ -291,6 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentPage = 1;
   let currentUserId = null;
   let currentView = "grid";
+  let cardImageLoadSequence = 0;
+  const viewerImageCache = new Map();
 
   const DEFAULT_PAGE_SIZE = "12";
 
@@ -343,9 +346,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- Page size ---------- */
 
+    const configuredPageSize = appSettings?.get("collectionPageSize") || "remember";
     const storedPageSize = localStorage.getItem(getPreferenceKey("pageSize"));
 
-    if (pageSizeSelect && ALLOWED_PAGE_SIZES.has(storedPageSize)) {
+    if (
+      pageSizeSelect &&
+      configuredPageSize !== "remember" &&
+      ALLOWED_PAGE_SIZES.has(configuredPageSize)
+    ) {
+      pageSizeSelect.value = configuredPageSize;
+    } else if (pageSizeSelect && ALLOWED_PAGE_SIZES.has(storedPageSize)) {
       pageSizeSelect.value = storedPageSize;
     } else if (pageSizeSelect) {
       pageSizeSelect.value = DEFAULT_PAGE_SIZE;
@@ -353,9 +363,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- View ---------- */
 
+    const configuredView = appSettings?.get("collectionView") || "remember";
     const storedView = localStorage.getItem(getPreferenceKey("view"));
 
-    if (storedView && ALLOWED_VIEWS.has(storedView)) {
+    if (configuredView !== "remember" && ALLOWED_VIEWS.has(configuredView)) {
+      applyCollectionView(configuredView);
+    } else if (storedView && ALLOWED_VIEWS.has(storedView)) {
       applyCollectionView(storedView);
     } else {
       applyCollectionView(DEFAULT_VIEW);
@@ -363,9 +376,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- Sort ---------- */
 
+    const configuredSort = appSettings?.get("collectionSort") || "remember";
     const storedSort = localStorage.getItem(getPreferenceKey("sort"));
 
-    if (sortSelect && selectHasValue(sortSelect, storedSort)) {
+    if (
+      sortSelect &&
+      configuredSort !== "remember" &&
+      selectHasValue(sortSelect, configuredSort)
+    ) {
+      sortSelect.value = configuredSort;
+    } else if (sortSelect && selectHasValue(sortSelect, storedSort)) {
       sortSelect.value = storedSort;
     }
 
@@ -2084,20 +2104,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function chooseFrontImage(images) {
-    return images.find(
-      (image) => image.image_type === "front" && image.signedUrl,
-    );
+    return images.find((image) => image.image_type === "front") || null;
   }
 
-  function canViewCase(record) {
+  function canViewPhysicalViewer(record) {
     const item = record?.item;
     const game = record?.game;
 
-    if (!item || !game || usesMediaAsPrimaryVisual(item, game)) {
+    if (!item || !game) {
       return false;
     }
 
-    return Boolean(formatLibrary.normalizeCaseFormat(game.case_format));
+    const hasCase = Boolean(
+      formatLibrary.normalizeCaseFormat(game.case_format),
+    );
+
+    const hasMedia =
+      game.media_type === "disc" || game.media_type === "cartridge";
+
+    return hasCase || hasMedia;
   }
 
   function chooseMediaImage(images, mediaType) {
@@ -2106,9 +2131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ==================================== */
 
     if (mediaType === "cartridge") {
-      return images.find(
-        (image) => image.image_type === "cartridge" && image.signedUrl,
-      );
+      return images.find((image) => image.image_type === "cartridge") || null;
     }
 
     /* ====================================
@@ -2120,7 +2143,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (mediaType === "disc") {
       return [...images]
-        .filter((image) => image.image_type === "disc" && image.signedUrl)
+        .filter((image) => image.image_type === "disc")
         .sort((a, b) => {
           const discA = Number(a.disc_number) || 999;
 
@@ -2141,8 +2164,47 @@ document.addEventListener("DOMContentLoaded", () => {
      Signed Image URLs
   ======================================== */
 
-  async function addSignedUrls(images) {
-    return window.ShelfmarkStorage.addSignedUrls(images);
+  async function addSignedUrls(images, options = {}) {
+    return window.ShelfmarkStorage.addSignedUrls(images, options);
+  }
+
+  async function loadViewerImages(record) {
+    const itemId = record?.item?.id;
+
+    if (!itemId) {
+      return [];
+    }
+
+    if (viewerImageCache.has(itemId)) {
+      return viewerImageCache.get(itemId);
+    }
+
+    const request = (async () => {
+      const { data, error } = await supabaseClient
+        .from("item_images")
+        .select(
+          "id,item_id,image_type,storage_path,thumbnail_path,disc_number,sort_order,created_at",
+        )
+        .eq("item_id", itemId)
+        .order("sort_order", { ascending: true });
+
+      if (error) {
+        throw error;
+      }
+
+      return addSignedUrls(data || []);
+    })();
+
+    viewerImageCache.set(itemId, request);
+
+    try {
+      const images = await request;
+      viewerImageCache.set(itemId, images);
+      return images;
+    } catch (error) {
+      viewerImageCache.delete(itemId);
+      throw error;
+    }
   }
 
   /* ========================================
@@ -2229,7 +2291,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return placeholder;
   }
 
-  function createDiscVisual(record, mediaImage) {
+  function createDiscVisual(record, mediaImage, { isPrimary = false } = {}) {
     const disc = document.createElement("div");
 
     const mediaDefinition = getMediaDefinition(record);
@@ -2246,12 +2308,14 @@ document.addEventListener("DOMContentLoaded", () => {
        REAL DISC PHOTO
     ==================================== */
 
-    if (mediaImage?.signedUrl) {
+    if (mediaImage?.storage_path) {
       const image = document.createElement("img");
 
       disc.classList.add("has-real-media");
 
-      image.dataset.src = mediaImage.signedUrl;
+      image.dataset.storagePath = mediaImage.storage_path;
+      image.dataset.thumbnailPath = mediaImage.thumbnail_path || "";
+      image.dataset.imageKind = isPrimary ? "primary" : "secondary";
 
       image.alt = "";
 
@@ -2283,7 +2347,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return disc;
   }
 
-  function createCartridgeVisual(record, mediaImage) {
+  function createCartridgeVisual(record, mediaImage, { isPrimary = false } = {}) {
     const cartridge = document.createElement("div");
 
     const mediaDefinition = getMediaDefinition(record);
@@ -2300,12 +2364,14 @@ document.addEventListener("DOMContentLoaded", () => {
        REAL CARTRIDGE PHOTO
     ==================================== */
 
-    if (mediaImage?.signedUrl) {
+    if (mediaImage?.storage_path) {
       const image = document.createElement("img");
 
       cartridge.classList.add("has-real-media");
 
-      image.dataset.src = mediaImage.signedUrl;
+      image.dataset.storagePath = mediaImage.storage_path;
+      image.dataset.thumbnailPath = mediaImage.thumbnail_path || "";
+      image.dataset.imageKind = isPrimary ? "primary" : "secondary";
 
       image.alt = "";
 
@@ -2432,10 +2498,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       gameCase.className = "game-case";
 
-      if (frontImage?.signedUrl) {
+      if (frontImage?.storage_path) {
         const coverImage = document.createElement("img");
 
-        coverImage.dataset.src = frontImage.signedUrl;
+        coverImage.dataset.storagePath = frontImage.storage_path;
+        coverImage.dataset.thumbnailPath = frontImage.thumbnail_path || "";
+        coverImage.dataset.imageKind = "primary";
 
         coverImage.alt = `${item.title} front cover`;
 
@@ -2456,9 +2524,13 @@ document.addEventListener("DOMContentLoaded", () => {
     ==================================== */
 
     if (game?.media_type === "disc") {
-      visual.appendChild(createDiscVisual(record, mediaImage));
+      visual.appendChild(
+        createDiscVisual(record, mediaImage, { isPrimary: mediaIsPrimary }),
+      );
     } else if (game?.media_type === "cartridge") {
-      visual.appendChild(createCartridgeVisual(record, mediaImage));
+      visual.appendChild(
+        createCartridgeVisual(record, mediaImage, { isPrimary: mediaIsPrimary }),
+      );
     }
 
     /* ====================================
@@ -2534,15 +2606,15 @@ document.addEventListener("DOMContentLoaded", () => {
        3D CASE VIEWER
     ==================================== */
 
-    if (canViewCase(record)) {
+    if (canViewPhysicalViewer(record)) {
       const caseViewButton = document.createElement("button");
 
       caseViewButton.type = "button";
       caseViewButton.className = "game-case-view-button";
-      caseViewButton.title = "View 3D case";
+      caseViewButton.title = "View physical copy in 3D";
       caseViewButton.setAttribute(
         "aria-label",
-        `View ${item.title || "game"} case in 3D`,
+        `View ${item.title || "game"} physical copy in 3D`,
       );
 
       caseViewButton.innerHTML = `
@@ -2552,13 +2624,36 @@ document.addEventListener("DOMContentLoaded", () => {
         </svg>
       `;
 
-      caseViewButton.addEventListener("click", (event) => {
+      caseViewButton.addEventListener("click", async (event) => {
         event.preventDefault();
         event.stopPropagation();
 
-        caseViewer.open(record, {
-          trigger: caseViewButton,
-        });
+        if (caseViewButton.disabled) {
+          return;
+        }
+
+        caseViewButton.disabled = true;
+        caseViewButton.classList.add("is-loading");
+
+        try {
+          const images = await loadViewerImages(record);
+
+          caseViewer.open(
+            {
+              ...record,
+              images,
+            },
+            {
+              trigger: caseViewButton,
+            },
+          );
+        } catch (error) {
+          console.error("Shelfmark physical viewer image load error:", error);
+          window.alert("Shelfmark could not load the full-resolution physical images. Please try again.");
+        } finally {
+          caseViewButton.disabled = false;
+          caseViewButton.classList.remove("is-loading");
+        }
       });
 
       card.appendChild(caseViewButton);
@@ -2736,7 +2831,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const target = collectionResults || collectionGrid;
 
     target?.scrollIntoView({
-      behavior: "smooth",
+      behavior:
+        window.ShelfmarkSettings?.getEffectiveMotion?.() === "full"
+          ? "smooth"
+          : "auto",
       block: "start",
     });
   }
@@ -2749,17 +2847,55 @@ document.addEventListener("DOMContentLoaded", () => {
      downloading covers and media that the user has not actually viewed.
   ======================================== */
 
-  function activateCardImages(card) {
-    card.querySelectorAll("img[data-src]").forEach((image) => {
-      const source = image.dataset.src;
+  async function activateCardImages(cards) {
+    const pending = [];
 
-      if (!source) {
+    cards.forEach((card) => {
+      card.querySelectorAll("img[data-storage-path]:not([src])").forEach((image) => {
+        const storagePath = image.dataset.storagePath;
+        const isSecondaryImage = image.dataset.imageKind === "secondary";
+
+        if (!storagePath) {
+          return;
+        }
+
+        if (appSettings?.isDataSaver?.() && isSecondaryImage) {
+          return;
+        }
+
+        pending.push({
+          element: image,
+          storage_path: storagePath,
+          thumbnail_path: image.dataset.thumbnailPath || null,
+        });
+      });
+    });
+
+    if (!pending.length) {
+      return;
+    }
+
+    const sequence = ++cardImageLoadSequence;
+
+    try {
+      const signed = await addSignedUrls(pending, { preferThumbnail: true });
+
+      if (sequence !== cardImageLoadSequence) {
         return;
       }
 
-      image.src = source;
-      image.removeAttribute("data-src");
-    });
+      signed.forEach((entry, index) => {
+        const element = pending[index]?.element;
+
+        if (!element?.isConnected || !entry?.signedUrl || element.src) {
+          return;
+        }
+
+        element.src = entry.signedUrl;
+      });
+    } catch (error) {
+      console.warn("Shelfmark card image load error:", error);
+    }
   }
 
   /* ========================================
@@ -2813,10 +2949,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       card.hidden = !visible;
 
-      if (visible) {
-        activateCardImages(card);
-      }
-
       if (!visible) {
         const state = discStates.get(card);
 
@@ -2829,6 +2961,10 @@ document.addEventListener("DOMContentLoaded", () => {
         stopDiscSpin(card);
       }
     });
+
+    if (currentView === "grid") {
+      void activateCardImages([...visibleCards]);
+    }
 
     setCollectionCount(matchingCount);
 
@@ -2992,7 +3128,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       state.angle %= 360;
 
-      state.image.style.transform = `rotate(${state.angle}deg)`;
+      state.image.style.transform = `translateZ(0) rotate(${state.angle}deg)`;
 
       state.frame = requestAnimationFrame(spin);
     }
@@ -3013,6 +3149,27 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelAnimationFrame(state.frame);
 
       state.frame = null;
+    }
+
+    /*
+      Release the temporary compositor layer once the disc has slid back in.
+      Chromium-based browsers can otherwise leave stale transparent rotation
+      frames behind until the next full repaint.
+    */
+    if (state.disc && state.image) {
+      state.disc.style.willChange = "auto";
+      state.image.style.willChange = "auto";
+
+      requestAnimationFrame(() => {
+        if (state.spinning) {
+          return;
+        }
+
+        // Force one clean paint before restoring hover acceleration hints.
+        void state.disc.offsetWidth;
+        state.disc.style.willChange = "";
+        state.image.style.willChange = "";
+      });
     }
   }
 
@@ -3037,6 +3194,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const state = {
+        disc,
         image: discImage,
 
         angle: 0,
@@ -3055,6 +3213,9 @@ document.addEventListener("DOMContentLoaded", () => {
         =============================== */
 
       card.addEventListener("mouseenter", () => {
+        state.disc.style.willChange = "transform, opacity";
+        state.image.style.willChange = "transform";
+
         if (state.stopTimer) {
           clearTimeout(state.stopTimer);
 
@@ -3152,6 +3313,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       currentUserId = user.id;
+      viewerImageCache.clear();
 
       const [itemsResult, collectionsResult, membersResult] = await Promise.all([
         supabaseClient
@@ -3260,12 +3422,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 item_id,
                 image_type,
                 storage_path,
+                thumbnail_path,
                 disc_number,
                 sort_order
               `,
           )
           .in("item_id", itemIds)
-          .in("image_type", ["front", "back", "side", "disc", "cartridge"])
+          .in("image_type", ["front", "disc", "cartridge"])
           .order("sort_order", { ascending: true }),
       ]);
 
@@ -3277,8 +3440,6 @@ document.addEventListener("DOMContentLoaded", () => {
         throw imagesResult.error;
       }
 
-      const signedImages = await addSignedUrls(imagesResult.data || []);
-
       const gamesByItemId = new Map();
       const imagesByItemId = new Map();
 
@@ -3286,7 +3447,7 @@ document.addEventListener("DOMContentLoaded", () => {
         gamesByItemId.set(game.item_id, game);
       });
 
-      signedImages.forEach((image) => {
+      (imagesResult.data || []).forEach((image) => {
         if (!imagesByItemId.has(image.item_id)) {
           imagesByItemId.set(image.item_id, []);
         }
@@ -3442,6 +3603,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       applyCollectionView(view);
+
+      if (view === "grid") {
+        filterCollection();
+      }
 
       saveCollectionPreferences();
     });

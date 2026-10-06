@@ -1,12 +1,14 @@
 /* ========================================
-   Shelfmark 3D Case Viewer
+   Shelfmark Physical 3D Viewer
 ======================================== */
 
 body.case-viewer-open {
   overflow: hidden;
 }
 
-.case-viewer-modal[hidden] {
+.case-viewer-modal[hidden],
+.case-viewer-object[hidden],
+.case-viewer-object-tabs button[hidden] {
   display: none !important;
 }
 
@@ -14,26 +16,20 @@ body.case-viewer-open {
   position: fixed;
   inset: 0;
   z-index: 2600;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 22px;
-
   background: rgba(9, 9, 9, 0.96);
 }
 
 .case-viewer-dialog {
-  width: min(980px, 100%);
+  width: min(1040px, 100%);
   max-height: calc(100vh - 44px);
-
   display: flex;
   flex-direction: column;
-
   background: var(--surface);
   border: 1px solid var(--border);
-
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -46,11 +42,8 @@ body.case-viewer-open {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 24px;
-
   padding: 20px 24px;
-
   border-bottom: 1px solid var(--border);
 }
 
@@ -60,19 +53,15 @@ body.case-viewer-open {
 
 .case-viewer-eyebrow {
   margin-bottom: 7px;
-
   color: var(--accent);
-
   font-size: 0.59rem;
   font-weight: 700;
-
   text-transform: uppercase;
   letter-spacing: 0.09em;
 }
 
 .case-viewer-header h2 {
   color: var(--text);
-
   font-size: 1.2rem;
   line-height: 1.1;
   letter-spacing: -0.035em;
@@ -80,9 +69,7 @@ body.case-viewer-open {
 
 #case-viewer-subtitle {
   margin-top: 7px;
-
   color: var(--text-muted);
-
   font-size: 0.66rem;
   line-height: 1.45;
 }
@@ -90,22 +77,15 @@ body.case-viewer-open {
 .case-viewer-close {
   width: 40px;
   height: 40px;
-
   flex: 0 0 40px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
-
   background: transparent;
   color: var(--text-muted);
-
   border: 1px solid var(--border);
-
   cursor: pointer;
-
   transition:
     color var(--transition-fast),
     border-color var(--transition-fast),
@@ -115,10 +95,8 @@ body.case-viewer-open {
 .case-viewer-close svg {
   width: 17px;
   height: 17px;
-
   fill: none;
   stroke: currentColor;
-
   stroke-width: 1.5;
   stroke-linecap: round;
 }
@@ -139,29 +117,23 @@ body.case-viewer-open {
 }
 
 /* ========================================
-   3D Stage
+   Scene
 ======================================== */
 
 .case-viewer-stage {
   position: relative;
-
-  height: min(62vh, 620px);
-  min-height: 340px;
-
+  height: min(64vh, 640px);
+  min-height: 360px;
   flex: 0 0 auto;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   overflow: hidden;
-
   background:
-    radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.035), transparent 38%),
+    linear-gradient(90deg, transparent 49.9%, rgba(214, 255, 75, 0.05) 50%, transparent 50.1%),
+    radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.04), transparent 39%),
     #0d0d0d;
-
   outline: none;
-
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -177,35 +149,95 @@ body.case-viewer-open {
 
 .case-viewer-scene {
   position: relative;
-
-  width: min(72%, 600px);
-  height: max(320px, var(--case-3d-height, 360px));
-
+  width: 92%;
+  height: 82%;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  perspective: 1050px;
-  perspective-origin: 50% 46%;
+  perspective: 2200px;
+  perspective-origin: 50% 48%;
 }
+
+.case-viewer-world {
+  --viewer-object-gap: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--viewer-object-gap);
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  transition: transform 0.08s linear;
+  will-change: transform;
+}
+
+.case-viewer-stage.dragging .case-viewer-world {
+  transition: none;
+}
+
+.case-viewer-object {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  cursor: grab;
+}
+
+.case-viewer-object::before {
+  content: "";
+  position: absolute;
+  inset: -13px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  transition: border-color var(--transition-fast);
+}
+
+.case-viewer-object.is-active::before {
+  border-color: rgba(214, 255, 75, 0.32);
+}
+
+.case-viewer-object-label {
+  position: absolute;
+  left: 50%;
+  bottom: -34px;
+  z-index: 10;
+  transform: translateX(-50%);
+  padding: 5px 8px;
+  background: rgba(13, 13, 13, 0.86);
+  color: var(--text-faint);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.52rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.case-viewer-object.is-active .case-viewer-object-label {
+  color: var(--accent);
+  border-color: rgba(214, 255, 75, 0.2);
+}
+
+/* ========================================
+   Case model
+======================================== */
 
 .case-viewer-model {
   --case-3d-width: 270px;
   --case-3d-height: 380px;
   --case-3d-depth: 28px;
-
   position: relative;
-
   width: var(--case-3d-width);
   height: var(--case-3d-height);
-
   transform-style: preserve-3d;
-
   transition: transform 0.08s linear;
   will-change: transform;
 }
 
-.case-viewer-stage.dragging .case-viewer-model {
+.case-viewer-stage.dragging .case-viewer-model,
+.case-viewer-stage.dragging .case-viewer-media-model {
   transition: none;
 }
 
@@ -213,12 +245,9 @@ body.case-viewer-open {
   position: absolute;
   left: 50%;
   top: 50%;
-
   overflow: hidden;
-
   background: var(--accent);
-  border: 1px solid rgba(17, 17, 17, 0.65);
-
+  border: 1px solid rgba(17, 17, 17, 0.7);
   backface-visibility: hidden;
 }
 
@@ -226,7 +255,6 @@ body.case-viewer-open {
 .case-viewer-face-back {
   width: var(--case-3d-width);
   height: var(--case-3d-height);
-
   margin-left: calc(var(--case-3d-width) / -2);
   margin-top: calc(var(--case-3d-height) / -2);
 }
@@ -243,7 +271,6 @@ body.case-viewer-open {
 .case-viewer-face-edge {
   width: var(--case-3d-depth);
   height: var(--case-3d-height);
-
   margin-left: calc(var(--case-3d-depth) / -2);
   margin-top: calc(var(--case-3d-height) / -2);
 }
@@ -254,7 +281,6 @@ body.case-viewer-open {
 
 .case-viewer-face-edge {
   background: var(--accent-dark);
-
   transform: rotateY(90deg) translateZ(calc(var(--case-3d-width) / 2));
 }
 
@@ -262,7 +288,6 @@ body.case-viewer-open {
 .case-viewer-face-bottom {
   width: var(--case-3d-width);
   height: var(--case-3d-depth);
-
   margin-left: calc(var(--case-3d-width) / -2);
   margin-top: calc(var(--case-3d-depth) / -2);
 }
@@ -273,51 +298,32 @@ body.case-viewer-open {
 
 .case-viewer-face-bottom {
   background: var(--accent-dark);
-
   transform: rotateX(-90deg) translateZ(calc(var(--case-3d-height) / 2));
 }
 
-/* ========================================
-   Artwork / Missing Faces
-======================================== */
-
 .case-viewer-artwork {
   position: absolute;
-  inset: 3px;
-
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
-
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: block;
-
-  object-fit: cover;
-
+  object-fit: fill;
   pointer-events: none;
-}
-
-.case-viewer-face-spine .case-viewer-artwork {
-  inset: 2px;
-
-  width: calc(100% - 4px);
-  height: calc(100% - 4px);
 }
 
 .case-viewer-face-front.has-artwork::after,
 .case-viewer-face-back.has-artwork::after,
 .case-viewer-face-spine.has-artwork::after {
   content: "";
-
   position: absolute;
   inset: 0;
-
   background: linear-gradient(
     115deg,
-    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.11),
     transparent 22%,
     transparent 76%,
-    rgba(255, 255, 255, 0.06)
+    rgba(255, 255, 255, 0.045)
   );
-
   pointer-events: none;
 }
 
@@ -325,55 +331,204 @@ body.case-viewer-open {
   position: absolute;
   left: 50%;
   top: 50%;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   width: 34px;
   height: 34px;
-
   transform: translate(-50%, -50%);
-
   background: var(--background);
   color: var(--accent);
-
   font-size: 0.72rem;
   font-weight: 900;
-
   border: 1px solid rgba(17, 17, 17, 0.25);
 }
 
 .case-viewer-face-spine .case-viewer-face-mark {
-  width: min(28px, calc(var(--case-3d-depth) - 4px));
-  min-width: 12px;
+  width: min(28px, calc(var(--case-3d-depth) - 2px));
+  min-width: 8px;
   height: 28px;
-
   font-size: 0.55rem;
 }
+
+/* ========================================
+   Media model
+======================================== */
+
+.case-viewer-media-model {
+  --media-3d-width: 150px;
+  --media-3d-height: 150px;
+  --media-3d-depth: 3px;
+  --media-hole-ratio: 12.5%;
+  position: relative;
+  width: var(--media-3d-width);
+  height: var(--media-3d-height);
+  transform-style: preserve-3d;
+  transition: transform 0.08s linear;
+  will-change: transform;
+}
+
+.case-viewer-media-face {
+  --media-mask-image: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--media-3d-width);
+  height: var(--media-3d-height);
+  margin-left: calc(var(--media-3d-width) / -2);
+  margin-top: calc(var(--media-3d-height) / -2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--surface-light);
+  border: 1px solid rgba(214, 255, 75, 0.38);
+  backface-visibility: hidden;
+}
+
+.case-viewer-media-front {
+  transform: translateZ(calc(var(--media-3d-depth) / 2));
+}
+
+.case-viewer-media-back {
+  background: #202020;
+  transform: rotateY(180deg) translateZ(calc(var(--media-3d-depth) / 2));
+}
+
+.case-viewer-media-uses-mask {
+  -webkit-mask-image: var(--media-mask-image);
+  mask-image: var(--media-mask-image);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-mode: alpha;
+  mask-mode: alpha;
+}
+
+.case-viewer-media-face.case-viewer-media-uses-mask {
+  border: 0;
+  filter: drop-shadow(0 0 1px rgba(214, 255, 75, 0.5));
+}
+
+.case-viewer-media-depth-stack {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.case-viewer-media-depth-layer {
+  --media-mask-image: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--media-3d-width);
+  height: var(--media-3d-height);
+  margin-left: calc(var(--media-3d-width) / -2);
+  margin-top: calc(var(--media-3d-height) / -2);
+  background: linear-gradient(90deg, #191919, #3b3b3b 48%, #171717);
+  backface-visibility: hidden;
+}
+
+.case-viewer-media-depth-layer.is-optical-disc {
+  background: linear-gradient(90deg, #555, #aaa 50%, #505050);
+}
+
+.case-viewer-media-artwork {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.case-viewer-media-placeholder-mark,
+.case-viewer-media-back-mark {
+  color: var(--accent);
+  font-size: clamp(0.42rem, 1vw, 0.66rem);
+  font-weight: 900;
+  letter-spacing: 0.09em;
+}
+
+.case-viewer-media-shape-disc {
+  border-radius: 50%;
+}
+
+.case-viewer-media-shape-disc::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--media-hole-ratio, 12.5%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #101010;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.case-viewer-media-back.is-optical-disc {
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.82), rgba(210, 210, 210, 0.94) 22%, rgba(122, 122, 122, 0.96) 44%, rgba(242, 242, 242, 0.98) 62%, rgba(148, 148, 148, 0.95) 79%, rgba(235, 235, 235, 0.98)),
+    radial-gradient(circle at 32% 25%, rgba(255, 255, 255, 0.45), transparent 30%),
+    radial-gradient(circle at 72% 75%, rgba(255, 255, 255, 0.2), transparent 34%);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.case-viewer-media-back.is-optical-disc::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, transparent 8%, rgba(255, 255, 255, 0.48) 24%, transparent 42%, rgba(255, 255, 255, 0.22) 58%, transparent 78%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.14));
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.case-viewer-media-shape-nes,
+.case-viewer-media-shape-game-boy,
+.case-viewer-media-shape-game-boy-color,
+.case-viewer-media-shape-ds-card,
+.case-viewer-media-shape-rounded {
+  border-radius: 4%;
+}
+
+.case-viewer-media-shape-snes-pal,
+.case-viewer-media-shape-snes-us,
+.case-viewer-media-shape-n64,
+.case-viewer-media-shape-gba,
+.case-viewer-media-shape-3ds-card,
+.case-viewer-media-shape-switch-card,
+.case-viewer-media-shape-vita-card,
+.case-viewer-media-shape-umd {
+  border-radius: 6%;
+}
+
+/* ========================================
+   Stage hint
+======================================== */
 
 .case-viewer-hint {
   position: absolute;
   left: 50%;
   bottom: 18px;
-
   transform: translateX(-50%);
-
   padding: 7px 10px;
-
   background: rgba(13, 13, 13, 0.84);
   color: var(--text-muted);
-
   border: 1px solid rgba(255, 255, 255, 0.07);
-
   font-size: 0.56rem;
   font-weight: 700;
-
   text-transform: uppercase;
   letter-spacing: 0.06em;
-
   white-space: nowrap;
-
   pointer-events: none;
 }
 
@@ -385,59 +540,56 @@ body.case-viewer-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  gap: 18px;
-
+  gap: 14px;
   padding: 14px 24px;
-
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
 
+.case-viewer-object-tabs,
 .case-viewer-control-group {
   display: flex;
   align-items: center;
-
   gap: 8px;
 }
 
 .case-viewer-toolbar button {
   min-width: 38px;
   height: 38px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   padding: 0 10px;
-
   background: transparent;
   color: var(--text-muted);
-
   border: 1px solid var(--border);
-
   font-family: inherit;
   font-size: 0.57rem;
   font-weight: 700;
-
   text-transform: uppercase;
   letter-spacing: 0.05em;
-
   cursor: pointer;
-
   transition:
     color var(--transition-fast),
     background var(--transition-fast),
     border-color var(--transition-fast);
 }
 
+.case-viewer-object-tabs button {
+  min-width: 72px;
+}
+
+.case-viewer-object-tabs button.is-active {
+  background: var(--accent);
+  color: var(--background);
+  border-color: var(--accent);
+}
+
 .case-viewer-toolbar button svg {
   width: 16px;
   height: 16px;
-
   fill: none;
   stroke: currentColor;
-
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -447,8 +599,14 @@ body.case-viewer-open {
 .case-viewer-toolbar button:focus-visible {
   background: var(--surface-light);
   color: var(--text);
-
   border-color: #555;
+}
+
+.case-viewer-object-tabs button.is-active:hover,
+.case-viewer-object-tabs button.is-active:focus-visible {
+  background: var(--accent);
+  color: var(--background);
+  border-color: var(--accent);
 }
 
 .case-viewer-toolbar button:focus-visible {
@@ -468,9 +626,7 @@ body.case-viewer-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 20px;
-
   padding: 16px 24px 18px;
 }
 
@@ -485,28 +641,22 @@ body.case-viewer-open {
 
 .case-viewer-format {
   color: var(--text);
-
   font-size: 0.62rem;
   font-weight: 700;
-
   text-transform: uppercase;
   letter-spacing: 0.055em;
 }
 
 .case-viewer-reference-note {
   margin-top: 6px;
-
   color: var(--text-muted);
-
   font-size: 0.59rem;
   line-height: 1.5;
 }
 
 .case-viewer-status {
   flex-shrink: 0;
-
   color: var(--text-muted);
-
   font-size: 0.57rem;
   font-variant-numeric: tabular-nums;
 }
@@ -515,7 +665,7 @@ body.case-viewer-open {
    Responsive
 ======================================== */
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
   .case-viewer-modal {
     padding: 10px;
   }
@@ -529,34 +679,39 @@ body.case-viewer-open {
   }
 
   .case-viewer-stage {
-    height: min(52vh, 440px);
-    min-height: 300px;
+    height: min(54vh, 470px);
+    min-height: 310px;
   }
 
   .case-viewer-scene {
-    width: 86%;
+    width: 96%;
+    height: 78%;
   }
 
   .case-viewer-toolbar {
     align-items: stretch;
     flex-direction: column;
-
     gap: 9px;
-
     padding: 12px 16px;
   }
 
+  .case-viewer-object-tabs,
   .case-viewer-control-group {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .case-viewer-control-group:last-child {
+  .case-viewer-object-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .case-viewer-zoom-controls {
     grid-template-columns: 1fr 1fr 2fr;
   }
 
   .case-viewer-toolbar button,
-  .case-viewer-toolbar .case-viewer-reset {
+  .case-viewer-toolbar .case-viewer-reset,
+  .case-viewer-object-tabs button {
     width: 100%;
     min-width: 0;
   }
@@ -564,39 +719,63 @@ body.case-viewer-open {
   .case-viewer-footer {
     align-items: flex-start;
     flex-direction: column;
-
     gap: 10px;
-
     padding: 14px 16px 16px;
   }
 
   .case-viewer-hint {
-    bottom: 12px;
+    bottom: 10px;
   }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 500px) {
   .case-viewer-stage {
-    min-height: 270px;
+    min-height: 300px;
   }
 
-  .case-viewer-scene {
-    width: 94%;
+  .case-viewer-world {
+    --viewer-object-gap: 18px;
   }
 
-  .case-viewer-hint {
-    display: none;
-  }
-
+  .case-viewer-object-label,
+  .case-viewer-hint,
   .case-viewer-reference-note {
     display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .case-viewer-world,
   .case-viewer-model,
+  .case-viewer-media-model,
   .case-viewer-close,
-  .case-viewer-toolbar button {
+  .case-viewer-toolbar button,
+  .case-viewer-object::before {
     transition: none;
   }
+}
+
+
+/* Exact media silhouettes derived from Shelfmark's cropper outlines. */
+.case-viewer-media-shape-umd.case-viewer-media-front,
+.case-viewer-media-shape-umd.case-viewer-media-back {
+  background: linear-gradient(135deg, #c8c8c4, #f0f0ea 48%, #9d9d99);
+}
+
+.case-viewer-media-depth-layer.case-viewer-media-shape-umd {
+  background: linear-gradient(90deg, #8b8b87, #d8d8d2 50%, #777773);
+}
+
+.case-viewer-media-depth-layer.case-viewer-media-shape-nes,
+.case-viewer-media-depth-layer.case-viewer-media-shape-snes-pal,
+.case-viewer-media-depth-layer.case-viewer-media-shape-snes-us,
+.case-viewer-media-depth-layer.case-viewer-media-shape-n64,
+.case-viewer-media-depth-layer.case-viewer-media-shape-game-boy,
+.case-viewer-media-depth-layer.case-viewer-media-shape-game-boy-color,
+.case-viewer-media-depth-layer.case-viewer-media-shape-gba,
+.case-viewer-media-depth-layer.case-viewer-media-shape-ds-card,
+.case-viewer-media-depth-layer.case-viewer-media-shape-3ds-card,
+.case-viewer-media-depth-layer.case-viewer-media-shape-switch-card,
+.case-viewer-media-depth-layer.case-viewer-media-shape-vita-card {
+  background: linear-gradient(90deg, #151515, #323232 48%, #111);
 }

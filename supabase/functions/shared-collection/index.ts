@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -38,6 +39,215 @@ function getSecretKey() {
   return Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 }
 
+async function getShare(admin: any, token: string) {
+  const { data, error } = await admin
+    .from("collection_shares")
+    .select(
+      "id,user_id,scope_type,collection_id,share_token,is_enabled,show_photos,show_estimated_value,show_purchase_price,show_purchase_date,show_value_difference,updated_at",
+    )
+    .eq("share_token", token)
+    .eq("is_enabled", true)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function getCollectionInfo(admin: any, share: any) {
+  if (share.scope_type !== "collection") {
+    return {
+      name: "Collection",
+      description: null,
+      memberIds: null as string[] | null,
+    };
+  }
+
+  const { data: collection, error: collectionError } = await admin
+    .from("collections")
+    .select("id,user_id,name,description")
+    .eq("id", share.collection_id)
+    .eq("user_id", share.user_id)
+    .maybeSingle();
+
+  if (collectionError) {
+    throw collectionError;
+  }
+
+  if (!collection) {
+    return null;
+  }
+
+  const { data: members, error: membersError } = await admin
+    .from("collection_members")
+    .select("item_id")
+    .eq("collection_id", share.collection_id);
+
+  if (membersError) {
+    throw membersError;
+  }
+
+  return {
+    name: collection.name || "Collection",
+    description: collection.description || null,
+    memberIds: (members || []).map((member: any) => member.item_id),
+  };
+}
+
+async function getAllowedImageItemIds(
+  admin: any,
+  share: any,
+  requestedIds: string[],
+) {
+  if (!requestedIds.length) {
+    return [];
+  }
+
+  const { data: ownedItems, error: ownedError } = await admin
+    .from("collection_items")
+    .select("id")
+    .eq("user_id", share.user_id)
+    .eq("category", "game")
+    .in("id", requestedIds);
+
+  if (ownedError) {
+    throw ownedError;
+  }
+
+  const ownedIds = (ownedItems || []).map((item: any) => item.id);
+
+  if (share.scope_type !== "collection" || !ownedIds.length) {
+    return ownedIds;
+  }
+
+  const { data: members, error: membersError } = await admin
+    .from("collection_members")
+    .select("item_id")
+    .eq("collection_id", share.collection_id)
+    .in("item_id", ownedIds);
+
+  if (membersError) {
+    throw membersError;
+  }
+
+  const membership = new Set(
+    (members || []).map((member: any) => member.item_id),
+  );
+
+  return ownedIds.filter((id: string) => membership.has(id));
+}
+
+async function handleImageRequest(
+  admin: any,
+  share: any,
+  body: any,
+) {
+  if (!share.show_photos) {
+    return jsonResponse({ images: [] });
+  }
+
+  const requestedIds = [
+    ...new Set(
+      (Array.isArray(body?.item_ids) ? body.item_ids : [])
+        .map((value: unknown) => String(value || "").trim())
+        .filter((value: string) => UUID_PATTERN.test(value)),
+    ),
+  ].slice(0, 48);
+
+  if (!requestedIds.length) {
+    return jsonResponse({ images: [] });
+  }
+
+  const allowedIds = await getAllowedImageItemIds(
+    admin,
+    share,
+    requestedIds,
+  );
+
+  if (!allowedIds.length) {
+    return jsonResponse({ images: [] });
+  }
+
+  const full = Boolean(body?.full);
+  let imageQuery = admin
+    .from("item_images")
+    .select(
+      "item_id,image_type,storage_path,thumbnail_path,disc_number,sort_order",
+    )
+    .in("item_id", allowedIds)
+    .order("sort_order", { ascending: true });
+
+  if (!full) {
+    imageQuery = imageQuery.in("image_type", [
+      "front",
+      "disc",
+      "cartridge",
+    ]);
+  }
+
+  const { data: images, error: imagesError } = await imageQuery;
+
+  if (imagesError) {
+    throw imagesError;
+  }
+
+  const imagesWithPath = (images || []).map((image: any) => ({
+    ...image,
+    delivery_path:
+      !full && image.thumbnail_path
+        ? image.thumbnail_path
+        : image.storage_path,
+  }));
+
+  const paths = [
+    ...new Set(
+      imagesWithPath.map((image: any) => image.delivery_path).filter(Boolean),
+    ),
+  ];
+  const signedUrlByPath = new Map<string, string>();
+
+  if (paths.length > 0) {
+    const { data: signed, error: signedError } = await admin.storage
+      .from("item-images")
+      .createSignedUrls(paths, 3600);
+
+    if (signedError) {
+      console.error(
+        "Shelfmark shared-collection signed URL creation:",
+        signedError,
+      );
+    } else {
+      (signed || []).forEach((entry: any) => {
+        if (entry.path && entry.signedUrl) {
+          signedUrlByPath.set(entry.path, entry.signedUrl);
+        }
+      });
+    }
+  }
+
+  return jsonResponse({
+    images: imagesWithPath
+      .map((image: any) => {
+        const signedUrl = signedUrlByPath.get(image.delivery_path);
+
+        if (!signedUrl) {
+          return null;
+        }
+
+        return {
+          item_ref: image.item_id,
+          image_type: image.image_type,
+          disc_number: image.disc_number,
+          sort_order: image.sort_order,
+          signedUrl,
+        };
+      })
+      .filter(Boolean),
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -59,7 +269,9 @@ Deno.serve(async (req) => {
     const secretKey = getSecretKey();
 
     if (!supabaseUrl || !secretKey) {
-      console.error("Shelfmark shared-collection: missing Supabase environment variables");
+      console.error(
+        "Shelfmark shared-collection: missing Supabase environment variables",
+      );
       return jsonResponse({ error: "Server configuration error" }, 500);
     }
 
@@ -70,65 +282,20 @@ Deno.serve(async (req) => {
       },
     });
 
-    const { data: share, error: shareError } = await admin
-      .from("collection_shares")
-      .select(
-        "id,user_id,scope_type,collection_id,share_token,is_enabled,show_photos,show_estimated_value,show_purchase_price,show_purchase_date,show_value_difference,updated_at",
-      )
-      .eq("share_token", token)
-      .eq("is_enabled", true)
-      .maybeSingle();
-
-    if (shareError) {
-      console.error("Shelfmark shared-collection share lookup:", shareError);
-      return jsonResponse({ error: "Unable to load share" }, 500);
-    }
+    const share = await getShare(admin, token);
 
     if (!share) {
       return jsonResponse({ error: "Share unavailable" }, 404);
     }
 
-    let shareName = "Collection";
-    let shareDescription: string | null = null;
-    let memberIds: string[] | null = null;
+    if (body?.action === "images") {
+      return await handleImageRequest(admin, share, body);
+    }
 
-    if (share.scope_type === "collection") {
-      const { data: collection, error: collectionError } = await admin
-        .from("collections")
-        .select("id,user_id,name,description")
-        .eq("id", share.collection_id)
-        .eq("user_id", share.user_id)
-        .maybeSingle();
+    const collectionInfo = await getCollectionInfo(admin, share);
 
-      if (collectionError) {
-        console.error(
-          "Shelfmark shared-collection collection lookup:",
-          collectionError,
-        );
-        return jsonResponse({ error: "Unable to load share" }, 500);
-      }
-
-      if (!collection) {
-        return jsonResponse({ error: "Share unavailable" }, 404);
-      }
-
-      shareName = collection.name || "Collection";
-      shareDescription = collection.description || null;
-
-      const { data: members, error: membersError } = await admin
-        .from("collection_members")
-        .select("item_id")
-        .eq("collection_id", share.collection_id);
-
-      if (membersError) {
-        console.error(
-          "Shelfmark shared-collection membership lookup:",
-          membersError,
-        );
-        return jsonResponse({ error: "Unable to load share" }, 500);
-      }
-
-      memberIds = (members || []).map((member) => member.item_id);
+    if (!collectionInfo) {
+      return jsonResponse({ error: "Share unavailable" }, 404);
     }
 
     const { data: profile } = await admin
@@ -139,7 +306,10 @@ Deno.serve(async (req) => {
 
     let collectionItems: any[] = [];
 
-    if (memberIds === null || memberIds.length > 0) {
+    if (
+      collectionInfo.memberIds === null ||
+      collectionInfo.memberIds.length > 0
+    ) {
       let itemsQuery = admin
         .from("collection_items")
         .select(
@@ -149,15 +319,14 @@ Deno.serve(async (req) => {
         .eq("category", "game")
         .order("title", { ascending: true });
 
-      if (memberIds !== null) {
-        itemsQuery = itemsQuery.in("id", memberIds);
+      if (collectionInfo.memberIds !== null) {
+        itemsQuery = itemsQuery.in("id", collectionInfo.memberIds);
       }
 
       const { data, error } = await itemsQuery;
 
       if (error) {
-        console.error("Shelfmark shared-collection item lookup:", error);
-        return jsonResponse({ error: "Unable to load share" }, 500);
+        throw error;
       }
 
       collectionItems = data || [];
@@ -165,7 +334,6 @@ Deno.serve(async (req) => {
 
     const itemIds = collectionItems.map((item) => item.id);
     const gamesByItemId = new Map<string, any>();
-    const imagesByItemId = new Map<string, any[]>();
 
     if (itemIds.length > 0) {
       const { data: games, error: gamesError } = await admin
@@ -176,72 +344,12 @@ Deno.serve(async (req) => {
         .in("item_id", itemIds);
 
       if (gamesError) {
-        console.error("Shelfmark shared-collection game lookup:", gamesError);
-        return jsonResponse({ error: "Unable to load share" }, 500);
+        throw gamesError;
       }
 
-      (games || []).forEach((game) => {
+      (games || []).forEach((game: any) => {
         gamesByItemId.set(game.item_id, game);
       });
-
-      if (share.show_photos) {
-        const { data: images, error: imagesError } = await admin
-          .from("item_images")
-          .select(
-            "item_id,image_type,storage_path,disc_number,sort_order,created_at",
-          )
-          .in("item_id", itemIds)
-          .order("sort_order", { ascending: true });
-
-        if (imagesError) {
-          console.error(
-            "Shelfmark shared-collection image lookup:",
-            imagesError,
-          );
-          return jsonResponse({ error: "Unable to load share" }, 500);
-        }
-
-        const paths = [...new Set((images || []).map((image) => image.storage_path))];
-        const signedUrlByPath = new Map<string, string>();
-
-        if (paths.length > 0) {
-          const { data: signed, error: signedError } = await admin.storage
-            .from("item-images")
-            .createSignedUrls(paths, 3600);
-
-          if (signedError) {
-            console.error(
-              "Shelfmark shared-collection signed URL creation:",
-              signedError,
-            );
-          } else {
-            (signed || []).forEach((entry) => {
-              if (entry.path && entry.signedUrl) {
-                signedUrlByPath.set(entry.path, entry.signedUrl);
-              }
-            });
-          }
-        }
-
-        (images || []).forEach((image) => {
-          const signedUrl = signedUrlByPath.get(image.storage_path);
-
-          if (!signedUrl) {
-            return;
-          }
-
-          if (!imagesByItemId.has(image.item_id)) {
-            imagesByItemId.set(image.item_id, []);
-          }
-
-          imagesByItemId.get(image.item_id)?.push({
-            image_type: image.image_type,
-            disc_number: image.disc_number,
-            sort_order: image.sort_order,
-            signedUrl,
-          });
-        });
-      }
     }
 
     const items = collectionItems
@@ -268,6 +376,7 @@ Deno.serve(async (req) => {
             : null;
 
         return {
+          item_ref: item.id,
           title: item.title,
           condition: item.condition,
           completeness: item.completeness,
@@ -292,9 +401,7 @@ Deno.serve(async (req) => {
             custom_case_height: game.custom_case_height,
             disc_count: game.disc_count,
           },
-          images: share.show_photos
-            ? imagesByItemId.get(item.id) || []
-            : [],
+          images: [],
         };
       })
       .filter(Boolean);
@@ -302,8 +409,8 @@ Deno.serve(async (req) => {
     return jsonResponse({
       share: {
         scope_type: share.scope_type,
-        name: shareName,
-        description: shareDescription,
+        name: collectionInfo.name,
+        description: collectionInfo.description,
         owner_username:
           String(profile?.username || "").trim() || "Shelfmark collector",
         show_photos: share.show_photos,

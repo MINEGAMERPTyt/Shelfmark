@@ -1,7 +1,7 @@
 {
   "name": "shelfmark",
-  "version": "1.4.1",
-  "description": "<div align=\"center\">",
+  "version": "1.5.0",
+  "description": "A personal collection archive for cataloguing physical video games.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

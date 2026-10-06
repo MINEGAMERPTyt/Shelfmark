@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/navbar.css" />
     <link rel="stylesheet" href="css/auth.css" />
+    <link rel="stylesheet" href="css/data-transfer.css" />
     <link rel="stylesheet" href="css/responsive.css" />
   </head>
 
@@ -150,12 +151,277 @@
         </div>
 
         <div class="settings-divider">
+          <h2>Interface & performance</h2>
+
+          <p class="auth-description settings-preferences-intro">
+            Control motion, image loading and default Collection behaviour.
+            These preferences are saved only on this device and do not use
+            Supabase storage or database requests.
+          </p>
+
+          <form class="settings-preferences" id="app-preferences-form">
+            <div class="settings-preferences-grid">
+              <label class="settings-preference" for="setting-motion">
+                <span class="settings-preference-copy">
+                  <strong>Motion</strong>
+                  <small>Controls page, card and interface animation.</small>
+                </span>
+
+                <select id="setting-motion">
+                  <option value="system">Follow system</option>
+                  <option value="full">Full</option>
+                  <option value="reduced">Reduced</option>
+                  <option value="off">Off</option>
+                </select>
+              </label>
+
+              <label class="settings-preference" for="setting-image-loading">
+                <span class="settings-preference-copy">
+                  <strong>Image loading</strong>
+                  <small>Data saver avoids secondary media photos on browsing cards.</small>
+                </span>
+
+                <select id="setting-image-loading">
+                  <option value="standard">Standard</option>
+                  <option value="data-saver">Data saver</option>
+                </select>
+              </label>
+
+              <label class="settings-preference" for="setting-collection-view">
+                <span class="settings-preference-copy">
+                  <strong>Collection view</strong>
+                  <small>Choose a fixed layout or keep the last one you used.</small>
+                </span>
+
+                <select id="setting-collection-view">
+                  <option value="remember">Remember last used</option>
+                  <option value="grid">Grid</option>
+                  <option value="list">List</option>
+                </select>
+              </label>
+
+              <label class="settings-preference" for="setting-collection-page-size">
+                <span class="settings-preference-copy">
+                  <strong>Games per page</strong>
+                  <small>Set the default amount shown in Collection.</small>
+                </span>
+
+                <select id="setting-collection-page-size">
+                  <option value="remember">Remember last used</option>
+                  <option value="12">12</option>
+                  <option value="24">24</option>
+                  <option value="48">48</option>
+                  <option value="all">All</option>
+                </select>
+              </label>
+
+              <label class="settings-preference" for="setting-collection-sort">
+                <span class="settings-preference-copy">
+                  <strong>Collection sorting</strong>
+                  <small>Set the default order used when opening Collection.</small>
+                </span>
+
+                <select id="setting-collection-sort">
+                  <option value="remember">Remember last used</option>
+                  <option value="title">Title A–Z</option>
+                  <option value="newest">Recently added</option>
+                  <option value="oldest">Oldest added</option>
+                  <option value="price-low">Purchase price: low</option>
+                  <option value="price-high">Purchase price: high</option>
+                </select>
+              </label>
+
+              <label class="settings-preference" for="setting-viewer-default">
+                <span class="settings-preference-copy">
+                  <strong>Physical viewer focus</strong>
+                  <small>Choose which object is selected first in the 3D viewer.</small>
+                </span>
+
+                <select id="setting-viewer-default">
+                  <option value="last">Last used</option>
+                  <option value="case">Case</option>
+                  <option value="media">Disc / cartridge</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="settings-preferences-actions">
+              <button type="submit" class="auth-submit">Save preferences</button>
+              <button type="button" class="settings-reset-button" id="app-preferences-reset">
+                Reset interface settings
+              </button>
+            </div>
+
+            <p
+              class="auth-message settings-preferences-status"
+              id="app-preferences-status"
+              aria-live="polite"
+            ></p>
+          </form>
+        </div>
+
+        <div class="settings-divider">
+          <h2>Data backup</h2>
+
+          <p class="auth-description">
+            Export a portable backup of your Collection, Wishlist and custom
+            Collections, then restore it to Shelfmark later. Existing data is
+            never deleted during an import.
+          </p>
+
+          <div class="data-transfer-panel">
+            <section class="data-transfer-card" aria-labelledby="backup-export-title">
+              <h3 id="backup-export-title">Export backup</h3>
+
+              <p>
+                Choose what to include. Public sharing links and account
+                credentials are never exported.
+              </p>
+
+              <div class="data-transfer-options">
+                <label class="data-transfer-option">
+                  <input
+                    type="checkbox"
+                    id="backup-export-collection"
+                    checked
+                  />
+
+                  <span class="data-transfer-option-copy">
+                    <strong>Collection</strong>
+                    <small>Games, copy details and custom Collections.</small>
+                  </span>
+                </label>
+
+                <label class="data-transfer-option">
+                  <input
+                    type="checkbox"
+                    id="backup-export-wishlist"
+                    checked
+                  />
+
+                  <span class="data-transfer-option-copy">
+                    <strong>Wishlist</strong>
+                    <small>Wishlist entries and their saved details.</small>
+                  </span>
+                </label>
+
+                <label class="data-transfer-option">
+                  <input type="checkbox" id="backup-export-photos" />
+
+                  <span class="data-transfer-option-copy">
+                    <strong>Include photos</strong>
+                    <small>
+                      Creates a complete portable backup, but downloads your
+                      stored images once and therefore uses Storage egress.
+                    </small>
+                  </span>
+                </label>
+              </div>
+
+              <div class="data-transfer-actions">
+                <button
+                  type="button"
+                  class="data-transfer-button data-transfer-button-primary"
+                  id="backup-export-button"
+                >
+                  Export backup
+                </button>
+              </div>
+
+              <div
+                class="data-transfer-progress"
+                id="backup-export-progress"
+                hidden
+                aria-hidden="true"
+              >
+                <div
+                  class="data-transfer-progress-bar"
+                  id="backup-export-progress-bar"
+                ></div>
+              </div>
+
+              <p
+                class="data-transfer-status"
+                id="backup-export-status"
+                aria-live="polite"
+              ></p>
+            </section>
+
+            <section class="data-transfer-card" aria-labelledby="backup-import-title">
+              <h3 id="backup-import-title">Import backup</h3>
+
+              <p>
+                Imported entries are added as new records. Shelfmark does not
+                overwrite or remove anything already in your account.
+              </p>
+
+              <div class="data-transfer-file">
+                <input
+                  type="file"
+                  id="backup-import-file"
+                  accept=".zip,application/zip"
+                />
+
+                <label
+                  class="data-transfer-file-label"
+                  for="backup-import-file"
+                >
+                  <span
+                    class="data-transfer-file-name"
+                    id="backup-import-file-name"
+                  >
+                    No backup selected
+                  </span>
+
+                  <span class="data-transfer-file-action">Choose ZIP</span>
+                </label>
+              </div>
+
+              <div class="data-transfer-actions">
+                <button
+                  type="button"
+                  class="data-transfer-button data-transfer-button-primary"
+                  id="backup-import-button"
+                  disabled
+                >
+                  Import backup
+                </button>
+              </div>
+
+              <p class="data-transfer-note">
+                If a custom Collection name already exists, the imported copy
+                receives an “Imported” suffix. Sharing links are intentionally
+                not restored.
+              </p>
+
+              <div
+                class="data-transfer-progress"
+                id="backup-import-progress"
+                hidden
+                aria-hidden="true"
+              >
+                <div
+                  class="data-transfer-progress-bar"
+                  id="backup-import-progress-bar"
+                ></div>
+              </div>
+
+              <p
+                class="data-transfer-status"
+                id="backup-import-status"
+                aria-live="polite"
+              ></p>
+            </section>
+          </div>
+        </div>
+
+        <div class="settings-divider">
           <h2>About Shelfmark</h2>
 
           <div class="settings-version">
             <span>Version</span>
 
-            <strong>v1.4.1</strong>
+            <strong>v1.5.0</strong>
           </div>
         </div>
 
@@ -202,6 +468,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="js/data-transfer.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>

@@ -13,7 +13,7 @@ A personal collection archive for cataloguing, documenting and tracking physical
 [![GitHub language count](https://img.shields.io/github/languages/count/MINEGAMERPTyt/Shelfmark?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark)
 [![GitHub top language](https://img.shields.io/github/languages/top/MINEGAMERPTyt/Shelfmark?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d6ff4b?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.4.1-d6ff4b?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark/releases)
+[![Version](https://img.shields.io/badge/version-v1.5.0-d6ff4b?style=flat-square)](https://github.com/MINEGAMERPTyt/Shelfmark/releases)
 
 [**Live Demo →**](https://shelfmark-app.netlify.app/)
 
@@ -144,46 +144,32 @@ Supported information includes:
 
 All photographs are optional.
 
-### 3D case viewer
+### Physical 3D viewer
 
-Games with a physical case can be inspected through an interactive 3D case viewer directly from the Collection.
+Shelfmark includes an interactive physical viewer for cases and physical media.
 
 The viewer:
 
-* Generates the case dynamically in the browser
+* Generates the case and media dynamically in the browser
 * Uses the physical proportions already defined by Shelfmark
-* Maps uploaded front, back and spine photographs onto the corresponding case surfaces
-* Uses Shelfmark's lime-green accent colour for surfaces without uploaded artwork
-* Supports mouse dragging
-* Supports touch dragging
-* Supports zooming
-* Includes keyboard rotation controls
-* Includes on-screen rotation controls
-* Includes a reset-view control
-* Displays the physical case format and dimensions
-* Requires no stored 3D model files
-* Requires no external 3D engine
+* Maps uploaded front, back and spine photographs across the complete case faces
+* Displays discs, GameCube discs, PSP UMDs and supported cartridge formats alongside the case
+* Keeps case and media on the same physical scale
+* Lets the case and media rotate independently inside the same viewer
+* Preserves physical proportions while zooming the complete scene
+* Uses Shelfmark's physical-media silhouettes for UMDs and cartridges
+* Gives physical media visible depth in the 3D scene
+* Uses a reflective silver reverse side for standard and GameCube optical discs
+* Supports mouse and touch dragging
+* Supports keyboard and on-screen controls
+* Includes zooming and reset-view controls
+* Works for boxed and media-only copies
+* Is also available on public shared Collections when the required photographs are shared
+* Requires no stored 3D model files or external 3D engine
 
-Case dimensions vary according to the selected physical format, including:
+Case dimensions vary according to the selected physical format, including DVD-style, Blu-ray, PlayStation/CD jewel, GameCube, PSP, PS Vita, Nintendo DS, Nintendo 3DS and Nintendo Switch cases.
 
-* DVD-style game cases
-* Blu-ray game cases
-* PlayStation / CD jewel cases
-* Nintendo GameCube cases
-* PSP cases
-* PS Vita cases
-* Nintendo DS cases
-* Nintendo 3DS cases
-* Nintendo Switch cases
-
-The viewer uses the user's real uploaded photographs when available. Missing surfaces remain represented by the Shelfmark case colour rather than requiring every photograph to be present.
-
-The case viewer is not shown for entries recorded without a case, such as:
-
-* **Disc Only**
-* **Cartridge Only**
-* **Missing Case**
-* Legacy **Loose** entries
+Missing photographs are represented by Shelfmark's own physical-format placeholders rather than preventing the viewer from opening.
 
 ### Image cropper
 
@@ -232,6 +218,39 @@ Supported physical media shapes include:
 
 Media formats are automatically suggested based on the selected platform and region, but can be overridden manually.
 
+### Backup and import
+
+Shelfmark can create portable ZIP backups from Settings.
+
+A backup can include:
+
+* Collection records
+* Wishlist records
+* Custom Collections
+* Custom Collection memberships
+* Optional Collection and Wishlist photographs
+
+Backups intentionally exclude account credentials and public sharing tokens.
+
+Imports are non-destructive: imported records are added to the current account rather than replacing the existing Collection or Wishlist. If a custom Collection name already exists, Shelfmark creates an imported-name variant instead of overwriting it. Photograph backups are restored into the current user's private Storage paths.
+
+### Interface and performance settings
+
+Settings includes browser-local interface and performance preferences. These do not create additional Supabase database traffic.
+
+Available options include:
+
+* Motion: Follow system, Full, Reduced or Off
+* Image loading: Standard or Data saver
+* Default Collection view
+* Default games-per-page value
+* Default Collection sorting
+* Default physical-viewer focus: Case, Media or Last used
+
+The motion system respects the operating system's reduced-motion preference when Follow system is selected. The animations are intentionally short and archive-inspired, using mostly transforms and opacity rather than continuous effects.
+
+Data Saver reduces nonessential card-image downloads while keeping full-resolution images available when the user explicitly opens Game Details, a lightbox, editing or the physical viewer.
+
 ### Purchase and valuation tracking
 
 Shelfmark can record:
@@ -277,6 +296,7 @@ Each authenticated user can only access their own private Collection, Wishlist, 
 * CSS3
 * Vanilla JavaScript
 * CSS 3D transforms
+* JSZip for portable backup creation/import
 
 No frontend framework or external 3D engine is required.
 
@@ -328,19 +348,33 @@ Shelfmark/
 │       │   ├── eBay_logo.png
 │       │   └── CeX_logo.png
 │       │
-│       └── cropper/
-│           ├── umd-outline.png
-│           ├── nes-outline.png
-│           ├── snes-pal-outline.png
-│           ├── snes-ntsc-outline.png
-│           ├── n64-outline.png
-│           ├── gb-outline.png
-│           ├── gbc-outline.png
-│           ├── gba-outline.png
-│           ├── ds-outline.png
-│           ├── 3ds-outline.png
-│           ├── switch-outline.png
-│           └── psvita-outline.png
+│       ├── cropper/
+│       │   ├── umd-outline.png
+│       │   ├── nes-outline.png
+│       │   ├── snes-pal-outline.png
+│       │   ├── snes-ntsc-outline.png
+│       │   ├── n64-outline.png
+│       │   ├── gb-outline.png
+│       │   ├── gbc-outline.png
+│       │   ├── gba-outline.png
+│       │   ├── ds-outline.png
+│       │   ├── 3ds-outline.png
+│       │   ├── switch-outline.png
+│       │   └── psvita-outline.png
+│       │
+│       └── viewer/
+│           ├── umd-silhouette.png
+│           ├── nes-silhouette.png
+│           ├── snes-pal-silhouette.png
+│           ├── snes-ntsc-silhouette.png
+│           ├── n64-silhouette.png
+│           ├── gb-silhouette.png
+│           ├── gbc-silhouette.png
+│           ├── gba-silhouette.png
+│           ├── ds-silhouette.png
+│           ├── 3ds-silhouette.png
+│           ├── switch-silhouette.png
+│           └── psvita-silhouette.png
 │
 ├── css/
 │   ├── style.css
@@ -353,6 +387,7 @@ Shelfmark/
 │   ├── forms.css
 │   ├── auth.css
 │   ├── legal.css
+│   ├── data-transfer.css
 │   └── responsive.css
 │
 ├── js/
@@ -369,6 +404,7 @@ Shelfmark/
 │   ├── auth.js
 │   ├── password-recovery.js
 │   ├── delete-account.js
+│   ├── data-transfer.js
 │   └── supabase.js
 │
 ├── supabase/
@@ -444,6 +480,7 @@ id
 item_id
 image_type
 storage_path
+thumbnail_path
 disc_number
 sort_order
 created_at
@@ -559,6 +596,7 @@ id
 wishlist_item_id
 image_type
 storage_path
+thumbnail_path
 created_at
 ```
 
@@ -623,7 +661,11 @@ The Collection entry receives its own independently uploaded photographs of the 
 
 Newly processed images are exported as WebP to reduce file size while preserving transparency for discs, UMDs and cartridge silhouettes. Older PNG/JPEG uploads remain supported.
 
-New uploads use long-lived browser cache metadata, while Shelfmark reuses temporary signed URLs within the browser session where possible. Collection pagination also delays image loading until a card is actually displayed, reducing unnecessary Storage egress.
+New uploads also create an approximately 420 px WebP thumbnail. Collection and Wishlist cards use these smaller files where available, while full-resolution originals are reserved for places that actually need them, such as Game Details, editing, lightboxes, backup export and the physical 3D viewer. Existing images without thumbnails remain compatible and fall back to their original Storage file.
+
+New uploads use long-lived browser cache metadata, and Shelfmark reuses temporary signed URLs within the browser session where possible. Paginated Collection, Wishlist and public-share views only sign and activate the images required for the currently visible page. List view and Data Saver can reduce those requests further.
+
+Full back, spine and media assets are fetched on demand for the physical viewer instead of being downloaded pre-emptively for every Collection card. Public sharing uses the same on-demand approach through the sharing Edge Function.
 
 Shelfmark uses temporary signed URLs when displaying private images.
 
@@ -774,7 +816,7 @@ The interface deliberately uses:
 * Responsive layouts across desktop and mobile devices
 * Physical proportions derived from real game packaging where applicable
 
-The 3D case viewer follows the same visual system, using Shelfmark's accent colour for the physical case body while applying the user's uploaded photographs to available surfaces.
+The physical 3D viewer follows the same visual system, combining Shelfmark's case styling with the user's uploaded case and media photographs while preserving the recorded physical proportions.
 
 ---
 
@@ -795,7 +837,7 @@ Browse / search / filter
       ↓
 View physical copy
       ↓
-3D case view
+Physical 3D view
       ↓
 Game details
       ↓
@@ -852,7 +894,7 @@ Current functionality includes:
 * Shared physical-media image cropper
 * Fine image rotation and positioning
 * Physical cartridge and UMD silhouettes
-* Interactive 3D case viewer
+* Interactive physical 3D viewer with separate case and media interaction
 * Manual valuation tracking
 * Market-research shortcuts
 * Collection financial insights
@@ -862,8 +904,13 @@ Current functionality includes:
 * Responsive authenticated navigation
 * User-specific data protected through Supabase Row Level Security
 * Private image storage with signed URLs
-* WebP image output and improved browser caching for lower Storage egress
-* Lazy image activation across paginated Collection views
+* WebP image output with automatically generated card thumbnails
+* On-demand full-resolution image loading for the physical viewer and public shares
+* Improved browser caching and signed-URL reuse for lower Storage egress
+* Lazy image activation across paginated Collection, Wishlist and shared views
+* Data Saver mode for reducing nonessential image downloads
+* Portable Collection/Wishlist/custom-Collection backup and import
+* App-wide motion controls and configurable Collection/viewer defaults
 * Custom 404 page on deployment
 
 ---
@@ -873,7 +920,6 @@ Current functionality includes:
 Possible future development includes:
 
 * Collection value history
-* Import and export tools
 * Additional collection categories
 * Consoles
 * Computers
@@ -881,7 +927,6 @@ Possible future development includes:
 * Peripherals
 * Music and physical media
 * Collectibles
-* Expanded physical-object visualisation
 * Additional statistics and collection insights
 
 ---

@@ -1033,6 +1033,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 item_id,
                 image_type,
                 storage_path,
+                thumbnail_path,
                 disc_number,
                 sort_order,
                 created_at
@@ -1158,7 +1159,9 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const storagePaths = [
         ...new Set(
-          currentImages.map((image) => image.storage_path).filter(Boolean),
+          currentImages
+            .flatMap((image) => [image.storage_path, image.thumbnail_path])
+            .filter(Boolean),
         ),
       ];
 

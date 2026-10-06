@@ -644,3 +644,182 @@ select option:checked {
     width: 100%;
   }
 }
+
+/* ========================================
+   SHELFMARK MOTION SYSTEM
+   Archive-inspired, transform/opacity only.
+======================================== */
+
+html[data-motion-effective="full"] {
+  --transition-fast: 0.18s cubic-bezier(0.2, 0.75, 0.25, 1);
+  --transition-medium: 0.28s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+html[data-motion-effective="reduced"] {
+  --transition-fast: 0.1s linear;
+  --transition-medium: 0.14s linear;
+}
+
+html[data-motion-effective="full"] body.shelfmark-motion-mounted:not(.shelfmark-motion-ready)
+  .shelfmark-motion-target {
+  opacity: 0;
+  transform: translate3d(-8px, 0, 0);
+}
+
+html[data-motion-effective="full"] body.shelfmark-motion-ready
+  .shelfmark-motion-target {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 0.28s cubic-bezier(0.2, 0.75, 0.25, 1),
+    transform 0.34s cubic-bezier(0.16, 0.8, 0.25, 1);
+  transition-delay: var(--shelfmark-motion-delay, 0ms);
+}
+
+html[data-motion-effective="reduced"] body.shelfmark-motion-mounted:not(.shelfmark-motion-ready)
+  .shelfmark-motion-target {
+  opacity: 0;
+}
+
+html[data-motion-effective="reduced"] body.shelfmark-motion-ready
+  .shelfmark-motion-target {
+  opacity: 1;
+  transition: opacity 0.12s linear;
+}
+
+html[data-motion-effective="full"] .game-card,
+html[data-motion-effective="full"] .wishlist-card,
+html[data-motion-effective="full"] .shared-card,
+html[data-motion-effective="full"] .collection-scope-card,
+html[data-motion-effective="full"] .data-transfer-card {
+  animation: shelfmark-catalog-register 0.3s cubic-bezier(0.16, 0.8, 0.25, 1) backwards;
+}
+
+html[data-motion-effective="reduced"] .game-card,
+html[data-motion-effective="reduced"] .wishlist-card,
+html[data-motion-effective="reduced"] .shared-card,
+html[data-motion-effective="reduced"] .collection-scope-card,
+html[data-motion-effective="reduced"] .data-transfer-card {
+  animation: shelfmark-catalog-register-reduced 0.12s linear backwards;
+}
+
+html[data-motion-effective="full"] :is(
+    .button,
+    .button-primary,
+    .button-secondary,
+    .auth-submit,
+    .account-link,
+    .collection-view-button,
+    .pagination-page,
+    .pagination-button,
+    .settings-reset-button
+  ):active {
+  transform: translate3d(0, 1px, 0) scale(0.995);
+}
+
+html[data-motion-effective="full"] :is(
+    .eyebrow,
+    .auth-eyebrow,
+    .collection-eyebrow,
+    .case-viewer-eyebrow
+  ) {
+  transition:
+    letter-spacing 0.22s ease,
+    color 0.22s ease;
+}
+
+html[data-motion-effective="full"] :is(
+    .eyebrow,
+    .auth-eyebrow,
+    .collection-eyebrow,
+    .case-viewer-eyebrow
+  ):hover {
+  letter-spacing: 0.115em;
+}
+
+@keyframes shelfmark-catalog-register {
+  0% {
+    opacity: 0;
+    translate: -6px 0;
+  }
+
+  65% {
+    opacity: 1;
+    translate: 1px 0;
+  }
+
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes shelfmark-catalog-register-reduced {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+html[data-motion-effective="off"] {
+  scroll-behavior: auto !important;
+}
+
+html[data-motion-effective="off"] *,
+html[data-motion-effective="off"] *::before,
+html[data-motion-effective="off"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion-preference="system"] *,
+  html[data-motion-preference="system"] *::before,
+  html[data-motion-preference="system"] *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
+html[data-motion-effective="full"] .collection-modal:not([hidden]) [role="dialog"],
+html[data-motion-effective="full"] .case-viewer-modal:not([hidden]) [role="dialog"],
+html[data-motion-effective="full"] .delete-modal.visible [role="dialog"],
+html[data-motion-effective="full"] .cropper-modal.visible .cropper-dialog {
+  animation: shelfmark-dialog-register 0.22s cubic-bezier(0.16, 0.8, 0.25, 1) both;
+}
+
+html[data-motion-effective="reduced"] .collection-modal:not([hidden]) [role="dialog"],
+html[data-motion-effective="reduced"] .case-viewer-modal:not([hidden]) [role="dialog"],
+html[data-motion-effective="reduced"] .delete-modal.visible [role="dialog"],
+html[data-motion-effective="reduced"] .cropper-modal.visible .cropper-dialog {
+  animation: shelfmark-dialog-register-reduced 0.1s linear both;
+}
+
+@keyframes shelfmark-dialog-register {
+  from {
+    opacity: 0;
+    transform: translate3d(7px, 0, 0) scale(0.992);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes shelfmark-dialog-register-reduced {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+html[data-motion-effective="reduced"] {
+  scroll-behavior: auto;
+}

@@ -1,0 +1,232 @@
+/* =========================================================
+   SHELFMARK DATA TRANSFER
+========================================================= */
+
+.data-transfer-panel {
+  width: min(100%, 760px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.data-transfer-card {
+  min-width: 0;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.data-transfer-card h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.data-transfer-card > p {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  line-height: 1.65;
+}
+
+.data-transfer-options {
+  display: grid;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.data-transfer-option {
+  min-height: 42px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 11px;
+  background: #141414;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.data-transfer-option input {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+
+.data-transfer-option-copy {
+  min-width: 0;
+}
+
+.data-transfer-option-copy strong,
+.data-transfer-option-copy small {
+  display: block;
+}
+
+.data-transfer-option-copy strong {
+  color: var(--text);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.data-transfer-option-copy small {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 0.56rem;
+  line-height: 1.45;
+}
+
+.data-transfer-file {
+  position: relative;
+  margin-top: 18px;
+}
+
+.data-transfer-file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.data-transfer-file-label {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 13px;
+  background: #141414;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.data-transfer-file-label:hover,
+.data-transfer-file input:focus-visible + .data-transfer-file-label {
+  background: var(--surface-light);
+  border-color: var(--border-hover);
+}
+
+.data-transfer-file-name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.61rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-transfer-file-action {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 0.56rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+}
+
+.data-transfer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.data-transfer-button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-hover);
+  font-family: inherit;
+  font-size: 0.59rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.data-transfer-button:hover:not(:disabled),
+.data-transfer-button:focus-visible:not(:disabled) {
+  background: var(--surface-light);
+  color: var(--accent);
+  border-color: var(--accent-dark);
+}
+
+.data-transfer-button-primary {
+  background: var(--accent);
+  color: #111;
+  border-color: var(--accent);
+}
+
+.data-transfer-button-primary:hover:not(:disabled),
+.data-transfer-button-primary:focus-visible:not(:disabled) {
+  background: var(--accent-dark);
+  color: #111;
+  border-color: var(--accent-dark);
+}
+
+.data-transfer-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.data-transfer-note {
+  margin-top: 14px;
+  padding-top: 13px;
+  color: var(--text-faint);
+  border-top: 1px solid var(--border);
+  font-size: 0.56rem;
+  line-height: 1.6;
+}
+
+.data-transfer-status {
+  min-height: 18px;
+  margin-top: 14px;
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  line-height: 1.55;
+}
+
+.data-transfer-status[data-state="success"] {
+  color: var(--accent);
+}
+
+.data-transfer-status[data-state="error"] {
+  color: var(--danger);
+}
+
+.data-transfer-progress {
+  height: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+  background: var(--border);
+}
+
+.data-transfer-progress[hidden] {
+  display: none;
+}
+
+.data-transfer-progress-bar {
+  width: var(--transfer-progress, 0%);
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.18s linear;
+}
+
+@media (max-width: 760px) {
+  .data-transfer-panel {
+    grid-template-columns: 1fr;
+  }
+}

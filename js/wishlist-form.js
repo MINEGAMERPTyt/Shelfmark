@@ -945,7 +945,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     field.scrollIntoView({
-      behavior: "smooth",
+      behavior:
+        window.ShelfmarkSettings?.getEffectiveMotion?.() === "full"
+          ? "smooth"
+          : "auto",
       block: "center",
     });
   }
@@ -958,7 +961,10 @@ document.addEventListener("DOMContentLoaded", () => {
     markInvalid(group);
 
     group.scrollIntoView({
-      behavior: "smooth",
+      behavior:
+        window.ShelfmarkSettings?.getEffectiveMotion?.() === "full"
+          ? "smooth"
+          : "auto",
       block: "center",
     });
   }
@@ -1212,6 +1218,45 @@ document.addEventListener("DOMContentLoaded", () => {
       );
   }
 
+  async function uploadThumbnailForImage(storagePath, file, uploadedPaths) {
+    if (!window.ShelfmarkStorage?.createThumbnailFile) {
+      return null;
+    }
+
+    try {
+      const thumbnailFile = await window.ShelfmarkStorage.createThumbnailFile(file);
+
+      if (!thumbnailFile) {
+        return null;
+      }
+
+      const thumbnailPath = window.ShelfmarkStorage.getThumbnailPath(storagePath);
+
+      if (!thumbnailPath) {
+        return null;
+      }
+
+      const { error } = await supabaseClient.storage
+        .from("item-images")
+        .upload(thumbnailPath, thumbnailFile, {
+          cacheControl: window.ShelfmarkStorage.UPLOAD_CACHE_CONTROL,
+          contentType: "image/webp",
+          upsert: false,
+        });
+
+      if (error) {
+        console.warn("Shelfmark wishlist thumbnail upload skipped:", error);
+        return null;
+      }
+
+      uploadedPaths.push(thumbnailPath);
+      return thumbnailPath;
+    } catch (error) {
+      console.warn("Shelfmark wishlist thumbnail creation skipped:", error);
+      return null;
+    }
+  }
+
   function createStoragePath(userId, itemId, image, index) {
     const extension = getFileExtension(image.file);
 
@@ -1341,12 +1386,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         uploadedPaths.push(storagePath);
 
+        const thumbnailPath = await uploadThumbnailForImage(
+          storagePath,
+          image.file,
+          uploadedPaths,
+        );
+
         imageRows.push({
           wishlist_item_id: createdItemId,
 
           image_type: image.role,
 
           storage_path: storagePath,
+
+          thumbnail_path: thumbnailPath,
         });
       }
 
@@ -1495,6 +1548,7 @@ document.addEventListener("DOMContentLoaded", () => {
               wishlist_item_id,
               image_type,
               storage_path,
+              thumbnail_path,
               created_at
             `,
           )
@@ -1803,12 +1857,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         uploadedPaths.push(storagePath);
 
+        const thumbnailPath = await uploadThumbnailForImage(
+          storagePath,
+          image.file,
+          uploadedPaths,
+        );
+
         newImageRows.push({
           wishlist_item_id: editItemId,
 
           image_type: image.role,
 
           storage_path: storagePath,
+
+          thumbnail_path: thumbnailPath,
         });
       }
 
@@ -1868,9 +1930,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       /* ---------- Delete old files ---------- */
 
-      const oldStoragePaths = oldImagesToDelete
-        .map((image) => image.storage_path)
-        .filter(Boolean);
+      const oldStoragePaths = [
+        ...new Set(
+          oldImagesToDelete
+            .flatMap((image) => [image.storage_path, image.thumbnail_path])
+            .filter(Boolean),
+        ),
+      ];
 
       if (oldStoragePaths.length > 0) {
         const { error } = await supabaseClient.storage

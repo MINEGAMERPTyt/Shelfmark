@@ -1123,7 +1123,7 @@
   right: -4%;
   top: 50%;
 
-  transform: translateY(-50%) translateX(-8%);
+  transform: translate3d(-8%, -50%, 0);
 
   border-radius: 50%;
 
@@ -1136,6 +1136,12 @@
   opacity: 0;
 
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+
+  contain: paint;
+  isolation: isolate;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
 
   transition:
     transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -1150,7 +1156,11 @@
 
   object-fit: contain;
 
-  transform: rotate(0deg);
+  transform: translateZ(0) rotate(0deg);
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
 }
 
 /* ========================================
@@ -1217,7 +1227,7 @@
 .game-card:hover .game-disc {
   opacity: 1;
 
-  transform: translateY(-50%) translateX(42%);
+  transform: translate3d(42%, -50%, 0);
 }
 
 /* ========================================
@@ -1251,6 +1261,12 @@
   opacity: 0;
 
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+
+  contain: paint;
+  isolation: isolate;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
 
   transition:
     transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -1805,6 +1821,7 @@
 
 .game-disc.media-shape-disc {
   border-radius: 50%;
+  clip-path: circle(50% at 50% 50%);
 }
 
 .game-disc.has-real-media img,

@@ -208,15 +208,15 @@ document.addEventListener("DOMContentLoaded", () => {
      IMAGES
   ===================================================== */
 
-  async function addSignedUrls(images) {
-    return window.ShelfmarkStorage.addSignedUrls(images);
+  async function addSignedUrls(images, options = {}) {
+    return window.ShelfmarkStorage.addSignedUrls(images, options);
   }
 
   function getDisplayImage(item) {
     const images = item.images || [];
 
     const front = images.find(
-      (image) => image.image_type === "front" && image.signedUrl,
+      (image) => image.image_type === "front" && (image.signedUrl || image.storage_path),
     );
 
     if (front) {
@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
       item.media_type === "cartridge" ? "cartridge" : "disc";
 
     const media = images.find(
-      (image) => image.image_type === desiredMediaRole && image.signedUrl,
+      (image) => image.image_type === desiredMediaRole && (image.signedUrl || image.storage_path),
     );
 
     if (media) {
@@ -241,6 +241,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return null;
+  }
+
+  async function hydrateWishlistCardImages(items) {
+    const requested = [];
+
+    items.forEach((item) => {
+      const displayImage = getDisplayImage(item);
+
+      if (!displayImage?.storage_path || displayImage.signedUrl) {
+        return;
+      }
+
+      requested.push({
+        item,
+        image: displayImage,
+      });
+    });
+
+    if (!requested.length) {
+      return;
+    }
+
+    const signed = await addSignedUrls(
+      requested.map(({ image }) => image),
+      { preferThumbnail: true },
+    );
+
+    signed.forEach((signedImage, index) => {
+      const target = requested[index]?.image;
+
+      if (!target || !signedImage?.signedUrl) {
+        return;
+      }
+
+      const original = requested[index].item.images.find(
+        (image) => image.id === target.id,
+      );
+
+      if (original) {
+        original.signedUrl = signedImage.signedUrl;
+        original.signedPath = signedImage.signedPath;
+      }
+    });
   }
 
   /* =====================================================
@@ -322,6 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 wishlist_item_id,
                 image_type,
                 storage_path,
+                thumbnail_path,
                 created_at
               `,
           )
@@ -334,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
           throw error;
         }
 
-        images = await addSignedUrls(data || []);
+        images = data || [];
       }
 
       const imagesByItem = new Map();
@@ -356,7 +400,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currentPage = 1;
 
       populatePlatformFilter();
-      renderWishlist();
+      await renderWishlist();
     } catch (error) {
       console.error("Shelfmark wishlist load error:", error);
 
@@ -649,7 +693,10 @@ document.addEventListener("DOMContentLoaded", () => {
         renderWishlist();
 
         document.querySelector(".wishlist-controls")?.scrollIntoView({
-          behavior: "smooth",
+          behavior:
+            window.ShelfmarkSettings?.getEffectiveMotion?.() === "full"
+              ? "smooth"
+              : "auto",
           block: "start",
         });
       });
@@ -766,9 +813,13 @@ document.addEventListener("DOMContentLoaded", () => {
         itself has still been deleted.
       */
 
-      const storagePaths = (item.images || [])
-        .map((image) => image.storage_path)
-        .filter(Boolean);
+      const storagePaths = [
+        ...new Set(
+          (item.images || [])
+            .flatMap((image) => [image.storage_path, image.thumbnail_path])
+            .filter(Boolean),
+        ),
+      ];
 
       if (storagePaths.length > 0) {
         const { error: storageError } = await supabaseClient.storage
@@ -831,7 +882,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const displayImage = getDisplayImage(item);
 
-    if (displayImage) {
+    if (displayImage?.signedUrl) {
       const image = document.createElement("img");
 
       image.src = displayImage.signedUrl;
@@ -1010,7 +1061,8 @@ document.addEventListener("DOMContentLoaded", () => {
      RENDER
   ===================================================== */
 
-  function renderWishlist() {
+  async function renderWishlist() {
+    const sequence = ++renderSequence;
     hideState();
 
     if (!grid) {
@@ -1132,6 +1184,16 @@ document.addEventListener("DOMContentLoaded", () => {
       visibleItems = filteredItems.slice(startIndex, endIndex);
     } else {
       currentPage = 1;
+    }
+
+    try {
+      await hydrateWishlistCardImages(visibleItems);
+    } catch (error) {
+      console.warn("Shelfmark wishlist thumbnail load error:", error);
+    }
+
+    if (sequence !== renderSequence) {
+      return;
     }
 
     visibleItems.forEach((item) => {
